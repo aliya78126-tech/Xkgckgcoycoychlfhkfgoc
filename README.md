@@ -1,0 +1,2 @@
+# Xkgckgcoycoychlfhkfgoc
+Я не тупой
