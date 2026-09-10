@@ -1,37 +1,2869 @@
-<header>
-    <h1 style="font-size: 20px" align="center">Моя первая веб&ndash;страница</h1>
-</header>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B1E23">
+<title>Тетрадь — заметки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  body {
-    background-color: #e2f0d9; /* Код для нежного салатового оттенка */
+  :root{
+    --bg: #1B1E23;
+    --panel: #22262D;
+    --panel-2: #272B33;
+    --panel-3: #2D323B;
+    --line: #34393f;
+    --line-soft: #2b3038;
+    --text: #E7E5DF;
+    --text-dim: #8B9099;
+    --accent: #C98A3E;
+    --accent-soft: rgba(201,138,62,0.14);
+    --blue: #5B7A96;
+    --error: #B75C4A;
+    --radius: 6px;
+    --radius-sm: 4px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
   }
-  </style>
-<main>
-    <section>
-        <h2 align="center">Для написания кода я использую ACode!</h2>
-        <p>ACode - это универсальный компилятор языков программирования для Android.</p>
-        <p>Засчет удобства использования компилятора ACode у меня и получается понимать код HTML и развиваться в создании веб-страниц.</p>
-    </section>
 
-    <section>
-        <h2 align="center">Что я могу делать в ACode?</h2>
-        <ul>
-            <li><strong>Удобное использование:</strong> легко можно создать файлы и использовать весь функционал сразу на телефоне.</li>
-            <li><strong>Понятность:</strong> все команды написанные на html выделяются голубым цветом и сразу понятно что это написано.</li>
-            <li><strong>Удобность в поиске ошибок:</strong> все проблемы и ошибки отмечаются как в коде так и в отдельной плашке.</li>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fraunces', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--text); }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  input, textarea {
+    font-family: inherit;
+  }
+  /* Prevent iOS auto-zoom on focus: keep inputs >=16px on small screens */
+  input, textarea, select { font-size: 16px; }
+
+  a { color: inherit; }
+
+  .hidden { display: none !important; }
+
+  /* ---------- AUTH SCREEN ---------- */
+
+  #auth-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    padding-top: calc(32px + var(--safe-top));
+    padding-bottom: calc(32px + var(--safe-bottom));
+    position: relative;
+    overflow: hidden;
+  }
+
+  #auth-screen::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: 60%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .auth-wrap {
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .auth-mark {
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .auth-title {
+    font-size: 42px;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+
+  .auth-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .auth-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 36px;
+    line-height: 1.6;
+  }
+
+  .auth-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .auth-tab {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 12px 4px;
+    margin-right: 24px;
+    border-bottom: 2px solid transparent;
+    transform: translateY(1px);
+    transition: color .15s ease, border-color .15s ease;
+  }
+
+  .auth-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 16px;
+    padding: 12px 13px;
+    outline: none;
+    transition: border-color .15s ease, background .15s ease;
+    min-height: 44px;
+  }
+
+  .field input:focus {
+    border-color: var(--accent);
+    background: var(--panel-2);
+  }
+
+  .auth-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--error);
+    background: rgba(183,92,74,0.1);
+    border: 1px solid rgba(183,92,74,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #1B1E23;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 14px;
+    margin-top: 6px;
+    min-height: 46px;
+    transition: filter .15s ease, transform .1s ease;
+  }
+
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:active { filter: brightness(0.95); transform: scale(0.99); }
+
+  .auth-foot {
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ---------- APP SHELL ---------- */
+
+  #app {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* Sidebar */
+  #sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--safe-top);
+    padding-left: var(--safe-left);
+    min-height: 0;
+  }
+
+  .side-head {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+
+  .side-title {
+    font-size: 21px;
+    font-weight: 500;
+  }
+
+  .side-user {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .side-user button {
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 4px 0;
+  }
+  .side-user button:hover { color: var(--accent); }
+
+  .quota {
+    padding: 14px 20px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .quota-bar {
+    height: 3px;
+    background: var(--line);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .quota-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width .2s ease;
+  }
+  .quota-bar-fill.full { background: var(--error); }
+
+  #note-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 10px;
+    min-height: 80px;
+  }
+
+  .note-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 44px;
+  }
+
+  .note-item:hover { background: var(--panel-2); }
+
+  .note-item.active {
+    background: var(--panel-2);
+    border-color: var(--line);
+  }
+
+  .note-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  .note-item.active .note-num { color: var(--accent); }
+
+  .note-item-title {
+    font-size: 14.5px;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .note-item-empty { color: var(--text-dim); font-style: italic; }
+
+  .note-item-empty-state {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .new-note-btn {
+    margin: 12px 14px 16px;
+    background: none;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 12px;
+    text-align: left;
+    min-height: 44px;
+    flex-shrink: 0;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .new-note-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .new-note-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Editor */
+  #editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    padding-top: var(--safe-top);
+    padding-right: var(--safe-right);
+  }
+
+  .editor-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+  }
+
+  .editor-title-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    width: 100%;
+    min-width: 0;
+  }
+  .editor-title-input::placeholder { color: var(--text-dim); font-style: italic; }
+
+  .editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-left: 20px;
+  }
+
+  .save-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    min-width: 100px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .save-status.saved { color: var(--accent); }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 13px;
+    min-height: 38px;
+    white-space: nowrap;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .icon-btn:hover { border-color: var(--error); color: var(--error); }
+  .icon-btn.neutral:hover { border-color: var(--accent); color: var(--accent); }
+
+  #note-textarea {
+    flex: 1;
+    width: 100%;
+    background: var(--bg);
+    border: none;
+    outline: none;
+    resize: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14.5px;
+    line-height: 1.7;
+    padding: 24px 28px 40px;
+    white-space: pre;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    tab-size: 4;
+    -moz-tab-size: 4;
+  }
+
+  .editor-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    color: var(--text-dim);
+    padding: 24px;
+    text-align: center;
+  }
+  .editor-empty-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--text);
+  }
+  .editor-empty button {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #1B1E23;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 12px 20px;
+    margin-top: 8px;
+    min-height: 44px;
+    transition: filter .15s ease;
+  }
+  .editor-empty button:hover { filter: brightness(1.08); }
+
+  /* Scrollbars, subtle */
+  #note-list::-webkit-scrollbar, #note-textarea::-webkit-scrollbar { width: 9px; }
+  #note-list::-webkit-scrollbar-thumb, #note-textarea::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 5px;
+  }
+  #note-list::-webkit-scrollbar-track, #note-textarea::-webkit-scrollbar-track { background: transparent; }
+
+  /* Focus visibility for accessibility */
+  button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- PLAN BADGE + UPGRADE BUTTON ---------- */
+
+  .plan-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 0;
+    flex-shrink: 0;
+  }
+
+  .plan-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+  }
+  .plan-badge.plan-free { color: var(--text-dim); }
+  .plan-badge.plan-s { color: var(--blue); border-color: rgba(91,122,150,0.4); background: rgba(91,122,150,0.08); }
+  .plan-badge.plan-m { color: var(--accent); border-color: rgba(201,138,62,0.4); background: rgba(201,138,62,0.08); }
+  .plan-badge.plan-l { color: #C97D8F; border-color: rgba(201,125,143,0.4); background: rgba(201,125,143,0.08); }
+
+  .upgrade-link {
+    background: none;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    padding: 6px 0;
+  }
+  .upgrade-link:hover { text-decoration: underline; }
+
+  /* Prominent upgrade CTA under the quota bar */
+  .upgrade-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 20px 4px;
+    padding: 11px 14px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(201,138,62,0.35);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 44px;
+    transition: filter .15s ease, transform .1s ease;
+    flex-shrink: 0;
+  }
+  .upgrade-cta:hover { filter: brightness(1.1); }
+  .upgrade-cta:active { transform: scale(0.99); }
+  .upgrade-cta .arrow { font-weight: 400; opacity: 0.8; }
+
+  /* ---------- PRICING MODAL ---------- */
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,11,13,0.72);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 48px 20px;
+    padding-top: calc(48px + var(--safe-top));
+    padding-bottom: calc(48px + var(--safe-bottom));
+    z-index: 100;
+  }
+
+  .modal-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 900px;
+    padding: 40px 40px 32px;
+    position: relative;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    line-height: 1;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background .15s ease, color .15s ease;
+  }
+  .modal-close:hover { color: var(--text); background: var(--panel-2); }
+
+  .modal-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .modal-title {
+    font-size: 30px;
+    font-weight: 500;
+    margin: 0 0 6px;
+    padding-right: 30px;
+  }
+  .modal-title em { font-style: italic; color: var(--accent); }
+
+  .modal-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 32px;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .plan-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .plan-card.current {
+    border-color: var(--accent);
+  }
+
+  .plan-card.featured {
+    background: var(--panel-3);
+    box-shadow: 0 0 0 1px rgba(201,138,62,0.25);
+  }
+
+  .plan-card-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .plan-card-featured-tag {
+    font-size: 10px;
+    color: var(--accent);
+    border: 1px solid rgba(201,138,62,0.4);
+    border-radius: 20px;
+    padding: 2px 7px;
+  }
+
+  .plan-card-price {
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    word-break: break-word;
+  }
+  .plan-card-price span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+
+  .plan-card-quota {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .plan-card-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    flex: 1;
+  }
+  .plan-card-features li {
+    font-size: 13px;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .plan-card-features li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--text-dim);
+  }
+
+  .plan-card-btn {
+    width: 100%;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 11px;
+    min-height: 42px;
+    transition: border-color .15s ease, color .15s ease, filter .15s ease;
+  }
+  .plan-card-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .plan-card-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .plan-card.featured .plan-card-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1B1E23;
+    font-weight: 600;
+  }
+  .plan-card.featured .plan-card-btn:hover:not(:disabled) { filter: brightness(1.08); color: #1B1E23; }
+
+  .modal-foot-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  /* Simulated checkout step */
+  .checkout-box {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .checkout-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+  .checkout-row strong { color: var(--text); font-weight: 500; text-align: right; }
+  .checkout-divider { border-top: 1px solid var(--line); margin: 14px 0; }
+  .checkout-total { font-size: 16px; color: var(--text); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; margin-bottom: 20px; }
+
+  .card-field-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--error);
+    margin-top: 5px;
+    min-height: 14px;
+  }
+  .field input.field-invalid {
+    border-color: var(--error);
+  }
+
+  .checkout-fields-row {
+    display: flex;
+    gap: 10px;
+  }
+  .checkout-fields-row .field { flex: 1; min-width: 0; }
+
+  /* ---------- Note options: pin + folders/tags + search ---------- */
+
+  .sidebar-search {
+    padding: 10px 20px 0;
+    flex-shrink: 0;
+  }
+  .sidebar-search input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 9px 10px;
+    outline: none;
+    min-height: 40px;
+  }
+  .sidebar-search input:focus { border-color: var(--accent); }
+
+  .note-pin-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 15px;
+    padding: 6px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .note-pin-btn.pinned { color: var(--accent); }
+
+  .note-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--blue);
+    border: 1px solid rgba(91,122,150,0.35);
+    border-radius: 20px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .locked-feature-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 11px 20px;
+    padding-bottom: calc(11px + var(--safe-bottom));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .locked-feature-row span { min-width: 0; }
+  .locked-feature-row button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 0;
+    flex-shrink: 0;
+  }
+
+  /* Unlock note screen */
+  .unlock-input {
+    margin-top: 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 11px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    width: 220px;
+    max-width: 100%;
+    text-align: center;
+    outline: none;
+  }
+  .unlock-input:focus { border-color: var(--accent); }
+
+  /* Mobile-only header toggle for note list */
+  #mobile-note-toggle { display: none; }
+
+  /* ---------- SECTION SWITCHER (Notes / Groups) ---------- */
+
+  .section-switcher {
+    display: flex;
+    gap: 2px;
+    padding: 12px 20px 0;
+    flex-shrink: 0;
+  }
+  .section-tab {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 9px 6px;
+    border-radius: var(--radius-sm);
+    min-height: 38px;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .section-tab:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: -1px; }
+  .section-tab:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .section-tab.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- GROUPS ---------- */
+
+  #groups-panel {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 80px;
+    padding: 14px 20px 6px;
+  }
+
+  .groups-block-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 18px 0 10px;
+  }
+  .groups-block-title:first-child { margin-top: 0; }
+
+  .group-form {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+  }
+  .group-form .field { margin-bottom: 10px; }
+  .group-form .field:last-of-type { margin-bottom: 12px; }
+  .group-form .field label { font-size: 10.5px; margin-bottom: 5px; }
+  .group-form .field input {
+    padding: 10px 11px;
+    min-height: 40px;
+    font-size: 14px;
+    background: var(--panel);
+  }
+  .group-form-btn {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #1B1E23;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 11px;
+    min-height: 42px;
+    transition: filter .15s ease;
+  }
+  .group-form-btn:hover { filter: brightness(1.08); }
+  .group-form-btn.secondary {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-weight: 500;
+  }
+  .group-form-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .group-form-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--error);
+    background: rgba(183,92,74,0.1);
+    border: 1px solid rgba(183,92,74,0.3);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .group-quota-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .group-quota-line a, .group-quota-line button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 0;
+    flex-shrink: 0;
+  }
+
+  .recent-group-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    min-height: 44px;
+  }
+  .recent-group-item:hover { background: var(--panel-2); }
+  .recent-group-item.active { background: var(--panel-2); border-color: var(--line); }
+  .recent-group-name {
+    font-size: 14.5px;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recent-group-owner-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--accent);
+    border: 1px solid rgba(201,138,62,0.4);
+    border-radius: 20px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+
+  /* Group feed area (reuses #editor-area layout) */
+  .group-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .group-topbar-title {
+    font-size: 22px;
+    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .group-topbar-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+
+  .group-feed {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .group-post {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    max-width: 640px;
+  }
+  .group-post-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .group-post-author {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .group-post-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .group-post-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .group-feed-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .group-composer {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    padding: 16px 28px;
+    padding-bottom: calc(16px + var(--safe-bottom));
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .group-composer textarea {
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 11px 13px;
+    outline: none;
+    resize: none;
+    min-height: 46px;
+    max-height: 140px;
+    line-height: 1.5;
+  }
+  .group-composer textarea:focus { border-color: var(--accent); }
+  .group-composer button {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #1B1E23;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 0 18px;
+    min-height: 46px;
+    flex-shrink: 0;
+    transition: filter .15s ease;
+  }
+  .group-composer button:hover:not(:disabled) { filter: brightness(1.08); }
+  .group-composer button:disabled { opacity: 0.4; cursor: default; }
+
+  .group-leave-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 13px;
+    min-height: 38px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .group-leave-btn:hover { border-color: var(--error); color: var(--error); }
+
+  /* ================= RESPONSIVE ================= */
+
+  @media (max-width: 760px) {
+    #app {
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    #sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+      transition: max-height .2s ease;
+      overflow: hidden;
+      max-height: 56px;
+    }
+    #sidebar.expanded {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .side-head {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: none;
+      cursor: pointer;
+    }
+    .side-title { font-size: 17px; }
+    .side-user { margin-top: 0; }
+
+    #mobile-note-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 6px;
+    }
+    #mobile-note-toggle .chevron {
+      transition: transform .2s ease;
+      display: inline-block;
+    }
+    #sidebar.expanded #mobile-note-toggle .chevron { transform: rotate(180deg); }
+
+    #sidebar:not(.expanded) .plan-row,
+    #sidebar:not(.expanded) .quota,
+    #sidebar:not(.expanded) .sidebar-search,
+    #sidebar:not(.expanded) #note-list,
+    #sidebar:not(.expanded) .new-note-btn,
+    #sidebar:not(.expanded) .locked-feature-row {
+      display: none;
+    }
+
+    #note-list { max-height: 40vh; }
+
+    #editor-area { flex: 1; min-height: 0; }
+
+    .auth-title { font-size: 30px; }
+    .auth-wrap { max-width: 100%; }
+    #auth-screen { padding: 24px 18px; }
+
+    .editor-topbar {
+      padding: 12px 14px;
+      flex-wrap: wrap;
+      row-gap: 10px;
+    }
+    .editor-title-input { font-size: 18px; }
+    .editor-actions {
+      flex-wrap: wrap;
+      row-gap: 8px;
+      margin-left: 0;
+      width: 100%;
+      justify-content: flex-end;
+    }
+    .save-status { min-width: auto; order: 10; flex-basis: 100%; text-align: left; padding-top: 2px; }
+
+    #note-textarea { padding: 14px 14px 24px; font-size: 15px; }
+
+    .modal-overlay { padding: 0; align-items: stretch; }
+    .modal-card {
+      max-width: 100%;
+      min-height: 100%;
+      border-radius: 0;
+      padding: 24px 18px calc(24px + var(--safe-bottom));
+      padding-top: calc(24px + var(--safe-top));
+      border: none;
+    }
+    .modal-title { font-size: 24px; padding-right: 36px; }
+    .modal-sub { max-width: 100%; }
+    .plans-grid { grid-template-columns: 1fr; }
+    .plan-card { padding: 18px 16px; }
+    .checkout-box { max-width: 100%; padding: 18px; }
+    .checkout-fields-row { flex-direction: row; }
+
+    .editor-empty { padding: 40px 20px; }
+    .editor-empty-title { font-size: 19px; }
+
+    .section-switcher { padding: 10px 14px 0; }
+    #groups-panel { padding: 12px 14px 6px; }
+    .group-topbar { padding: 12px 14px; }
+    .group-topbar-title { font-size: 18px; }
+    .group-feed { padding: 14px; }
+    .group-post { max-width: 100%; }
+    .group-composer { padding: 12px 14px; padding-bottom: calc(12px + var(--safe-bottom)); }
+  }
+
+  /* Comfortable tablet / small desktop range */
+  @media (min-width: 761px) and (max-width: 1024px) {
+    #sidebar { width: 240px; }
+    .editor-topbar { padding: 14px 22px; }
+    #note-textarea { padding: 20px 22px 36px; }
+    .plans-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Larger desktop: give the editor more breathing room */
+  @media (min-width: 1400px) {
+    #sidebar { width: 300px; }
+    #note-textarea { padding: 32px 48px 56px; font-size: 15px; }
+    .editor-topbar { padding: 18px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH SCREEN ================= -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-mark">тетрадь</div>
+    <h1 class="auth-title">Заметки,<br><em>как вы их написали.</em></h1>
+    <p class="auth-sub">Табы, пробелы, переносы строк — сохраняется точь-в-точь. 10 заметок бесплатно.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" type="button">вход</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')" type="button">регистрация</button>
+    </div>
+
+    <div id="auth-error" class="auth-error hidden" role="alert"></div>
+
+    <!-- LOGIN FORM -->
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="field">
+        <label for="login-username">Логин</label>
+        <input type="text" id="login-username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-password">Пароль</label>
+        <input type="password" id="login-password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary">Войти</button>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+      <div class="field">
+        <label for="reg-username">Логин</label>
+        <input type="text" id="reg-username" autocomplete="username" minlength="3" required>
+      </div>
+      <div class="field">
+        <label for="reg-password">Пароль</label>
+        <input type="password" id="reg-password" autocomplete="new-password" minlength="4" required>
+      </div>
+      <div class="field">
+        <label for="reg-password2">Повторите пароль</label>
+        <input type="password" id="reg-password2" autocomplete="new-password" minlength="4" required>
+      </div>
+      <button type="submit" class="btn-primary">Создать аккаунт</button>
+    </form>
+
+    <div class="auth-foot">Данные хранятся локально, в этом браузере.</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
+  <aside id="sidebar">
+    <div class="side-head" id="side-head" onclick="toggleMobileSidebar(event)">
+      <div>
+        <div class="side-title">Тетрадь</div>
+        <div class="side-user">
+          <span id="current-username"></span>
+          <button onclick="event.stopPropagation(); handleLogout()" type="button">выйти</button>
+        </div>
+      </div>
+      <button id="mobile-note-toggle" type="button" onclick="toggleMobileSidebar(event)">
+        <span id="mobile-note-count">0 заметок</span>
+        <span class="chevron">▾</span>
+      </button>
+    </div>
+
+    <div class="plan-row">
+      <span class="plan-badge plan-free" id="plan-badge">free</span>
+      <button class="upgrade-link" onclick="openPricing()" type="button">улучшить план →</button>
+    </div>
+
+    <div class="quota">
+      <span id="quota-text">0 / 10 заметок</span>
+      <div class="quota-bar"><div class="quota-bar-fill" id="quota-fill" style="width:0%"></div></div>
+    </div>
+
+    <button class="upgrade-cta hidden" id="upgrade-cta" onclick="openPricing()" type="button">
+      <span id="upgrade-cta-text">Купить подписку</span>
+      <span class="arrow">→</span>
+    </button>
+
+    <div class="section-switcher">
+      <button class="section-tab active" id="tab-section-notes" type="button" onclick="switchSection('notes')">заметки</button>
+      <button class="section-tab" id="tab-section-groups" type="button" onclick="switchSection('groups')">группы</button>
+    </div>
+
+    <div id="notes-section">
+      <div class="sidebar-search hidden" id="sidebar-search">
+        <input type="text" id="search-input" placeholder="поиск по заметкам…" oninput="renderSidebar()">
+      </div>
+
+      <div id="note-list"></div>
+
+      <button class="new-note-btn" id="new-note-btn" type="button">+ новая заметка</button>
+
+      <div class="locked-feature-row hidden" id="locked-hint">
+        <span id="locked-hint-text"></span>
+        <button onclick="openPricing()" type="button">открыть</button>
+      </div>
+    </div>
+
+    <div id="groups-panel" class="hidden"></div>
+  </aside>
+
+  <main id="editor-area"></main>
+</div>
+
+<!-- ================= PRICING MODAL ================= -->
+<div id="pricing-modal" class="modal-overlay hidden" onclick="if(event.target===this) closePricing()">
+  <div class="modal-card" id="pricing-card">
+    <!-- content injected by JS: plan grid or checkout step -->
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   STORAGE HELPERS
+   Users: localStorage key "notesapp_users" -> { username: { password, createdAt } }
+   Notes: localStorage key "notesapp_notes_<username>" -> [ {id, title, content, updatedAt} ]
+   Session: localStorage key "notesapp_session" -> username
+   ========================================================= */
+
+const USERS_KEY = 'notesapp_users';
+const SESSION_KEY = 'notesapp_session';
+
+/* =========================================================
+   PLANS
+   ========================================================= */
+
+const PLANS = {
+  free: {
+    key: 'free',
+    name: 'Free',
+    price: 0,
+    limit: 10,
+    badgeClass: 'plan-free',
+    features: ['10 заметок', 'Сохранение с сохранением табов и пробелов'],
+    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
+  },
+  s: {
+    key: 's',
+    name: 'Лайт',
+    price: 50,
+    limit: 25,
+    badgeClass: 'plan-s',
+    features: ['25 заметок', 'Закрепление важных заметок', 'Поиск по заметкам'],
+    perks: { search: true, pin: true, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
+  },
+  m: {
+    key: 'm',
+    name: 'Про',
+    price: 100,
+    limit: 50,
+    badgeClass: 'plan-m',
+    features: ['50 заметок', 'Всё из "Лайт"', 'Теги и папки для заметок', 'Экспорт заметки в .txt'],
+    perks: { search: true, pin: true, tags: true, exportTxt: true, history: false, lockNote: false, theme: false }
+  },
+  l: {
+    key: 'l',
+    name: 'Студия',
+    price: 250,
+    limit: 200,
+    badgeClass: 'plan-l',
+    features: ['200 заметок', 'Всё из "Про"', 'История изменений (откат версий)', 'Пароль на отдельную заметку', 'Светлая / тёмная тема'],
+    perks: { search: true, pin: true, tags: true, exportTxt: true, history: true, lockNote: true, theme: true }
+  }
+};
+
+function getCurrentPlan() {
+  const users = getUsers();
+  const user = users[currentUser];
+  const planKey = (user && user.plan) || 'free';
+  return PLANS[planKey] || PLANS.free;
+}
+
+function getNoteLimit() {
+  return getCurrentPlan().limit;
+}
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+function notesKey(username) {
+  return 'notesapp_notes_' + username;
+}
+function getNotes(username) {
+  try { return JSON.parse(localStorage.getItem(notesKey(username))) || []; }
+  catch (e) { return []; }
+}
+function saveNotes(username, notes) {
+  localStorage.setItem(notesKey(username), JSON.stringify(notes));
+}
+
+/* Very simple password hashing (not cryptographically strong — this is a
+   client-only demo with localStorage; do not use this pattern for real
+   secrets). Keeps plaintext passwords out of storage at least. */
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 'h' + hash.toString(36) + str.length;
+}
+
+/* =========================================================
+   AUTH SCREEN LOGIC
+   ========================================================= */
+
+function switchTab(which) {
+  const loginTab = document.getElementById('tab-login');
+  const regTab = document.getElementById('tab-register');
+  const loginForm = document.getElementById('login-form');
+  const regForm = document.getElementById('register-form');
+  hideError();
+
+  if (which === 'login') {
+    loginTab.classList.add('active');
+    regTab.classList.remove('active');
+    loginForm.classList.remove('hidden');
+    regForm.classList.add('hidden');
+  } else {
+    regTab.classList.add('active');
+    loginTab.classList.remove('active');
+    regForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function hideError() {
+  document.getElementById('auth-error').classList.add('hidden');
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  hideError();
+
+  const username = document.getElementById('reg-username').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const password2 = document.getElementById('reg-password2').value;
+
+  if (username.length < 3) {
+    showError('Логин должен содержать не менее 3 символов.');
+    return;
+  }
+  if (!/^[a-zA-Z0-9_\-\.]+$/.test(username)) {
+    showError('Логин может содержать только буквы, цифры, "_", "-", ".".');
+    return;
+  }
+  if (password.length < 4) {
+    showError('Пароль должен содержать не менее 4 символов.');
+    return;
+  }
+  if (password !== password2) {
+    showError('Пароли не совпадают.');
+    return;
+  }
+
+  const users = getUsers();
+  const key = username.toLowerCase();
+  if (users[key]) {
+    showError('Такой логин уже занят.');
+    return;
+  }
+
+  users[key] = {
+    displayName: username,
+    password: simpleHash(password),
+    createdAt: Date.now()
+  };
+  saveUsers(users);
+  saveNotes(key, []);
+
+  startSession(key);
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  hideError();
+
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const key = username.toLowerCase();
+
+  const users = getUsers();
+  const user = users[key];
+
+  if (!user || user.password !== simpleHash(password)) {
+    showError('Неверный логин или пароль.');
+    return;
+  }
+
+  startSession(key);
+}
+
+function startSession(userKey) {
+  localStorage.setItem(SESSION_KEY, userKey);
+  document.getElementById('login-form').reset();
+  document.getElementById('register-form').reset();
+  enterApp(userKey);
+}
+
+function handleLogout() {
+  localStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  activeNoteId = null;
+  unlockedNoteId = null;
+  activeGroupName = null;
+  currentSection = 'notes';
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+  switchTab('login');
+}
+
+/* =========================================================
+   APP STATE
+   ========================================================= */
+
+let currentUser = null;   // user key (lowercased)
+let notes = [];
+let activeNoteId = null;
+let saveTimer = null;
+
+function enterApp(userKey) {
+  currentUser = userKey;
+  const users = getUsers();
+  const displayName = (users[userKey] && users[userKey].displayName) || userKey;
+
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('current-username').textContent = displayName;
+
+  notes = getNotes(userKey);
+  activeNoteId = notes.length > 0 ? notes[0].id : null;
+  activeGroupName = null;
+  currentSection = 'notes';
+  document.getElementById('tab-section-notes').classList.add('active');
+  document.getElementById('tab-section-groups').classList.remove('active');
+  document.getElementById('notes-section').classList.remove('hidden');
+  document.getElementById('groups-panel').classList.add('hidden');
+
+  renderSidebar();
+  renderEditor();
+}
+
+/* =========================================================
+   MOBILE SIDEBAR TOGGLE
+   ========================================================= */
+
+function toggleMobileSidebar(e) {
+  if (window.innerWidth > 760) return;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('expanded');
+}
+
+function collapseMobileSidebar() {
+  if (window.innerWidth > 760) return;
+  document.getElementById('sidebar').classList.remove('expanded');
+}
+
+/* =========================================================
+   NOTE LIST RENDERING
+   ========================================================= */
+
+function renderSidebar() {
+  const plan = getCurrentPlan();
+  const limit = plan.limit;
+
+  // plan badge
+  const badge = document.getElementById('plan-badge');
+  badge.textContent = plan.name.toLowerCase();
+  badge.className = 'plan-badge ' + plan.badgeClass;
+
+  // search box visibility (perk)
+  const searchBox = document.getElementById('sidebar-search');
+  searchBox.classList.toggle('hidden', !plan.perks.search);
+  if (!plan.perks.search) document.getElementById('search-input').value = '';
+
+  const query = plan.perks.search ? document.getElementById('search-input').value.trim().toLowerCase() : '';
+
+  // sort: pinned first (if perk active), then by most recently updated
+  let ordered = notes.slice();
+  ordered.sort((a, b) => {
+    const pa = plan.perks.pin && a.pinned ? 1 : 0;
+    const pb = plan.perks.pin && b.pinned ? 1 : 0;
+    if (pa !== pb) return pb - pa;
+    return 0; // keep existing relative order otherwise
+  });
+
+  let visible = ordered;
+  if (query) {
+    visible = ordered.filter(n =>
+      (n.title || '').toLowerCase().includes(query) ||
+      (n.content || '').toLowerCase().includes(query) ||
+      (n.tag || '').toLowerCase().includes(query)
+    );
+  }
+
+  const listEl = document.getElementById('note-list');
+  listEl.innerHTML = '';
+
+  if (notes.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'note-item-empty-state';
+    empty.textContent = 'Заметок пока нет';
+    listEl.appendChild(empty);
+  } else if (visible.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'note-item-empty-state';
+    empty.textContent = 'Ничего не найдено';
+    listEl.appendChild(empty);
+  }
+
+  visible.forEach((note) => {
+    const idx = notes.indexOf(note);
+    const item = document.createElement('div');
+    item.className = 'note-item' + (note.id === activeNoteId ? ' active' : '');
+    item.onclick = () => selectNote(note.id);
+
+    const num = document.createElement('span');
+    num.className = 'note-num';
+    num.textContent = String(idx + 1).padStart(2, '0');
+
+    const title = document.createElement('span');
+    const hasTitle = note.title && note.title.trim().length > 0;
+    title.className = 'note-item-title' + (hasTitle ? '' : ' note-item-empty');
+    title.textContent = hasTitle ? note.title : 'без названия';
+    title.title = 'Двойной клик — переименовать';
+    title.ondblclick = (e) => {
+      e.stopPropagation();
+      renameNotePrompt(note.id);
+    };
+
+    item.appendChild(num);
+
+    if (plan.perks.pin) {
+      const pinBtn = document.createElement('button');
+      pinBtn.type = 'button';
+      pinBtn.className = 'note-pin-btn' + (note.pinned ? ' pinned' : '');
+      pinBtn.textContent = note.pinned ? '★' : '☆';
+      pinBtn.title = note.pinned ? 'Открепить' : 'Закрепить';
+      pinBtn.onclick = (e) => {
+        e.stopPropagation();
+        note.pinned = !note.pinned;
+        saveNotes(currentUser, notes);
+        renderSidebar();
+      };
+      item.appendChild(pinBtn);
+    }
+
+    item.appendChild(title);
+
+    if (plan.perks.tags && note.tag) {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'note-tag';
+      tagEl.textContent = note.tag;
+      item.appendChild(tagEl);
+    }
+
+    if (plan.perks.lockNote && note.locked) {
+      const lockEl = document.createElement('span');
+      lockEl.style.fontSize = '12px';
+      lockEl.style.color = 'var(--text-dim)';
+      lockEl.style.flexShrink = '0';
+      lockEl.textContent = '🔒';
+      item.appendChild(lockEl);
+    }
+
+    listEl.appendChild(item);
+  });
+
+  const count = notes.length;
+  document.getElementById('quota-text').textContent = count + ' / ' + limit + ' заметок';
+  const mobileCount = document.getElementById('mobile-note-count');
+  if (mobileCount) mobileCount.textContent = count + ' / ' + limit;
+  const fill = document.getElementById('quota-fill');
+  const pct = Math.min(100, (count / limit) * 100);
+  fill.style.width = pct + '%';
+  fill.classList.toggle('full', count >= limit);
+
+  const limitReached = count >= limit;
+  const newBtn = document.getElementById('new-note-btn');
+  newBtn.disabled = false; // never truly disable — redirect to pricing instead when full
+  if (limitReached) {
+    newBtn.textContent = 'лимит исчерпан — улучшить план →';
+    newBtn.onclick = openPricing;
+  } else {
+    newBtn.textContent = '+ новая заметка';
+    newBtn.onclick = createNote;
+  }
+
+  // prominent upgrade CTA
+  const cta = document.getElementById('upgrade-cta');
+  const ctaText = document.getElementById('upgrade-cta-text');
+  if (plan.key === 'l') {
+    cta.classList.add('hidden');
+  } else {
+    cta.classList.remove('hidden');
+    ctaText.textContent = limitReached
+      ? 'Лимит заметок исчерпан — купить подписку'
+      : (plan.key === 'free' ? 'Купить подписку' : 'Улучшить план');
+  }
+
+  // hint row about locked features, only on free-ish plans
+  const hintRow = document.getElementById('locked-hint');
+  const hintText = document.getElementById('locked-hint-text');
+  if (plan.key === 'free') {
+    hintRow.classList.remove('hidden');
+    hintText.textContent = 'поиск, закрепление и другое — в платных планах';
+  } else if (plan.key === 's') {
+    hintRow.classList.remove('hidden');
+    hintText.textContent = 'теги, экспорт и история — с плана "Про"';
+  } else if (plan.key === 'm') {
+    hintRow.classList.remove('hidden');
+    hintText.textContent = 'история версий и пароль на заметку — со "Студии"';
+  } else {
+    hintRow.classList.add('hidden');
+  }
+}
+
+function renameNotePrompt(id) {
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  const next = prompt('Название заметки:', note.title || '');
+  if (next === null) return;
+  note.title = next.trim();
+  note.updatedAt = Date.now();
+  saveNotes(currentUser, notes);
+  renderSidebar();
+  if (activeNoteId === id) renderEditor();
+}
+
+/* =========================================================
+   EDITOR RENDERING
+   ========================================================= */
+
+function renderEditor() {
+  const area = document.getElementById('editor-area');
+  area.innerHTML = '';
+
+  const note = notes.find(n => n.id === activeNoteId);
+  const plan = getCurrentPlan();
+
+  if (!note) {
+    area.innerHTML = `
+      <div class="editor-empty">
+        <div class="editor-empty-title">Пока пусто</div>
+        <div>Создайте первую заметку, чтобы начать.</div>
+        <button type="button" onclick="createNote()">+ новая заметка</button>
+      </div>`;
+    return;
+  }
+
+  // locked note gate
+  if (plan.perks.lockNote && note.locked && note.id !== unlockedNoteId) {
+    area.innerHTML = `
+      <div class="editor-empty">
+        <div class="editor-empty-title">🔒 Заметка защищена паролем</div>
+        <div>Введите пароль, чтобы открыть «${escapeHtml(note.title || 'без названия')}».</div>
+        <input type="password" id="unlock-input" class="unlock-input">
+        <button type="button" onclick="tryUnlockNote('${note.id}')">Открыть</button>
+      </div>`;
+    const unlockInput = document.getElementById('unlock-input');
+    unlockInput.focus();
+    unlockInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryUnlockNote(note.id);
+    });
+    return;
+  }
+
+  const topbar = document.createElement('div');
+  topbar.className = 'editor-topbar';
+
+  const titleInput = document.createElement('input');
+  titleInput.className = 'editor-title-input';
+  titleInput.placeholder = 'Название заметки';
+  titleInput.value = note.title || '';
+  titleInput.oninput = () => {
+    note.title = titleInput.value;
+    scheduleSave();
+    renderSidebarTitleOnly();
+  };
+
+  const actions = document.createElement('div');
+  actions.className = 'editor-actions';
+
+  // tag input (Pro+)
+  if (plan.perks.tags) {
+    const tagInput = document.createElement('input');
+    tagInput.value = note.tag || '';
+    tagInput.placeholder = 'тег';
+    tagInput.style.cssText = 'width:90px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:12px;padding:8px 10px;outline:none;min-height:38px;';
+    tagInput.oninput = () => { note.tag = tagInput.value.trim(); scheduleSave(); renderSidebar(); };
+    actions.appendChild(tagInput);
+  }
+
+  // export (Pro+)
+  if (plan.perks.exportTxt) {
+    const exportBtn = document.createElement('button');
+    exportBtn.type = 'button';
+    exportBtn.className = 'icon-btn neutral';
+    exportBtn.textContent = 'экспорт .txt';
+    exportBtn.onclick = () => exportNote(note);
+    actions.appendChild(exportBtn);
+  }
+
+  // history (Studio)
+  if (plan.perks.history) {
+    const histBtn = document.createElement('button');
+    histBtn.type = 'button';
+    histBtn.className = 'icon-btn neutral';
+    histBtn.textContent = 'история (' + (note.history ? note.history.length : 0) + ')';
+    histBtn.onclick = () => showHistory(note);
+    actions.appendChild(histBtn);
+  }
+
+  // lock toggle (Studio)
+  if (plan.perks.lockNote) {
+    const lockBtn = document.createElement('button');
+    lockBtn.type = 'button';
+    lockBtn.className = 'icon-btn neutral';
+    lockBtn.textContent = note.locked ? 'снять пароль' : 'поставить пароль';
+    lockBtn.onclick = () => toggleLock(note);
+    actions.appendChild(lockBtn);
+  }
+
+  const status = document.createElement('span');
+  status.className = 'save-status';
+  status.id = 'save-status';
+  status.textContent = formatUpdated(note.updatedAt);
+
+  const delBtn = document.createElement('button');
+  delBtn.type = 'button';
+  delBtn.className = 'icon-btn';
+  delBtn.textContent = 'удалить';
+  delBtn.onclick = () => deleteNote(note.id);
+
+  actions.appendChild(status);
+  actions.appendChild(delBtn);
+  topbar.appendChild(titleInput);
+  topbar.appendChild(actions);
+
+  const textarea = document.createElement('textarea');
+  textarea.id = 'note-textarea';
+  textarea.spellcheck = false;
+  textarea.value = note.content || '';
+  textarea.placeholder = 'Пишите или вставляйте сюда что угодно — текст или код.\nТабуляция, пробелы и переносы строк сохранятся ровно так, как есть.';
+  textarea.oninput = () => {
+    note.content = textarea.value;
+    scheduleSave();
+  };
+  // Allow literal Tab key inside the textarea instead of moving focus.
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 1;
+      note.content = textarea.value;
+      scheduleSave();
+    }
+  });
+
+  area.appendChild(topbar);
+  area.appendChild(textarea);
+  if (window.innerWidth > 760) {
+    textarea.focus();
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+let unlockedNoteId = null;
+
+function tryUnlockNote(id) {
+  const note = notes.find(n => n.id === id);
+  const input = document.getElementById('unlock-input');
+  if (!note || !input) return;
+  if (input.value === note.lockPassword) {
+    unlockedNoteId = id;
+    renderEditor();
+  } else {
+    input.style.borderColor = 'var(--error)';
+    input.value = '';
+    input.placeholder = 'неверный пароль';
+  }
+}
+
+function toggleLock(note) {
+  if (note.locked) {
+    note.locked = false;
+    note.lockPassword = null;
+  } else {
+    const pass = prompt('Придумайте пароль для этой заметки:');
+    if (!pass) return;
+    note.locked = true;
+    note.lockPassword = pass;
+  }
+  saveNotes(currentUser, notes);
+  renderSidebar();
+  renderEditor();
+}
+
+function exportNote(note) {
+  const blob = new Blob([note.content || ''], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (note.title && note.title.trim() ? note.title.trim() : 'заметка') + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showHistory(note) {
+  if (!note.history || note.history.length === 0) {
+    alert('История версий пока пуста — она начнёт заполняться по мере редактирования.');
+    return;
+  }
+  const lines = note.history.slice(-10).reverse().map(h => {
+    const d = new Date(h.at);
+    const pad = n => String(n).padStart(2, '0');
+    const time = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    const preview = (h.content || '').slice(0, 40).replace(/\n/g, ' ');
+    return time + ' — ' + (preview || '(пусто)');
+  }).join('\n');
+  const choice = prompt('Последние версии (сверху новые). Введите номер строки (1 = самая новая), чтобы восстановить её, или отмените:\n\n' + lines);
+  if (!choice) return;
+  const idx = parseInt(choice, 10) - 1;
+  const recent = note.history.slice(-10).reverse();
+  if (idx >= 0 && idx < recent.length) {
+    note.content = recent[idx].content;
+    note.updatedAt = Date.now();
+    saveNotes(currentUser, notes);
+    renderEditor();
+  }
+}
+
+function renderSidebarTitleOnly() {
+  // Lightweight re-render to reflect title edits in the list without losing textarea focus.
+  const listEl = document.getElementById('note-list');
+  const items = listEl.querySelectorAll('.note-item-title');
+  notes.forEach((note, idx) => {
+    const el = items[idx];
+    if (!el) return;
+    const hasTitle = note.title && note.title.trim().length > 0;
+    el.textContent = hasTitle ? note.title : 'без названия';
+    el.classList.toggle('note-item-empty', !hasTitle);
+  });
+}
+
+function formatUpdated(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return 'сохранено ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+/* =========================================================
+   NOTE CRUD
+   ========================================================= */
+
+function createNote() {
+  if (notes.length >= getNoteLimit()) return;
+  const note = {
+    id: 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    title: '',
+    content: '',
+    tag: '',
+    pinned: false,
+    locked: false,
+    lockPassword: null,
+    history: [],
+    updatedAt: Date.now()
+  };
+  notes.unshift(note);
+  activeNoteId = note.id;
+  saveNotes(currentUser, notes);
+  renderSidebar();
+  renderEditor();
+  collapseMobileSidebar();
+}
+
+function selectNote(id) {
+  activeNoteId = id;
+  unlockedNoteId = null;
+  renderSidebar();
+  renderEditor();
+  collapseMobileSidebar();
+}
+
+function deleteNote(id) {
+  const idx = notes.findIndex(n => n.id === id);
+  if (idx === -1) return;
+  if (!confirm('Удалить эту заметку без возможности восстановления?')) return;
+  notes.splice(idx, 1);
+  saveNotes(currentUser, notes);
+
+  activeNoteId = notes.length > 0 ? notes[0].id : null;
+  renderSidebar();
+  renderEditor();
+}
+
+function scheduleSave() {
+  const statusEl = document.getElementById('save-status');
+  if (statusEl) {
+    statusEl.textContent = 'сохранение…';
+    statusEl.classList.remove('saved');
+  }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const note = notes.find(n => n.id === activeNoteId);
+    if (note) {
+      note.updatedAt = Date.now();
+
+      if (getCurrentPlan().perks.history) {
+        if (!note.history) note.history = [];
+        note.history.push({ at: note.updatedAt, content: note.content });
+        if (note.history.length > 30) note.history = note.history.slice(-30);
+      }
+
+      saveNotes(currentUser, notes);
+      const el = document.getElementById('save-status');
+      if (el) {
+        el.textContent = formatUpdated(note.updatedAt);
+        el.classList.add('saved');
+      }
+    }
+  }, 400);
+}
+
+/* =========================================================
+   PRICING MODAL
+   ========================================================= */
+
+function openPricing() {
+  renderPricingGrid();
+  document.getElementById('pricing-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePricing() {
+  document.getElementById('pricing-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function renderPricingGrid() {
+  const card = document.getElementById('pricing-card');
+  const currentKey = getCurrentPlan().key;
+
+  const order = ['free', 's', 'm', 'l'];
+  const cardsHtml = order.map(key => {
+    const p = PLANS[key];
+    const isCurrent = key === currentKey;
+    const featured = key === 'm';
+    const priceLabel = p.price === 0 ? 'бесплатно' : p.price + ' ₽<span> / мес</span>';
+    const btnLabel = isCurrent ? 'текущий план' : (p.price === 0 ? 'перейти на free' : 'оформить');
+    return `
+      <div class="plan-card${isCurrent ? ' current' : ''}${featured ? ' featured' : ''}">
+        <div class="plan-card-name"><span>${p.name}</span>${featured ? '<span class="plan-card-featured-tag">популярный</span>' : ''}</div>
+        <div class="plan-card-price">${priceLabel}</div>
+        <div class="plan-card-quota">${p.limit} заметок</div>
+        <ul class="plan-card-features">
+          ${p.features.map(f => `<li>${f}</li>`).join('')}
         </ul>
-    </section>
+        <button type="button" class="plan-card-btn" ${isCurrent ? 'disabled' : ''} onclick="${p.price === 0 ? `downgradeToFree()` : `openCheckout('${key}')`}">${btnLabel}</button>
+      </div>`;
+  }).join('');
 
-    <section>
-        <h2 align="center">Часто задаваемые вопросы</h2>
-        <h3 align="center">Сколько времени занимает разработка сайта?</h3>
-        <p>Обычно это занимает от пары часов до нескольких недель, в зависимости от сложности и объема тз.</p>
-        
-        <h3 align="center">Нужны ли навыки программирования?</h3>
-        <p>Для базовой веб-страницы достаточно знать основы HTML и CSS.</p>
-    </section>
-</main>
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">подписка</div>
+    <h2 class="modal-title">Больше места, <em>больше возможностей.</em></h2>
+    <p class="modal-sub">Тариф привязан к количеству заметок и открывает дополнительные функции работы с ними. Отменить можно в любой момент.</p>
+    <div class="plans-grid">${cardsHtml}</div>
+    <div class="modal-foot-note">Оплата симулируется локально — для этого демо не подключён настоящий платёжный шлюз. При превышении лимита после понижения плана старые заметки не удаляются, но новые создавать нельзя, пока их число не впишется в лимит.</div>
+  `;
+}
 
-<footer>
-    <p style="font-size: 10px;" align="right">© 2026 Все права защищены.</p>
-</footer>
+function downgradeToFree() {
+  if (!confirm('Перейти на бесплатный план? Платные функции станут недоступны.')) return;
+  setUserPlan('free');
+  renderPricingGrid();
+  renderSidebar();
+  renderEditor();
+}
+
+function openCheckout(planKey) {
+  const p = PLANS[planKey];
+  const card = document.getElementById('pricing-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">оплата</div>
+    <h2 class="modal-title">Подключить «<em>${p.name}</em>»</h2>
+    <p class="modal-sub">Демонстрационная оплата — карта не списывается по-настоящему.</p>
+    <div class="checkout-box">
+      <div class="checkout-row"><span>План</span><strong>${p.name}</strong></div>
+      <div class="checkout-row"><span>Лимит заметок</span><strong>${p.limit}</strong></div>
+      <div class="checkout-row"><span>Период</span><strong>1 месяц</strong></div>
+      <div class="checkout-divider"></div>
+      <div class="checkout-total"><span>Итого</span><span>${p.price} ₽</span></div>
+      <div class="field">
+        <label>Номер карты</label>
+        <input type="text" inputmode="numeric" autocomplete="cc-number" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+        <div class="card-field-error" id="err-number"></div>
+      </div>
+      <div class="checkout-fields-row">
+        <div class="field">
+          <label>Срок ММ/ГГ</label>
+          <input type="text" inputmode="numeric" autocomplete="cc-exp" id="card-exp" placeholder="ММ/ГГ" maxlength="5">
+          <div class="card-field-error" id="err-exp"></div>
+        </div>
+        <div class="field">
+          <label>CVC</label>
+          <input type="text" inputmode="numeric" autocomplete="cc-csc" id="card-cvc" placeholder="000" maxlength="3">
+          <div class="card-field-error" id="err-cvc"></div>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" onclick="confirmPayment('${planKey}')">Оплатить ${p.price} ₽</button>
+      <button type="button" class="upgrade-link" style="margin-top:14px; width:100%; text-align:center;" onclick="renderPricingGrid()">← назад к тарифам</button>
+    </div>
+  `;
+
+  attachCardFormatting();
+}
+
+function attachCardFormatting() {
+  const numInput = document.getElementById('card-number');
+  const expInput = document.getElementById('card-exp');
+  const cvcInput = document.getElementById('card-cvc');
+
+  // Auto-format card number in groups of 4
+  numInput.addEventListener('input', () => {
+    let digits = numInput.value.replace(/\D/g, '').slice(0, 16);
+    numInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
+    clearFieldError('card-number', 'err-number');
+  });
+
+  // Auto-insert slash after MM
+  expInput.addEventListener('input', () => {
+    let digits = expInput.value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length >= 3) {
+      expInput.value = digits.slice(0, 2) + '/' + digits.slice(2);
+    } else {
+      expInput.value = digits;
+    }
+    clearFieldError('card-exp', 'err-exp');
+  });
+
+  cvcInput.addEventListener('input', () => {
+    cvcInput.value = cvcInput.value.replace(/\D/g, '').slice(0, 3);
+    clearFieldError('card-cvc', 'err-cvc');
+  });
+}
+
+function clearFieldError(inputId, errId) {
+  document.getElementById(inputId).classList.remove('field-invalid');
+  document.getElementById(errId).textContent = '';
+}
+
+function setFieldError(inputId, errId, message) {
+  document.getElementById(inputId).classList.add('field-invalid');
+  document.getElementById(errId).textContent = message;
+}
+
+/* Luhn checksum — standard card number validity check */
+function luhnValid(digits) {
+  let sum = 0;
+  let shouldDouble = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let d = parseInt(digits[i], 10);
+    if (shouldDouble) {
+      d *= 2;
+      if (d > 9) d -= 9;
+    }
+    sum += d;
+    shouldDouble = !shouldDouble;
+  }
+  return sum % 10 === 0;
+}
+
+function validateCheckoutForm() {
+  let valid = true;
+
+  // Card number: 16 digits + Luhn checksum
+  const rawNumber = document.getElementById('card-number').value.replace(/\D/g, '');
+  if (rawNumber.length !== 16) {
+    setFieldError('card-number', 'err-number', 'Номер карты должен содержать 16 цифр.');
+    valid = false;
+  } else if (!luhnValid(rawNumber)) {
+    setFieldError('card-number', 'err-number', 'Похоже, номер карты введён с ошибкой.');
+    valid = false;
+  }
+
+  // Expiry: MM/YY, valid month, not in the past
+  const expRaw = document.getElementById('card-exp').value.trim();
+  const expMatch = expRaw.match(/^(\d{2})\/(\d{2})$/);
+  if (!expMatch) {
+    setFieldError('card-exp', 'err-exp', 'Формат — ММ/ГГ, например 09/28.');
+    valid = false;
+  } else {
+    const month = parseInt(expMatch[1], 10);
+    const year = 2000 + parseInt(expMatch[2], 10);
+    if (month < 1 || month > 12) {
+      setFieldError('card-exp', 'err-exp', 'Месяц должен быть от 01 до 12.');
+      valid = false;
+    } else {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const expiresBeforeNow = year < currentYear || (year === currentYear && month < currentMonth);
+      if (expiresBeforeNow) {
+        setFieldError('card-exp', 'err-exp', 'Срок действия карты уже истёк.');
+        valid = false;
+      }
+    }
+  }
+
+  // CVC: exactly 3 digits
+  const cvc = document.getElementById('card-cvc').value.trim();
+  if (!/^\d{3}$/.test(cvc)) {
+    setFieldError('card-cvc', 'err-cvc', 'CVC — это 3 цифры на обороте карты.');
+    valid = false;
+  }
+
+  return valid;
+}
+
+function confirmPayment(planKey) {
+  if (!validateCheckoutForm()) return;
+
+  setUserPlan(planKey);
+
+  const p = PLANS[planKey];
+  const card = document.getElementById('pricing-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">готово</div>
+    <h2 class="modal-title">План «<em>${p.name}</em>» подключён</h2>
+    <p class="modal-sub">Лимит — ${p.limit} заметок. Новые функции уже доступны в боковой панели и редакторе.</p>
+    <button type="button" class="btn-primary" style="max-width:220px;" onclick="closePricing()">Отлично</button>
+  `;
+
+  renderSidebar();
+  renderEditor();
+}
+
+function setUserPlan(planKey) {
+  const users = getUsers();
+  if (!users[currentUser]) return;
+  users[currentUser].plan = planKey;
+  saveUsers(users);
+}
+
+/* =========================================================
+   GROUPS
+   ========================================================= */
+
+const GROUP_PLANS = {
+  free: { key: 'free', name: 'Free',  price: 0,   limit: 1  },
+  s:    { key: 's',    name: 'Лайт',  price: 50,  limit: 3  },
+  m:    { key: 'm',    name: 'Про',   price: 100, limit: 5  },
+  l:    { key: 'l',    name: 'Студия',price: 250, limit: 10 }
+};
+
+const GROUPS_KEY = 'notesapp_groups'; // { nameLower: { name, passwordHash, owner, createdAt } }
+
+function getAllGroups() {
+  try { return JSON.parse(localStorage.getItem(GROUPS_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+function saveAllGroups(groups) {
+  localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
+}
+function groupPostsKey(nameLower) {
+  return 'notesapp_group_posts_' + nameLower;
+}
+function getGroupPosts(nameLower) {
+  try { return JSON.parse(localStorage.getItem(groupPostsKey(nameLower))) || []; }
+  catch (e) { return []; }
+}
+function saveGroupPosts(nameLower, posts) {
+  localStorage.setItem(groupPostsKey(nameLower), JSON.stringify(posts));
+}
+function recentGroupsKey(username) {
+  return 'notesapp_recent_groups_' + username;
+}
+function getRecentGroups(username) {
+  try { return JSON.parse(localStorage.getItem(recentGroupsKey(username))) || []; }
+  catch (e) { return []; }
+}
+function saveRecentGroups(username, list) {
+  localStorage.setItem(recentGroupsKey(username), JSON.stringify(list));
+}
+function addRecentGroup(nameLower) {
+  let list = getRecentGroups(currentUser).filter(n => n !== nameLower);
+  list.unshift(nameLower);
+  saveRecentGroups(currentUser, list.slice(0, 30));
+}
+
+function getGroupPlan() {
+  const users = getUsers();
+  const user = users[currentUser];
+  const planKey = (user && user.groupPlan) || 'free';
+  return GROUP_PLANS[planKey] || GROUP_PLANS.free;
+}
+function getGroupLimit() {
+  return getGroupPlan().limit;
+}
+function getOwnedGroupsCount() {
+  const groups = getAllGroups();
+  return Object.values(groups).filter(g => g.owner === currentUser).length;
+}
+function setUserGroupPlan(planKey) {
+  const users = getUsers();
+  if (!users[currentUser]) return;
+  users[currentUser].groupPlan = planKey;
+  saveUsers(users);
+}
+
+let currentSection = 'notes'; // 'notes' | 'groups'
+let activeGroupName = null;   // nameLower of currently open group
+let groupComposerTimer = null;
+
+function switchSection(section) {
+  currentSection = section;
+  document.getElementById('tab-section-notes').classList.toggle('active', section === 'notes');
+  document.getElementById('tab-section-groups').classList.toggle('active', section === 'groups');
+  document.getElementById('notes-section').classList.toggle('hidden', section !== 'notes');
+  document.getElementById('groups-panel').classList.toggle('hidden', section !== 'groups');
+
+  if (section === 'groups') {
+    renderGroupsPanel();
+    renderGroupArea();
+  } else {
+    renderEditor();
+  }
+}
+
+function renderGroupsPanel() {
+  const panel = document.getElementById('groups-panel');
+  const plan = getGroupPlan();
+  const owned = getOwnedGroupsCount();
+  const limitReached = owned >= plan.limit;
+  const recent = getRecentGroups(currentUser);
+  const allGroups = getAllGroups();
+
+  const recentHtml = recent.length === 0 ? '' : `
+    <div class="groups-block-title">Недавние группы</div>
+    ${recent.filter(n => allGroups[n]).map(n => {
+      const g = allGroups[n];
+      const isOwner = g.owner === currentUser;
+      return `
+        <div class="recent-group-item${n === activeGroupName ? ' active' : ''}" onclick="openGroupPrompt('${n.replace(/'/g,"\\'")}')">
+          <span class="recent-group-name">${escapeHtml(g.name)}</span>
+          ${isOwner ? '<span class="recent-group-owner-tag">моя</span>' : ''}
+        </div>`;
+    }).join('')}
+  `;
+
+  panel.innerHTML = `
+    <div class="groups-block-title">Войти в группу</div>
+    <div class="group-form">
+      <div id="join-group-error"></div>
+      <div class="field">
+        <label>Название группы</label>
+        <input type="text" id="join-group-name" placeholder="например, family-chat">
+      </div>
+      <div class="field">
+        <label>Пароль группы</label>
+        <input type="password" id="join-group-password">
+      </div>
+      <button type="button" class="group-form-btn" onclick="joinGroup()">Войти</button>
+    </div>
+
+    ${recentHtml}
+
+    <div class="groups-block-title">Создать группу</div>
+    <div class="group-form">
+      <div class="group-quota-line">
+        <span>создано вами: ${owned} / ${plan.limit}</span>
+        <button type="button" onclick="openGroupPricing()">${plan.key === 'l' ? 'тариф групп' : 'улучшить →'}</button>
+      </div>
+      <div id="create-group-error"></div>
+      ${limitReached ? `
+        <button type="button" class="group-form-btn" onclick="openGroupPricing()">Лимит групп исчерпан — улучшить план</button>
+      ` : `
+        <div class="field">
+          <label>Название группы</label>
+          <input type="text" id="new-group-name" placeholder="придумайте название">
+        </div>
+        <div class="field">
+          <label>Пароль группы</label>
+          <input type="password" id="new-group-password" placeholder="придумайте пароль">
+        </div>
+        <button type="button" class="group-form-btn secondary" onclick="createGroup()">Создать группу</button>
+      `}
+    </div>
+  `;
+}
+
+function openGroupPrompt(nameLower) {
+  const g = getAllGroups()[nameLower];
+  if (!g) return;
+  document.getElementById('join-group-name').value = g.name;
+  document.getElementById('join-group-password').focus();
+}
+
+function showGroupFormError(elId, msg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = `<div class="group-form-error">${escapeHtml(msg)}</div>`;
+}
+function clearGroupFormError(elId) {
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = '';
+}
+
+function createGroup() {
+  clearGroupFormError('create-group-error');
+  const plan = getGroupPlan();
+  if (getOwnedGroupsCount() >= plan.limit) {
+    showGroupFormError('create-group-error', 'Лимит созданных групп исчерпан для вашего тарифа.');
+    return;
+  }
+
+  const nameInput = document.getElementById('new-group-name');
+  const passInput = document.getElementById('new-group-password');
+  const name = nameInput.value.trim();
+  const password = passInput.value;
+
+  if (name.length < 2) {
+    showGroupFormError('create-group-error', 'Название группы должно содержать не менее 2 символов.');
+    return;
+  }
+  if (!password || password.length < 4) {
+    showGroupFormError('create-group-error', 'Пароль группы должен содержать не менее 4 символов.');
+    return;
+  }
+
+  const nameLower = name.toLowerCase();
+  const groups = getAllGroups();
+  if (groups[nameLower]) {
+    showGroupFormError('create-group-error', 'Группа с таким названием уже существует.');
+    return;
+  }
+
+  groups[nameLower] = {
+    name: name,
+    passwordHash: simpleHash(password),
+    owner: currentUser,
+    createdAt: Date.now()
+  };
+  saveAllGroups(groups);
+  saveGroupPosts(nameLower, []);
+  addRecentGroup(nameLower);
+
+  activeGroupName = nameLower;
+  renderGroupsPanel();
+  renderGroupArea();
+  collapseMobileSidebar();
+}
+
+function joinGroup() {
+  clearGroupFormError('join-group-error');
+  const nameInput = document.getElementById('join-group-name');
+  const passInput = document.getElementById('join-group-password');
+  const name = nameInput.value.trim();
+  const password = passInput.value;
+
+  if (!name || !password) {
+    showGroupFormError('join-group-error', 'Введите название и пароль группы.');
+    return;
+  }
+
+  const nameLower = name.toLowerCase();
+  const groups = getAllGroups();
+  const g = groups[nameLower];
+
+  if (!g || g.passwordHash !== simpleHash(password)) {
+    showGroupFormError('join-group-error', 'Неверное название или пароль группы.');
+    return;
+  }
+
+  addRecentGroup(nameLower);
+  activeGroupName = nameLower;
+  passInput.value = '';
+  renderGroupsPanel();
+  renderGroupArea();
+  collapseMobileSidebar();
+}
+
+function forgetRecentGroup(nameLower) {
+  const list = getRecentGroups(currentUser).filter(n => n !== nameLower);
+  saveRecentGroups(currentUser, list);
+  if (activeGroupName === nameLower) activeGroupName = null;
+  renderGroupsPanel();
+  renderGroupArea();
+}
+
+function renderGroupArea() {
+  const area = document.getElementById('editor-area');
+  area.innerHTML = '';
+
+  if (!activeGroupName) {
+    area.innerHTML = `
+      <div class="editor-empty">
+        <div class="editor-empty-title">Группы</div>
+        <div>Войдите в группу по названию и паролю или создайте свою — слева.</div>
+      </div>`;
+    return;
+  }
+
+  const groups = getAllGroups();
+  const g = groups[activeGroupName];
+  if (!g) {
+    activeGroupName = null;
+    renderGroupArea();
+    return;
+  }
+
+  const isOwner = g.owner === currentUser;
+
+  const topbar = document.createElement('div');
+  topbar.className = 'group-topbar';
+  topbar.innerHTML = `
+    <div style="min-width:0;">
+      <div class="group-topbar-title">${escapeHtml(g.name)}</div>
+      <div class="group-topbar-sub">${isOwner ? 'вы создатель группы' : 'участник группы'}</div>
+    </div>
+  `;
+  const leaveBtn = document.createElement('button');
+  leaveBtn.type = 'button';
+  leaveBtn.className = 'group-leave-btn';
+  leaveBtn.textContent = 'скрыть из списка';
+  leaveBtn.onclick = () => forgetRecentGroup(activeGroupName);
+  topbar.appendChild(leaveBtn);
+
+  const feed = document.createElement('div');
+  feed.className = 'group-feed';
+  feed.id = 'group-feed';
+
+  const posts = getGroupPosts(activeGroupName);
+  if (posts.length === 0) {
+    feed.innerHTML = `<div class="group-feed-empty">Пока никто ничего не отправил в эту группу.<br>Будьте первым — напишите сообщение ниже.</div>`;
+  } else {
+    posts.forEach(p => {
+      const postEl = document.createElement('div');
+      postEl.className = 'group-post';
+      postEl.innerHTML = `
+        <div class="group-post-head">
+          <span class="group-post-author">${escapeHtml(p.author)}</span>
+          <span class="group-post-time">${formatGroupTime(p.createdAt)}</span>
+        </div>
+        <div class="group-post-text"></div>
+      `;
+      postEl.querySelector('.group-post-text').textContent = p.text;
+      feed.appendChild(postEl);
+    });
+  }
+
+  const composer = document.createElement('div');
+  composer.className = 'group-composer';
+  const textarea = document.createElement('textarea');
+  textarea.placeholder = 'Написать в группу «' + g.name + '»…';
+  textarea.rows = 1;
+  const sendBtn = document.createElement('button');
+  sendBtn.type = 'button';
+  sendBtn.textContent = 'Отправить';
+  sendBtn.disabled = true;
+
+  textarea.addEventListener('input', () => {
+    sendBtn.disabled = textarea.value.trim().length === 0;
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 140) + 'px';
+  });
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!sendBtn.disabled) sendGroupPost(textarea);
+    }
+  });
+  sendBtn.onclick = () => sendGroupPost(textarea);
+
+  composer.appendChild(textarea);
+  composer.appendChild(sendBtn);
+
+  area.appendChild(topbar);
+  area.appendChild(feed);
+  area.appendChild(composer);
+
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function sendGroupPost(textarea) {
+  const text = textarea.value.trim();
+  if (!text || !activeGroupName) return;
+
+  const users = getUsers();
+  const displayName = (users[currentUser] && users[currentUser].displayName) || currentUser;
+
+  const posts = getGroupPosts(activeGroupName);
+  posts.push({
+    id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    author: displayName,
+    text: text,
+    createdAt: Date.now()
+  });
+  saveGroupPosts(activeGroupName, posts);
+
+  textarea.value = '';
+  textarea.style.height = 'auto';
+  renderGroupArea();
+}
+
+function formatGroupTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const time = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  if (sameDay) return time;
+  return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + ' ' + time;
+}
+
+/* =========================================================
+   GROUP PRICING MODAL (separate from note-plan pricing)
+   ========================================================= */
+
+function openGroupPricing() {
+  renderGroupPricingGrid();
+  document.getElementById('pricing-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderGroupPricingGrid() {
+  const card = document.getElementById('pricing-card');
+  const currentKey = getGroupPlan().key;
+  const order = ['free', 's', 'm', 'l'];
+
+  const cardsHtml = order.map(key => {
+    const p = GROUP_PLANS[key];
+    const isCurrent = key === currentKey;
+    const featured = key === 'm';
+    const priceLabel = p.price === 0 ? 'бесплатно' : p.price + ' ₽<span> / мес</span>';
+    const btnLabel = isCurrent ? 'текущий план' : (p.price === 0 ? 'перейти на free' : 'оформить');
+    const groupWord = p.limit === 1 ? 'группу' : (p.limit < 5 ? 'группы' : 'групп');
+    return `
+      <div class="plan-card${isCurrent ? ' current' : ''}${featured ? ' featured' : ''}">
+        <div class="plan-card-name"><span>${p.name}</span>${featured ? '<span class="plan-card-featured-tag">популярный</span>' : ''}</div>
+        <div class="plan-card-price">${priceLabel}</div>
+        <div class="plan-card-quota">до ${p.limit} созданных групп</div>
+        <ul class="plan-card-features">
+          <li>Создать ${p.limit} ${groupWord}</li>
+          <li>Входить в чужие группы — без ограничений</li>
+          <li>Текстовые сообщения в группе видят все участники</li>
+        </ul>
+        <button type="button" class="plan-card-btn" ${isCurrent ? 'disabled' : ''} onclick="${p.price === 0 ? `downgradeGroupToFree()` : `openGroupCheckout('${key}')`}">${btnLabel}</button>
+      </div>`;
+  }).join('');
+
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">подписка на группы</div>
+    <h2 class="modal-title">Создавайте <em>больше групп.</em></h2>
+    <p class="modal-sub">Тариф ограничивает только число групп, которые создаёте вы сами. Входить в чужие группы по названию и паролю можно неограниченное количество раз на любом тарифе.</p>
+    <div class="plans-grid">${cardsHtml}</div>
+    <div class="modal-foot-note">Оплата симулируется локально — платёжный шлюз не подключён. Это отдельная подписка от тарифа на заметки.</div>
+  `;
+}
+
+function downgradeGroupToFree() {
+  if (!confirm('Перейти на бесплатный тариф групп? Создавать новые группы сверх лимита будет нельзя (уже созданные группы останутся).')) return;
+  setUserGroupPlan('free');
+  renderGroupPricingGrid();
+  if (currentSection === 'groups') renderGroupsPanel();
+}
+
+function openGroupCheckout(planKey) {
+  const p = GROUP_PLANS[planKey];
+  const card = document.getElementById('pricing-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">оплата</div>
+    <h2 class="modal-title">Подключить «<em>${p.name}</em>» для групп</h2>
+    <p class="modal-sub">Демонстрационная оплата — карта не списывается по-настоящему.</p>
+    <div class="checkout-box">
+      <div class="checkout-row"><span>План</span><strong>${p.name}</strong></div>
+      <div class="checkout-row"><span>Лимит созданных групп</span><strong>${p.limit}</strong></div>
+      <div class="checkout-row"><span>Период</span><strong>1 месяц</strong></div>
+      <div class="checkout-divider"></div>
+      <div class="checkout-total"><span>Итого</span><span>${p.price} ₽</span></div>
+      <div class="field">
+        <label>Номер карты</label>
+        <input type="text" inputmode="numeric" autocomplete="cc-number" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+        <div class="card-field-error" id="err-number"></div>
+      </div>
+      <div class="checkout-fields-row">
+        <div class="field">
+          <label>Срок ММ/ГГ</label>
+          <input type="text" inputmode="numeric" autocomplete="cc-exp" id="card-exp" placeholder="ММ/ГГ" maxlength="5">
+          <div class="card-field-error" id="err-exp"></div>
+        </div>
+        <div class="field">
+          <label>CVC</label>
+          <input type="text" inputmode="numeric" autocomplete="cc-csc" id="card-cvc" placeholder="000" maxlength="3">
+          <div class="card-field-error" id="err-cvc"></div>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" onclick="confirmGroupPayment('${planKey}')">Оплатить ${p.price} ₽</button>
+      <button type="button" class="upgrade-link" style="margin-top:14px; width:100%; text-align:center;" onclick="renderGroupPricingGrid()">← назад к тарифам</button>
+    </div>
+  `;
+
+  attachCardFormatting();
+}
+
+function confirmGroupPayment(planKey) {
+  if (!validateCheckoutForm()) return;
+  setUserGroupPlan(planKey);
+
+  const p = GROUP_PLANS[planKey];
+  const card = document.getElementById('pricing-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">готово</div>
+    <h2 class="modal-title">План «<em>${p.name}</em>» подключён</h2>
+    <p class="modal-sub">Теперь вы можете создать до ${p.limit} групп.</p>
+    <button type="button" class="btn-primary" style="max-width:220px;" onclick="closePricing()">Отлично</button>
+  `;
+
+  if (currentSection === 'groups') renderGroupsPanel();
+}
+
+/* =========================================================
+   INIT — restore session if present
+   ========================================================= */
+
+(function init() {
+  const session = localStorage.getItem(SESSION_KEY);
+  const users = getUsers();
+  if (session && users[session]) {
+    enterApp(session);
+  } else {
+    switchTab('login');
+  }
+})();
+</script>
+</body>
+    </html>
