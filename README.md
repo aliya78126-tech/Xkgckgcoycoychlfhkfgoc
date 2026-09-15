@@ -1,2 +1,2 @@
-# Xkgckgcoycoychlfhkfgoc
-Я не тупой
+# qveryxproject
+Мой первый проект
