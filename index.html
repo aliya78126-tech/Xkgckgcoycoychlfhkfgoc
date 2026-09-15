@@ -2516,6 +2516,7 @@ async function loadNotes() {
   const { data, error } = await db
     .from('notes')
     .select('*')
+    .eq('user_id', currentUser.id)
     .order('pinned', { ascending: false })
     .order('updated_at', { ascending: false });
 
@@ -2978,7 +2979,28 @@ function selectNote(id) {
 async function deleteNote(id) {
   const ok = await showConfirm('Удалить эту заметку без возможности восстановления?', { eyebrow: 'удаление заметки', confirmLabel: 'Удалить', danger: true });
   if (!ok) return;
-  await db.from('notes').delete().eq('id', id);
+
+  const { error } = await db
+    .from('notes')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', currentUser.id);
+
+  if (error) {
+    await showAlert('Не удалось удалить заметку: ' + error.message, 'ошибка');
+    return;
+  }
+
+  // Убираем заметку локально сразу, чтобы интерфейс обновился
+  // не дожидаясь ответа сервера (и даже если реального удаления
+  // из-за какой-то гонки/кеша не произойдёт при следующей загрузке).
+  notes = notes.filter(n => n.id !== id);
+  if (activeNoteId === id) {
+    activeNoteId = notes.length > 0 ? notes[0].id : null;
+  }
+  renderSidebar();
+  renderEditor();
+
   await loadNotes();
   renderSidebar();
   renderEditor();
