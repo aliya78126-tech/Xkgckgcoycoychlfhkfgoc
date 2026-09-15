@@ -949,6 +949,228 @@
     line-height: 1.6;
   }
 
+  /* ---------- ADMIN PANEL ---------- */
+
+  .admin-link { color: #A78BFA; }
+
+  .admin-modal-card {
+    max-width: 760px;
+  }
+
+  .admin-search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .admin-search-row input {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 11px 13px;
+    outline: none;
+    min-height: 44px;
+  }
+  .admin-search-row input:focus { border-color: var(--accent); }
+  .admin-search-row button {
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #1B1E23;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 0 18px;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .admin-error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--error);
+    background: rgba(183,92,74,0.1);
+    border: 1px solid rgba(183,92,74,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .admin-user-card {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 18px;
+    animation: fadeSlideUp var(--dur) var(--ease-soft);
+  }
+
+  .admin-user-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .admin-user-name {
+    font-size: 18px;
+    font-weight: 500;
+    font-variant: small-caps;
+  }
+  .admin-user-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    word-break: break-all;
+    margin-bottom: 14px;
+  }
+
+  .admin-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .admin-stat {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .admin-stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+  }
+  .admin-stat-value {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .admin-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 16px 0 10px;
+  }
+  .admin-section-title:first-of-type { margin-top: 0; }
+
+  .admin-plan-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .admin-plan-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 9px 14px;
+    min-height: 40px;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  }
+  .admin-plan-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .admin-plan-btn.current { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .admin-plan-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .admin-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .admin-toggle-row:first-of-type { border-top: none; }
+  .admin-toggle-label {
+    font-size: 13.5px;
+  }
+  .admin-toggle-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .admin-toggle-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px;
+    min-height: 38px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .admin-toggle-btn.on { border-color: var(--error); color: var(--error); }
+  .admin-toggle-btn.admin-on { border-color: #A78BFA; color: #A78BFA; }
+
+  .admin-danger-row {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .admin-danger-btn {
+    background: none;
+    border: 1px solid rgba(229,72,77,0.45);
+    border-radius: var(--radius-sm);
+    color: var(--error);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 10px 16px;
+    min-height: 40px;
+  }
+  .admin-danger-btn:hover { background: rgba(229,72,77,0.1); }
+
+  .admin-notes-toggle {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 4px 0;
+  }
+  .admin-note-row {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 6px 0;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .admin-note-row span:first-child { color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .admin-empty {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    text-align: center;
+    padding: 30px 10px;
+  }
+
+  @media (max-width: 760px) {
+    .admin-stat-grid { grid-template-columns: repeat(3, 1fr); }
+    .admin-search-row { flex-direction: column; }
+  }
+
   /* Simulated checkout step */
   .checkout-box {
     background: var(--panel-2);
@@ -1756,6 +1978,10 @@
       <button class="upgrade-link" onclick="openPricing()" type="button">улучшить план →</button>
     </div>
 
+    <div class="plan-row hidden" id="admin-row">
+      <button class="upgrade-link admin-link" onclick="openAdminPanel()" type="button">⚙ админ-панель</button>
+    </div>
+
     <div class="quota">
       <span id="quota-text">0 / 10 заметок</span>
       <div class="quota-bar"><div class="quota-bar-fill" id="quota-fill" style="width:0%"></div></div>
@@ -1794,6 +2020,13 @@
   </div>
 </div>
 
+<!-- ================= ADMIN PANEL MODAL ================= -->
+<div id="admin-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeAdminPanel()">
+  <div class="modal-card admin-modal-card" id="admin-card">
+    <!-- content injected by JS -->
+  </div>
+</div>
+
 <!-- ================= CUSTOM DIALOG (replaces alert/confirm/prompt) ================= -->
 <div id="dialog-overlay" class="dialog-overlay hidden">
   <div class="dialog-card" id="dialog-card">
@@ -1806,6 +2039,54 @@
 /* =========================================================
    SUPABASE SETUP
    Вставь сюда свои значения из Project Settings -> API
+
+   ---------------------------------------------------------
+   ЧТО НУЖНО ДОБАВИТЬ В БАЗУ ДЛЯ АДМИН-ПАНЕЛИ
+   ---------------------------------------------------------
+   1) Столбцы в public.profiles (если их ещё нет):
+
+      alter table public.profiles add column if not exists is_admin boolean not null default false;
+      alter table public.profiles add column if not exists banned boolean not null default false;
+
+      -- сделать себя админом (замени UUID на свой, см. current-user-id в приложении):
+      update public.profiles set is_admin = true where id = 'ВАШ-UUID-СЮДА';
+
+   2) RLS-политики, которые разрешают админам менять ЧУЖИЕ строки.
+      Без этого кнопки в панели будут возвращать ошибку доступа —
+      обычный anon-ключ подчиняется RLS как и все остальные запросы.
+
+      -- разрешить админам читать все профили (для поиска по имени/ID)
+      create policy "admins can read all profiles"
+      on public.profiles for select
+      using (
+        auth.uid() = id
+        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+      );
+
+      -- разрешить админам обновлять любой профиль (план, is_admin, banned)
+      create policy "admins can update any profile"
+      on public.profiles for update
+      using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
+
+      -- (опционально) разрешить админам видеть чужие заметки/группы для статистики
+      create policy "admins can read all notes"
+      on public.notes for select
+      using (
+        auth.uid() = user_id
+        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+      );
+
+      create policy "admins can read all groups"
+      on public.groups for select
+      using (
+        auth.uid() = owner_id
+        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+      );
+
+   Без шага (2) UI откроется и будет искать пользователей, но
+   попытки сменить план/забанить/выдать права будут падать —
+   это ограничение самого Supabase (anon-ключ = обычный
+   пользовательский доступ), а не баг в этом файле.
    ========================================================= */
 
 const SUPABASE_URL = 'https://vudpaeodsuqdphxjlaje.supabase.co';
@@ -2203,10 +2484,19 @@ async function enterApp(user) {
     currentProfile = profile;
   }
 
+  if (currentProfile.banned) {
+    await db.auth.signOut();
+    currentUser = null;
+    currentProfile = null;
+    showError('Этот аккаунт заблокирован администратором.');
+    return;
+  }
+
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('current-username').textContent = currentProfile.display_name;
   renderUserId();
+  document.getElementById('admin-row').classList.toggle('hidden', !currentProfile.is_admin);
 
   activeGroupName = null;
   activeGroupId = null;
@@ -2913,6 +3203,236 @@ async function setUserPlan(planKey) {
 }
 
 /* =========================================================
+   ADMIN PANEL
+   ---------------------------------------------------------
+   Everything here is gated by profiles.is_admin, checked
+   client-side for UI purposes only. The real access control
+   MUST live in Supabase Row Level Security policies — a
+   client-side check can be bypassed by anyone editing the
+   page's JS. Without a matching RLS policy that allows admins
+   to write to other users' rows, every write below will be
+   rejected by Supabase and simply fail (the panel will show
+   an error). See the SQL block referenced in comments further
+   down for the policies this panel assumes exist.
+   ========================================================= */
+
+let adminLookupResult = null; // profile row of the currently loaded target user
+let adminLookupNotesExpanded = false;
+
+function openAdminPanel() {
+  if (!currentProfile || !currentProfile.is_admin) return;
+  renderAdminSearch();
+  document.getElementById('admin-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeAdminPanel() {
+  document.getElementById('admin-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  adminLookupResult = null;
+  adminLookupNotesExpanded = false;
+}
+
+function renderAdminSearch(errorMsg) {
+  const card = document.getElementById('admin-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closeAdminPanel()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">админ-панель</div>
+    <h2 class="modal-title">Управление <em>пользователями.</em></h2>
+    <p class="modal-sub">Найдите пользователя по ID (UUID) или по отображаемому имени, чтобы выдать план, включить/выключить админ-доступ или заблокировать аккаунт.</p>
+    ${errorMsg ? `<div class="admin-error">${escapeHtml(errorMsg)}</div>` : ''}
+    <div class="admin-search-row">
+      <input type="text" id="admin-search-input" placeholder="ID пользователя или имя…">
+      <button type="button" onclick="runAdminSearch()">Найти</button>
+    </div>
+    <div id="admin-result"></div>
+  `;
+  const input = document.getElementById('admin-search-input');
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') runAdminSearch(); });
+  input.focus();
+}
+
+async function runAdminSearch() {
+  const query = document.getElementById('admin-search-input').value.trim();
+  if (!query) return;
+
+  const resultEl = document.getElementById('admin-result');
+  resultEl.innerHTML = `<div class="admin-empty loading-pulse">Поиск…</div>`;
+
+  // UUIDs look like 8-4-4-4-12 hex; anything else is treated as a name search.
+  const looksLikeUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query);
+
+  let rows = [];
+  if (looksLikeUuid) {
+    const { data } = await db.from('profiles').select('*').eq('id', query).limit(1);
+    rows = data || [];
+  } else {
+    const { data } = await db.from('profiles').select('*').ilike('display_name', `%${query}%`).limit(10);
+    rows = data || [];
+  }
+
+  if (rows.length === 0) {
+    resultEl.innerHTML = `<div class="admin-empty">Никого не найдено. Проверьте ID или имя.</div>`;
+    return;
+  }
+
+  if (rows.length === 1) {
+    await loadAdminUser(rows[0]);
+    return;
+  }
+
+  // Multiple name matches — let the admin pick one.
+  resultEl.innerHTML = rows.map(r => `
+    <div class="recent-group-item" onclick="selectAdminUserById('${r.id}')">
+      <span class="recent-group-name">${escapeHtml(r.display_name || '(без имени)')}</span>
+      <span class="recent-group-owner-tag" style="border-color:var(--line); color:var(--text-dim);">${r.plan || 'free'}</span>
+    </div>
+  `).join('');
+}
+
+async function selectAdminUserById(id) {
+  const { data } = await db.from('profiles').select('*').eq('id', id).single();
+  if (data) await loadAdminUser(data);
+}
+
+async function loadAdminUser(profileRow) {
+  adminLookupResult = profileRow;
+  adminLookupNotesExpanded = false;
+  await renderAdminUserCard();
+}
+
+async function renderAdminUserCard() {
+  const resultEl = document.getElementById('admin-result');
+  if (!resultEl || !adminLookupResult) return;
+
+  const u = adminLookupResult;
+  resultEl.innerHTML = `<div class="admin-empty loading-pulse">Загрузка данных…</div>`;
+
+  const [{ count: noteCount }, { count: groupCount }, { data: noteRows }] = await Promise.all([
+    db.from('notes').select('id', { count: 'exact', head: true }).eq('user_id', u.id),
+    db.from('groups').select('id', { count: 'exact', head: true }).eq('owner_id', u.id),
+    db.from('notes').select('id, title, updated_at').eq('user_id', u.id).order('updated_at', { ascending: false }).limit(20)
+  ]);
+
+  const plan = PLANS[u.plan] || PLANS.free;
+  const planOrder = ['free', 's', 'm', 'l'];
+  const isSelf = u.id === currentUser.id;
+
+  const notesHtml = (noteRows || []).length === 0
+    ? `<div class="admin-empty" style="padding:14px 0;">Заметок нет</div>`
+    : (noteRows || []).map(n => `
+        <div class="admin-note-row">
+          <span>${escapeHtml(n.title && n.title.trim() ? n.title : 'без названия')}</span>
+          <span>${formatUpdated(n.updated_at)}</span>
+        </div>
+      `).join('');
+
+  resultEl.innerHTML = `
+    <div class="admin-user-card">
+      <div class="admin-user-head">
+        <span class="admin-user-name">${escapeHtml(u.display_name || '(без имени)')}</span>
+        <span class="plan-badge ${plan.badgeClass}">${plan.name.toLowerCase()}</span>
+      </div>
+      <div class="admin-user-id">id: ${u.id}</div>
+
+      <div class="admin-stat-grid">
+        <div class="admin-stat">
+          <div class="admin-stat-label">заметок</div>
+          <div class="admin-stat-value">${noteCount ?? 0} / ${plan.limit}</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat-label">своих групп</div>
+          <div class="admin-stat-value">${groupCount ?? 0} / ${plan.groupLimit}</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat-label">статус</div>
+          <div class="admin-stat-value" style="font-size:14px;">${u.banned ? 'заблокирован' : 'активен'}</div>
+        </div>
+      </div>
+
+      <div class="admin-section-title">Выдать план (без оплаты)</div>
+      <div class="admin-plan-btns">
+        ${planOrder.map(key => `
+          <button type="button" class="admin-plan-btn${u.plan === key ? ' current' : ''}"
+            ${u.plan === key ? 'disabled' : ''}
+            onclick="adminSetPlan('${u.id}', '${key}')">${PLANS[key].name}</button>
+        `).join('')}
+      </div>
+
+      <div class="admin-section-title">Доступ</div>
+      <div class="admin-toggle-row">
+        <div>
+          <div class="admin-toggle-label">Блокировка входа</div>
+          <div class="admin-toggle-sub">Заблокированный пользователь не сможет пользоваться аккаунтом.</div>
+        </div>
+        <button type="button" class="admin-toggle-btn${u.banned ? ' on' : ''}" onclick="adminToggleBan('${u.id}', ${!u.banned})">
+          ${u.banned ? 'разблокировать' : 'заблокировать'}
+        </button>
+      </div>
+      <div class="admin-toggle-row">
+        <div>
+          <div class="admin-toggle-label">Права администратора</div>
+          <div class="admin-toggle-sub">Доступ к этой панели для данного пользователя.</div>
+        </div>
+        <button type="button" class="admin-toggle-btn${u.is_admin ? ' admin-on' : ''}" ${isSelf ? 'disabled title="Нельзя снять доступ у самого себя"' : ''} onclick="adminToggleAdmin('${u.id}', ${!u.is_admin})">
+          ${u.is_admin ? 'снять права' : 'сделать админом'}
+        </button>
+      </div>
+
+      <div class="admin-section-title">Заметки пользователя (последние 20)</div>
+      ${notesHtml}
+
+      <div class="admin-danger-row">
+        <button type="button" class="admin-danger-btn" onclick="adminResetPlanConfirm('${u.id}')">Сбросить план на Free</button>
+      </div>
+    </div>
+  `;
+}
+
+async function adminSetPlan(userId, planKey) {
+  const { error } = await db.from('profiles').update({ plan: planKey }).eq('id', userId);
+  if (error) {
+    await showAlert('Не удалось изменить план: ' + error.message + '\n\nПроверьте, что в Supabase настроена RLS-политика, разрешающая администраторам обновлять чужие профили.', 'ошибка доступа');
+    return;
+  }
+  adminLookupResult.plan = planKey;
+  if (userId === currentUser.id) {
+    currentProfile.plan = planKey;
+    renderSidebar();
+    renderEditor();
+  }
+  await renderAdminUserCard();
+}
+
+async function adminResetPlanConfirm(userId) {
+  const ok = await showConfirm('Сбросить план этого пользователя на Free?', { eyebrow: 'сброс плана', confirmLabel: 'Сбросить', danger: true });
+  if (!ok) return;
+  await adminSetPlan(userId, 'free');
+}
+
+async function adminToggleBan(userId, nextValue) {
+  const { error } = await db.from('profiles').update({ banned: nextValue }).eq('id', userId);
+  if (error) {
+    await showAlert('Не удалось изменить статус блокировки: ' + error.message, 'ошибка доступа');
+    return;
+  }
+  adminLookupResult.banned = nextValue;
+  await renderAdminUserCard();
+}
+
+async function adminToggleAdmin(userId, nextValue) {
+  if (userId === currentUser.id) return;
+  const ok = await showConfirm(nextValue ? 'Выдать этому пользователю права администратора?' : 'Забрать права администратора у этого пользователя?', { eyebrow: 'права доступа', confirmLabel: 'Подтвердить', danger: !nextValue });
+  if (!ok) return;
+  const { error } = await db.from('profiles').update({ is_admin: nextValue }).eq('id', userId);
+  if (error) {
+    await showAlert('Не удалось изменить права: ' + error.message, 'ошибка доступа');
+    return;
+  }
+  adminLookupResult.is_admin = nextValue;
+  await renderAdminUserCard();
+}
+
+/* =========================================================
    GROUPS
    ========================================================= */
 
@@ -3284,4 +3804,4 @@ function formatGroupTime(ts) {
 })();
 </script>
 </body>
-        </html>
+  </html>
