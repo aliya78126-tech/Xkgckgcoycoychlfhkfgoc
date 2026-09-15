@@ -2344,23 +2344,28 @@ async function handleRegister(e) {
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
 
-  const { data, error } = await db.auth.signUp({
-    email, password,
-    options: { data: { display_name: displayName } }
-  });
+  try {
+    const { data, error } = await db.auth.signUp({
+      email, password,
+      options: { data: { display_name: displayName } }
+    });
 
-  submitBtn.disabled = false;
+    if (error) {
+      showError(translateAuthError(error.message));
+      return;
+    }
 
-  if (error) {
-    showError(translateAuthError(error.message));
-    return;
-  }
-
-  if (data.session) {
-    await enterApp(data.session.user);
-  } else {
-    showError('Проверьте почту — нужно подтвердить email, затем войдите.');
-    switchTab('login');
+    if (data.session) {
+      await enterApp(data.session.user);
+    } else {
+      showError('Проверьте почту — нужно подтвердить email, затем войдите.');
+      switchTab('login');
+    }
+  } catch (err) {
+    console.error('Registration failed:', err);
+    showError('Не удалось зарегистрироваться: ' + (err && err.message ? err.message : 'неизвестная ошибка') + '. Попробуйте ещё раз.');
+  } finally {
+    submitBtn.disabled = false;
   }
 }
 
@@ -2374,17 +2379,22 @@ async function handleLogin(e) {
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
 
-  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  try {
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
 
-  submitBtn.disabled = false;
+    if (error) {
+      showError(translateAuthError(error.message));
+      return;
+    }
 
-  if (error) {
-    showError(translateAuthError(error.message));
-    return;
+    await enterApp(data.user);
+    document.getElementById('login-form').reset();
+  } catch (err) {
+    console.error('Login failed:', err);
+    showError('Не удалось войти: ' + (err && err.message ? err.message : 'неизвестная ошибка') + '. Попробуйте ещё раз.');
+  } finally {
+    submitBtn.disabled = false;
   }
-
-  document.getElementById('login-form').reset();
-  await enterApp(data.user);
 }
 
 function translateAuthError(msg) {
@@ -2476,10 +2486,14 @@ async function enterApp(user) {
     .single();
 
   if (error || !profile) {
-    // Profile trigger may still be running right after signup — retry once.
-    await new Promise(r => setTimeout(r, 600));
-    const retry = await db.from('profiles').select('*').eq('id', user.id).single();
-    currentProfile = retry.data || { display_name: user.email, plan: 'free' };
+    // Profile trigger may still be running right after signup — retry a few times.
+    let retryProfile = null;
+    for (let i = 0; i < 5 && !retryProfile; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      const retry = await db.from('profiles').select('*').eq('id', user.id).single();
+      if (retry.data) retryProfile = retry.data;
+    }
+    currentProfile = retryProfile || { id: user.id, display_name: user.email, plan: 'free' };
   } else {
     currentProfile = profile;
   }
