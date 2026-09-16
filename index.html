@@ -2250,6 +2250,102 @@
   .group-delete-btn:hover { border-color: var(--error); background: rgba(229,72,77,0.12); transform: translateY(-1px); }
   .group-delete-btn:active { transform: scale(0.96); }
 
+  .group-manage-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 13px;
+    min-height: 38px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .group-manage-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .group-manage-btn:active { transform: scale(0.96); }
+  .group-manage-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+  .group-manage-panel {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+    animation: fadeSlideDown var(--dur) var(--ease-soft);
+    flex-shrink: 0;
+  }
+  .group-manage-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .group-manage-row:last-child { border-bottom: none; }
+  .group-manage-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .group-manage-value {
+    font-size: 13.5px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .group-manage-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .group-manage-mini-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    min-height: 32px;
+    white-space: nowrap;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .group-manage-mini-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .group-manage-mini-btn.danger:hover { border-color: var(--error); color: var(--error); }
+
+  .group-member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+  }
+  .group-member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .group-member-name {
+    font-size: 13.5px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .group-member-empty {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 6px 0;
+  }
+
   .recent-group-delete {
     flex-shrink: 0;
     background: none;
@@ -3174,6 +3270,7 @@ let unlockedNoteId = null;
 let currentSection = 'notes';
 let activeGroupName = null;  // name_lower of currently open group
 let activeGroupId = null;    // uuid of currently open group
+let groupManageOpen = false; // whether the owner's "manage group" panel is expanded
 let noteSelectMode = false;
 let selectedNoteIds = new Set();
 
@@ -4898,6 +4995,7 @@ async function enterOpenGroup(groupId) {
   await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: groupId, last_visited: new Date().toISOString() });
   const { data: g } = await db.from('groups').select('*').eq('id', groupId).maybeSingle();
   if (!g) return;
+  if (activeGroupId !== g.id) groupManageOpen = false;
   activeGroupName = g.name_lower;
   activeGroupId = g.id;
   await renderGroupsPanel();
@@ -4944,6 +5042,7 @@ async function createGroup() {
 
   await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: data.id, last_visited: new Date().toISOString() });
 
+  groupManageOpen = false;
   activeGroupName = data.name_lower;
   activeGroupId = data.id;
   await renderGroupsPanel();
@@ -4977,6 +5076,7 @@ async function joinGroup() {
 
   await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: g.id, last_visited: new Date().toISOString() });
 
+  groupManageOpen = false;
   activeGroupName = g.name_lower;
   activeGroupId = g.id;
   document.getElementById('join-group-password').value = '';
@@ -5023,9 +5123,167 @@ async function forgetRecentGroup(groupId) {
 async function exitGroupView() {
   activeGroupName = null;
   activeGroupId = null;
+  groupManageOpen = false;
   await renderGroupsPanel();
   await renderGroupArea();
   showMobileList();
+}
+
+/* =========================================================
+   GROUP MANAGEMENT (owner only): rename, password, members
+   ========================================================= */
+
+async function buildGroupManagePanel(g, posts) {
+  const panel = document.createElement('div');
+  panel.className = 'group-manage-panel';
+
+  // ---- rename ----
+  const renameRow = document.createElement('div');
+  renameRow.className = 'group-manage-row';
+  renameRow.innerHTML = `
+    <span class="group-manage-label">название</span>
+    <span class="group-manage-value">${escapeHtml(g.name)}</span>
+  `;
+  const renameActions = document.createElement('div');
+  renameActions.className = 'group-manage-actions';
+  const renameBtn = document.createElement('button');
+  renameBtn.type = 'button';
+  renameBtn.className = 'group-manage-mini-btn';
+  renameBtn.textContent = 'переименовать';
+  renameBtn.onclick = () => renameGroupPrompt(g);
+  renameActions.appendChild(renameBtn);
+  renameRow.appendChild(renameActions);
+  panel.appendChild(renameRow);
+
+  // ---- password ----
+  const isProtected = !!g.password_hash;
+  const passRow = document.createElement('div');
+  passRow.className = 'group-manage-row';
+  passRow.innerHTML = `
+    <span class="group-manage-label">пароль</span>
+    <span class="group-manage-value">${isProtected ? 'установлен' : 'выключен'}</span>
+  `;
+  const passActions = document.createElement('div');
+  passActions.className = 'group-manage-actions';
+
+  if (isProtected) {
+    const changeBtn = document.createElement('button');
+    changeBtn.type = 'button';
+    changeBtn.className = 'group-manage-mini-btn';
+    changeBtn.textContent = 'сменить';
+    changeBtn.onclick = () => changeGroupPasswordPrompt(g);
+    passActions.appendChild(changeBtn);
+
+    const offBtn = document.createElement('button');
+    offBtn.type = 'button';
+    offBtn.className = 'group-manage-mini-btn danger';
+    offBtn.textContent = 'отключить';
+    offBtn.onclick = () => setGroupPassword(g, null);
+    passActions.appendChild(offBtn);
+  } else {
+    const onBtn = document.createElement('button');
+    onBtn.type = 'button';
+    onBtn.className = 'group-manage-mini-btn';
+    onBtn.textContent = 'включить';
+    onBtn.onclick = () => changeGroupPasswordPrompt(g);
+    passActions.appendChild(onBtn);
+  }
+  passRow.appendChild(passActions);
+  panel.appendChild(passRow);
+
+  // ---- members ----
+  // There's no separate membership table — the practical notion of a
+  // "member" here is anyone who has posted in the group. Removing a
+  // member clears their messages from this group and unlists it from
+  // their recent groups, so it disappears from their sidebar too.
+  const membersWrap = document.createElement('div');
+  membersWrap.className = 'group-manage-row';
+  membersWrap.style.flexDirection = 'column';
+  membersWrap.style.alignItems = 'stretch';
+
+  const membersLabel = document.createElement('span');
+  membersLabel.className = 'group-manage-label';
+  membersLabel.textContent = 'участники';
+  membersWrap.appendChild(membersLabel);
+
+  const membersById = new Map();
+  posts.forEach(p => {
+    if (p.author_id === g.owner_id) return; // owner isn't listed as a removable "member"
+    if (!membersById.has(p.author_id)) membersById.set(p.author_id, p.author_name);
+  });
+
+  const memberList = document.createElement('div');
+  memberList.className = 'group-member-list';
+
+  if (membersById.size === 0) {
+    memberList.innerHTML = `<div class="group-member-empty">Пока никто из участников не писал в группу.</div>`;
+  } else {
+    membersById.forEach((name, authorId) => {
+      const row = document.createElement('div');
+      row.className = 'group-member-row';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'group-member-name';
+      nameEl.textContent = name;
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'group-manage-mini-btn danger';
+      removeBtn.textContent = 'удалить';
+      removeBtn.onclick = () => removeGroupMember(g, authorId, name);
+      row.appendChild(nameEl);
+      row.appendChild(removeBtn);
+      memberList.appendChild(row);
+    });
+  }
+  membersWrap.appendChild(memberList);
+  panel.appendChild(membersWrap);
+
+  return panel;
+}
+
+async function renameGroupPrompt(g) {
+  const next = await showPrompt('Название группы:', g.name, { eyebrow: 'переименовать группу' });
+  if (next === null) return;
+  const name = next.trim();
+  if (name.length < 2) { await showAlert('Название группы должно содержать не менее 2 символов.', 'ошибка'); return; }
+
+  const { error } = await db.from('groups').update({ name }).eq('id', g.id).eq('owner_id', currentUser.id);
+  if (error) {
+    await showAlert(error.code === '23505' ? 'Группа с таким названием уже существует.' : 'Не удалось переименовать группу: ' + error.message, 'ошибка');
+    return;
+  }
+  await renderGroupsPanel();
+  await renderGroupArea();
+}
+
+async function changeGroupPasswordPrompt(g) {
+  const next = await showPrompt('Новый пароль группы:', '', { eyebrow: 'пароль группы', password: true, confirmLabel: 'Сохранить' });
+  if (next === null) return;
+  if (!next || next.length < 4) { await showAlert('Пароль группы должен содержать не менее 4 символов.', 'ошибка'); return; }
+  await setGroupPassword(g, next);
+}
+
+async function setGroupPassword(g, plainPassword) {
+  const password_hash = plainPassword ? simpleHash(plainPassword) : null;
+  const { error } = await db.from('groups').update({ password_hash }).eq('id', g.id).eq('owner_id', currentUser.id);
+  if (error) {
+    await showAlert('Не удалось обновить пароль: ' + error.message, 'ошибка');
+    return;
+  }
+  await renderGroupsPanel();
+  await renderGroupArea();
+}
+
+async function removeGroupMember(g, authorId, authorName) {
+  const ok = await showConfirm(
+    `Удалить участника «${authorName}» из группы? Его сообщения будут удалены, а группа пропадёт из его списка.`,
+    { eyebrow: 'удаление участника', confirmLabel: 'Удалить', danger: true }
+  );
+  if (!ok) return;
+
+  await db.from('group_posts').delete().eq('group_id', g.id).eq('author_id', authorId);
+  await db.from('recent_groups').delete().eq('group_id', g.id).eq('user_id', authorId);
+
+  await renderGroupArea();
 }
 
 async function renderGroupArea() {
@@ -5070,6 +5328,13 @@ async function renderGroupArea() {
     </div>
   `;
   if (isOwner) {
+    const manageBtn = document.createElement('button');
+    manageBtn.type = 'button';
+    manageBtn.className = 'group-manage-btn' + (groupManageOpen ? ' active' : '');
+    manageBtn.textContent = 'настройки';
+    manageBtn.onclick = () => { groupManageOpen = !groupManageOpen; renderGroupArea(); };
+    topbar.appendChild(manageBtn);
+
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
     deleteBtn.className = 'group-delete-btn';
@@ -5083,6 +5348,13 @@ async function renderGroupArea() {
   leaveBtn.textContent = 'скрыть из списка';
   leaveBtn.onclick = () => forgetRecentGroup(g.id);
   topbar.appendChild(leaveBtn);
+
+  area.appendChild(topbar);
+
+  if (isOwner && groupManageOpen) {
+    const manage = await buildGroupManagePanel(g, posts || []);
+    area.appendChild(manage);
+  }
 
   const feed = document.createElement('div');
   feed.className = 'group-feed';
@@ -5161,7 +5433,6 @@ async function renderGroupArea() {
   composer.appendChild(textarea);
   composer.appendChild(sendBtn);
 
-  area.appendChild(topbar);
   area.appendChild(feed);
   area.appendChild(limitRow);
   area.appendChild(composer);
