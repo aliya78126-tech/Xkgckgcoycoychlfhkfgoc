@@ -2065,6 +2065,19 @@
     border-bottom: 1px solid var(--line);
     flex-shrink: 0;
   }
+  .group-topbar-back { flex-shrink: 0; }
+  .group-topbar-center {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
+  .group-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
   .group-topbar-title {
     font-size: 22px;
     font-weight: 500;
@@ -5335,33 +5348,22 @@ async function renderGroupArea() {
   const topbar = document.createElement('div');
   topbar.className = 'group-topbar';
   topbar.innerHTML = `
-    <button type="button" class="mobile-back-btn" onclick="exitGroupView()">← назад</button>
-    <div style="min-width:0;">
+    <button type="button" class="mobile-back-btn group-topbar-back" onclick="exitGroupView()">← назад</button>
+    <div class="group-topbar-center">
       <div class="group-topbar-title">${escapeHtml(g.name)}</div>
       <div class="group-topbar-sub">${isOwner ? 'вы создатель группы' : 'участник группы'}</div>
     </div>
+    <div class="group-topbar-actions"></div>
   `;
+  const topbarActions = topbar.querySelector('.group-topbar-actions');
   if (isOwner) {
     const manageBtn = document.createElement('button');
     manageBtn.type = 'button';
     manageBtn.className = 'group-manage-btn' + (groupManageOpen ? ' active' : '');
     manageBtn.textContent = 'настройки';
     manageBtn.onclick = () => { groupManageOpen = !groupManageOpen; renderGroupArea(); };
-    topbar.appendChild(manageBtn);
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = 'button';
-    deleteBtn.className = 'group-delete-btn';
-    deleteBtn.textContent = 'удалить группу';
-    deleteBtn.onclick = () => deleteGroup(g.id, g.name);
-    topbar.appendChild(deleteBtn);
+    topbarActions.appendChild(manageBtn);
   }
-  const leaveBtn = document.createElement('button');
-  leaveBtn.type = 'button';
-  leaveBtn.className = 'group-leave-btn';
-  leaveBtn.textContent = 'скрыть из списка';
-  leaveBtn.onclick = () => forgetRecentGroup(g.id);
-  topbar.appendChild(leaveBtn);
 
   area.appendChild(topbar);
 
