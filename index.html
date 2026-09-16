@@ -2454,54 +2454,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* =========================================================
-   RESEND EMAIL TEST — временная кнопка для проверки отправки
-   писем через Edge Function "swift-task" (использует Resend).
-   Можно удалить весь этот блок после того, как убедитесь,
-   что письма приходят.
-   ========================================================= */
-
-async function sendTestEmail() {
-  const to = prompt('На какую почту отправить тестовое письмо?');
-  if (!to) return;
-
-  const btn = document.getElementById('test-email-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Отправка…'; }
-
-  try {
-    const { data, error } = await db.functions.invoke('swift-task', {
-      body: {
-        to: to,
-        subject: 'Тест письма из Тетради',
-        html: '<h2>Привет!</h2><p>Это тестовое письмо, отправленное через Resend.</p>'
-      }
-    });
-
-    if (error) {
-      console.error('Ошибка отправки:', error);
-      alert('Ошибка отправки: ' + error.message);
-    } else {
-      console.log('Ответ функции:', data);
-      alert('Письмо отправлено! Проверьте почту (и папку "Спам").');
-    }
-  } catch (err) {
-    console.error(err);
-    alert('Не удалось отправить: ' + err.message);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Тест письма (Resend)'; }
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const testBtn = document.createElement('button');
-  testBtn.id = 'test-email-btn';
-  testBtn.type = 'button';
-  testBtn.textContent = 'Тест письма (Resend)';
-  testBtn.style.cssText = 'position:fixed; bottom:16px; right:16px; z-index:9999; padding:10px 16px; background:#FF6F5E; color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:13px; cursor:pointer;';
-  testBtn.onclick = sendTestEmail;
-  document.body.appendChild(testBtn);
-});
-
-/* =========================================================
    PLANS
    ========================================================= */
 
