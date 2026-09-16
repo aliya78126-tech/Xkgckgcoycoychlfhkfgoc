@@ -365,6 +365,11 @@
     white-space: nowrap;
     min-width: 0;
   }
+  .side-user-btns {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
 
   .side-user button {
     background: none;
@@ -1000,6 +1005,109 @@
     line-height: 1.5;
   }
 
+  .theme-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .theme-preset-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .theme-preset-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    transition: transform var(--dur-fast) var(--ease-soft), border-color var(--dur) var(--ease-soft);
+  }
+  .theme-preset-swatch:hover .theme-preset-dot { transform: scale(1.08); }
+  .theme-preset-swatch.active .theme-preset-dot { border-color: var(--accent); }
+  .theme-preset-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--text-dim);
+  }
+
+  .theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .theme-field {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .theme-field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .theme-field-hint {
+    font-size: 9.5px;
+    color: var(--text-dim);
+  }
+  .theme-field input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .theme-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+  .theme-field input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+
+  .theme-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .theme-actions button {
+    flex: 1;
+    min-width: 120px;
+  }
+  .theme-reset-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 0 18px;
+    min-height: 44px;
+  }
+  .theme-reset-btn:hover { border-color: var(--error); color: var(--error); }
+  .theme-save-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
   .admin-user-card {
     background: var(--panel-2);
     border: 1px solid var(--line);
@@ -1594,6 +1702,56 @@
     flex-shrink: 0;
   }
 
+  .group-form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-form-checkbox input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 5px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color var(--dur) var(--ease-soft), background var(--dur) var(--ease-soft);
+  }
+  .group-form-checkbox input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .group-form-checkbox input[type="checkbox"]:checked::after {
+    content: "";
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid #12141C;
+    border-bottom: 2px solid #12141C;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .group-form-checkbox label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  .group-lock-tag {
+    font-size: 9px;
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1px 6px;
+    flex-shrink: 0;
+  }
+
   .recent-group-item {
     display: flex;
     align-items: center;
@@ -1967,7 +2125,10 @@
         <div class="side-title">Тетрадь</div>
         <div class="side-user">
           <span id="current-username"></span>
-          <button onclick="handleLogout()" type="button">выйти</button>
+          <span class="side-user-btns">
+            <button onclick="openThemePanel()" type="button">оформление</button>
+            <button onclick="handleLogout()" type="button">выйти</button>
+          </span>
         </div>
         <div class="side-user-id" id="current-user-id" title="Нажмите, чтобы скопировать ID" onclick="copyUserId()"></div>
       </div>
@@ -2023,6 +2184,13 @@
 <!-- ================= ADMIN PANEL MODAL ================= -->
 <div id="admin-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeAdminPanel()">
   <div class="modal-card admin-modal-card" id="admin-card">
+    <!-- content injected by JS -->
+  </div>
+</div>
+
+<!-- ================= THEME MODAL ================= -->
+<div id="theme-modal" class="modal-overlay hidden" onclick="if(event.target===this) closeThemePanel()">
+  <div class="modal-card" id="theme-card">
     <!-- content injected by JS -->
   </div>
 </div>
@@ -2157,6 +2325,179 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+/* =========================================================
+   CUSTOM THEME — user-editable color variables.
+   Values are stored per-device in localStorage and applied to
+   :root on load, so the whole UI (backgrounds, panels, text,
+   accent color, etc.) can be personalized.
+   ========================================================= */
+
+const THEME_STORAGE_KEY = 'tetrad_custom_theme_v1';
+
+// Every CSS variable exposed to the user, with a friendly label/hint
+// and the built-in default (must match :root in the stylesheet).
+const THEME_VARS = [
+  { key: '--bg',         label: 'Фон',              hint: 'основной фон страницы',     def: '#12141C' },
+  { key: '--panel',      label: 'Панель',            hint: 'поля, карточки',            def: '#1A1D28' },
+  { key: '--panel-2',    label: 'Панель 2',          hint: 'сайдбар, модалки',          def: '#212533' },
+  { key: '--panel-3',    label: 'Панель 3',          hint: 'дополнительные блоки',      def: '#282D3D' },
+  { key: '--line',       label: 'Линии',             hint: 'границы, разделители',      def: '#333849' },
+  { key: '--text',       label: 'Текст',             hint: 'основной текст',            def: '#EDEEF2' },
+  { key: '--text-dim',   label: 'Текст (тусклый)',   hint: 'подписи, второстепенное',   def: '#8C92A6' },
+  { key: '--accent',     label: 'Акцент',            hint: 'кнопки, активные элементы', def: '#FF6F5E' },
+  { key: '--blue',       label: 'Синий акцент',      hint: 'редкие акценты',            def: '#6C8FAE' },
+];
+
+const THEME_PRESETS = [
+  { name: 'по умолчанию', colors: null },
+  {
+    name: 'океан',
+    colors: { '--bg': '#0E1520', '--panel': '#16202E', '--panel-2': '#1C2837', '--panel-3': '#22303F',
+      '--line': '#2E3F52', '--text': '#EAF1F6', '--text-dim': '#87A0B3', '--accent': '#4FC3E0', '--blue': '#6C8FAE' }
+  },
+  {
+    name: 'лес',
+    colors: { '--bg': '#12180F', '--panel': '#1A2417', '--panel-2': '#212E1C', '--panel-3': '#293823',
+      '--line': '#38492F', '--text': '#EAF0E4', '--text-dim': '#93A785', '--accent': '#8FBF5C', '--blue': '#6FA37E' }
+  },
+  {
+    name: 'светлая',
+    colors: { '--bg': '#F4F3EF', '--panel': '#FFFFFF', '--panel-2': '#ECEAE3', '--panel-3': '#E2DFD6',
+      '--line': '#D8D4C8', '--text': '#20211F', '--text-dim': '#6B6A61', '--accent': '#E0563E', '--blue': '#4E6E8C' }
+  },
+  {
+    name: 'ночная слива',
+    colors: { '--bg': '#160E1A', '--panel': '#211327', '--panel-2': '#2A1830', '--panel-3': '#341F3C',
+      '--line': '#452C4E', '--text': '#F1E9F4', '--text-dim': '#A78FAE', '--accent': '#D46FE0', '--blue': '#8F7FE0' }
+  },
+];
+
+function loadTheme() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY) || 'null'); } catch (e) { saved = null; }
+  if (!saved) return;
+  THEME_VARS.forEach(v => {
+    if (saved[v.key]) document.documentElement.style.setProperty(v.key, saved[v.key]);
+  });
+}
+
+function getCurrentThemeValues() {
+  const styles = getComputedStyle(document.documentElement);
+  const out = {};
+  THEME_VARS.forEach(v => {
+    const inline = document.documentElement.style.getPropertyValue(v.key).trim();
+    out[v.key] = inline || styles.getPropertyValue(v.key).trim() || v.def;
+  });
+  return out;
+}
+
+function applyThemeValue(key, value) {
+  document.documentElement.style.setProperty(key, value);
+}
+
+function saveCurrentTheme() {
+  const values = getCurrentThemeValues();
+  try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(values)); } catch (e) { /* noop */ }
+}
+
+function resetTheme() {
+  THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
+  try { localStorage.removeItem(THEME_STORAGE_KEY); } catch (e) { /* noop */ }
+  renderThemePanel();
+}
+
+function applyThemePreset(index) {
+  const preset = THEME_PRESETS[index];
+  if (!preset) return;
+  if (!preset.colors) {
+    THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
+  } else {
+    THEME_VARS.forEach(v => {
+      if (preset.colors[v.key]) document.documentElement.style.setProperty(v.key, preset.colors[v.key]);
+    });
+  }
+  saveCurrentTheme();
+  renderThemePanel();
+}
+
+function openThemePanel() {
+  renderThemePanel();
+  document.getElementById('theme-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeThemePanel() {
+  document.getElementById('theme-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function renderThemePanel() {
+  const card = document.getElementById('theme-card');
+  const current = getCurrentThemeValues();
+
+  card.innerHTML = `
+    <button class="modal-close" onclick="closeThemePanel()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">персонализация</div>
+    <h2 class="modal-title">Настройте <em>цвета сайта.</em></h2>
+    <p class="modal-sub">Измените любой цвет интерфейса под себя — изменения применяются сразу и сохраняются на этом устройстве.</p>
+
+    <div class="theme-presets" id="theme-presets"></div>
+
+    <div class="theme-grid" id="theme-grid"></div>
+
+    <div class="theme-actions">
+      <button type="button" class="theme-reset-btn" onclick="resetTheme()">Сбросить к умолчаниям</button>
+    </div>
+    <div class="theme-save-note">Оформление хранится локально в этом браузере и не влияет на других пользователей.</div>
+  `;
+
+  const presetsEl = document.getElementById('theme-presets');
+  THEME_PRESETS.forEach((preset, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-preset-swatch';
+    const swatchColor = preset.colors ? preset.colors['--accent'] : THEME_VARS.find(v => v.key === '--accent').def;
+    const swatchBg = preset.colors ? preset.colors['--bg'] : THEME_VARS.find(v => v.key === '--bg').def;
+    btn.innerHTML = `<span class="theme-preset-dot" style="background:linear-gradient(135deg, ${swatchBg} 50%, ${swatchColor} 50%)"></span><span class="theme-preset-label">${escapeHtml(preset.name)}</span>`;
+    btn.onclick = () => applyThemePreset(i);
+    presetsEl.appendChild(btn);
+  });
+
+  const gridEl = document.getElementById('theme-grid');
+  THEME_VARS.forEach(v => {
+    const field = document.createElement('div');
+    field.className = 'theme-field';
+    field.innerHTML = `
+      <span class="theme-field-label">${escapeHtml(v.label)}<span class="theme-field-hint">${escapeHtml(v.hint)}</span></span>
+    `;
+    const input = document.createElement('input');
+    input.type = 'color';
+    input.value = toHexColor(current[v.key], v.def);
+    input.oninput = () => {
+      applyThemeValue(v.key, input.value);
+      saveCurrentTheme();
+    };
+    field.appendChild(input);
+    gridEl.appendChild(field);
+  });
+}
+
+// <input type="color"> requires a #rrggbb value; convert rgba()/named
+// values from computed styles to hex, falling back to the default.
+function toHexColor(value, fallback) {
+  if (!value) return fallback;
+  const v = value.trim();
+  if (/^#([0-9a-f]{6})$/i.test(v)) return v;
+  if (/^#([0-9a-f]{3})$/i.test(v)) {
+    return '#' + v.slice(1).split('').map(c => c + c).join('');
+  }
+  const m = v.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (m) {
+    const toHex = n => Number(n).toString(16).padStart(2, '0');
+    return '#' + toHex(m[1]) + toHex(m[2]) + toHex(m[3]);
+  }
+  return fallback;
 }
 
 /* =========================================================
@@ -3515,7 +3856,7 @@ async function renderGroupsPanel() {
 
   const { data: recentRows } = await db
     .from('recent_groups')
-    .select('group_id, last_visited, groups(id, name, name_lower, owner_id)')
+    .select('group_id, last_visited, groups(id, name, name_lower, owner_id, password_hash)')
     .eq('user_id', currentUser.id)
     .order('last_visited', { ascending: false })
     .limit(30);
@@ -3527,11 +3868,16 @@ async function renderGroupsPanel() {
     ${recent.map((r, i) => {
       const g = r.groups;
       const isOwner = g.owner_id === currentUser.id;
+      const isProtected = !!g.password_hash;
       const delay = Math.min(i * 30, 240);
+      const clickHandler = isProtected
+        ? `openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')`
+        : `enterOpenGroup('${g.id}')`;
       return `
-        <div class="recent-group-item${g.name_lower === activeGroupName ? ' active' : ''}" style="animation-delay:${delay}ms" onclick="openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')">
+        <div class="recent-group-item${g.name_lower === activeGroupName ? ' active' : ''}" style="animation-delay:${delay}ms" onclick="${clickHandler}">
           <span class="recent-group-name">${escapeHtml(g.name)}</span>
           ${isOwner ? '<span class="recent-group-owner-tag">моя</span>' : ''}
+          ${!isProtected ? '<span class="group-lock-tag">без пароля</span>' : ''}
         </div>`;
     }).join('')}
   `;
@@ -3548,8 +3894,8 @@ async function renderGroupsPanel() {
         <input type="text" id="join-group-name" placeholder="например, family-chat">
       </div>
       <div class="field">
-        <label>Пароль группы</label>
-        <input type="password" id="join-group-password">
+        <label>Пароль группы (если есть)</label>
+        <input type="password" id="join-group-password" placeholder="оставьте пустым, если группа без пароля">
       </div>
       <button type="button" class="group-form-btn" onclick="joinGroup()">Войти</button>
     </div>
@@ -3570,7 +3916,11 @@ async function renderGroupsPanel() {
           <label>Название группы</label>
           <input type="text" id="new-group-name" placeholder="придумайте название">
         </div>
-        <div class="field">
+        <div class="group-form-checkbox" onclick="event.target.tagName!=='INPUT' && document.getElementById('new-group-has-password').click()">
+          <input type="checkbox" id="new-group-has-password" checked onchange="toggleNewGroupPasswordField()">
+          <label for="new-group-has-password">Защитить группу паролем</label>
+        </div>
+        <div class="field" id="new-group-password-field">
           <label>Пароль группы</label>
           <input type="password" id="new-group-password" placeholder="придумайте пароль">
         </div>
@@ -3588,9 +3938,28 @@ async function renderGroupsPanel() {
   `;
 }
 
+function toggleNewGroupPasswordField() {
+  const checked = document.getElementById('new-group-has-password').checked;
+  const field = document.getElementById('new-group-password-field');
+  if (!field) return;
+  field.classList.toggle('hidden', !checked);
+  if (!checked) document.getElementById('new-group-password').value = '';
+}
+
 function openGroupPrompt(nameLower, displayName) {
   document.getElementById('join-group-name').value = displayName;
   document.getElementById('join-group-password').focus();
+}
+
+async function enterOpenGroup(groupId) {
+  await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: groupId, last_visited: new Date().toISOString() });
+  const { data: g } = await db.from('groups').select('*').eq('id', groupId).maybeSingle();
+  if (!g) return;
+  activeGroupName = g.name_lower;
+  activeGroupId = g.id;
+  await renderGroupsPanel();
+  await renderGroupArea();
+  collapseMobileSidebar();
 }
 
 function showGroupFormError(elId, msg) {
@@ -3612,14 +3981,16 @@ async function createGroup() {
   }
 
   const name = document.getElementById('new-group-name').value.trim();
+  const hasPasswordEl = document.getElementById('new-group-has-password');
+  const wantsPassword = hasPasswordEl ? hasPasswordEl.checked : true;
   const password = document.getElementById('new-group-password').value;
 
   if (name.length < 2) { showGroupFormError('create-group-error', 'Название группы должно содержать не менее 2 символов.'); return; }
-  if (!password || password.length < 4) { showGroupFormError('create-group-error', 'Пароль группы должен содержать не менее 4 символов.'); return; }
+  if (wantsPassword && (!password || password.length < 4)) { showGroupFormError('create-group-error', 'Пароль группы должен содержать не менее 4 символов.'); return; }
 
   const { data, error } = await db
     .from('groups')
-    .insert({ name, password_hash: simpleHash(password), owner_id: currentUser.id })
+    .insert({ name, password_hash: wantsPassword ? simpleHash(password) : null, owner_id: currentUser.id })
     .select()
     .single();
 
@@ -3642,7 +4013,7 @@ async function joinGroup() {
   const name = document.getElementById('join-group-name').value.trim();
   const password = document.getElementById('join-group-password').value;
 
-  if (!name || !password) { showGroupFormError('join-group-error', 'Введите название и пароль группы.'); return; }
+  if (!name) { showGroupFormError('join-group-error', 'Введите название группы.'); return; }
 
   const { data: g, error } = await db
     .from('groups')
@@ -3650,8 +4021,14 @@ async function joinGroup() {
     .eq('name_lower', name.toLowerCase())
     .maybeSingle();
 
-  if (error || !g || g.password_hash !== simpleHash(password)) {
-    showGroupFormError('join-group-error', 'Неверное название или пароль группы.');
+  if (error || !g) {
+    showGroupFormError('join-group-error', 'Группа с таким названием не найдена.');
+    return;
+  }
+
+  const isProtected = !!g.password_hash;
+  if (isProtected && (!password || g.password_hash !== simpleHash(password))) {
+    showGroupFormError('join-group-error', 'Неверный пароль группы.');
     return;
   }
 
@@ -3668,6 +4045,14 @@ async function joinGroup() {
 async function forgetRecentGroup(groupId) {
   await db.from('recent_groups').delete().eq('user_id', currentUser.id).eq('group_id', groupId);
   if (activeGroupId === groupId) { activeGroupName = null; activeGroupId = null; }
+  await renderGroupsPanel();
+  await renderGroupArea();
+  showMobileList();
+}
+
+async function exitGroupView() {
+  activeGroupName = null;
+  activeGroupId = null;
   await renderGroupsPanel();
   await renderGroupArea();
   showMobileList();
@@ -3708,7 +4093,7 @@ async function renderGroupArea() {
   const topbar = document.createElement('div');
   topbar.className = 'group-topbar';
   topbar.innerHTML = `
-    <button type="button" class="mobile-back-btn" onclick="showMobileList()">← назад</button>
+    <button type="button" class="mobile-back-btn" onclick="exitGroupView()">← назад</button>
     <div style="min-width:0;">
       <div class="group-topbar-title">${escapeHtml(g.name)}</div>
       <div class="group-topbar-sub">${isOwner ? 'вы создатель группы' : 'участник группы'}</div>
@@ -3832,6 +4217,7 @@ function formatGroupTime(ts) {
    ========================================================= */
 
 (async function init() {
+  loadTheme();
   switchTab('login');
   const { data } = await db.auth.getSession();
   if (data.session) {
