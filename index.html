@@ -1117,6 +1117,20 @@
     line-height: 1.5;
   }
 
+  .theme-warning-box {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--error);
+    background: rgba(183,92,74,0.1);
+    border: 1px solid rgba(183,92,74,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    animation: fadeSlideDown var(--dur) var(--ease-soft);
+  }
+  .theme-warning-box div + div { margin-top: 4px; }
+
   .admin-user-card {
     background: var(--panel-2);
     border: 1px solid var(--line);
@@ -1861,6 +1875,23 @@
     color: var(--text-dim);
     flex-shrink: 0;
   }
+  .group-post-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .group-post-copy-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    padding: 2px 0;
+    flex-shrink: 0;
+    transition: color var(--dur) var(--ease-soft);
+  }
+  .group-post-copy-btn:hover { color: var(--accent); }
   .group-post-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 14px;
@@ -2336,6 +2367,31 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// Generic clipboard helper with a fallback for browsers/contexts where
+// navigator.clipboard isn't available (matches the approach copyUserId used).
+function copyTextToClipboard(text, onDone) {
+  const fallbackCopy = () => {
+    const tmp = document.createElement('textarea');
+    tmp.value = text;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); } catch (err) { /* noop */ }
+    document.body.removeChild(tmp);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => onDone && onDone(true)).catch(() => {
+      fallbackCopy();
+      onDone && onDone(true);
+    });
+  } else {
+    fallbackCopy();
+    onDone && onDone(true);
+  }
+}
+
 /* =========================================================
    CUSTOM THEME — user-editable color variables.
    Values are stored per-device in localStorage and applied to
@@ -2387,9 +2443,16 @@ function loadTheme() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY) || 'null'); } catch (e) { saved = null; }
   if (!saved) return;
+  const { values } = enforceThemeContrast({ ...getDefaultThemeValues(), ...saved });
   THEME_VARS.forEach(v => {
-    if (saved[v.key]) document.documentElement.style.setProperty(v.key, saved[v.key]);
+    if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
   });
+}
+
+function getDefaultThemeValues() {
+  const out = {};
+  THEME_VARS.forEach(v => { out[v.key] = v.def; });
+  return out;
 }
 
 function getCurrentThemeValues() {
@@ -2404,6 +2467,12 @@ function getCurrentThemeValues() {
 
 function applyThemeValue(key, value) {
   document.documentElement.style.setProperty(key, value);
+}
+
+function applyThemeValues(values) {
+  THEME_VARS.forEach(v => {
+    if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
+  });
 }
 
 function saveCurrentTheme() {
@@ -2423,9 +2492,8 @@ function applyThemePreset(index) {
   if (!preset.colors) {
     THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
   } else {
-    THEME_VARS.forEach(v => {
-      if (preset.colors[v.key]) document.documentElement.style.setProperty(v.key, preset.colors[v.key]);
-    });
+    const { values } = enforceThemeContrast({ ...getDefaultThemeValues(), ...preset.colors });
+    applyThemeValues(values);
   }
   saveCurrentTheme();
   renderThemePanel();
@@ -2453,12 +2521,14 @@ function renderThemePanel() {
 
     <div class="theme-presets" id="theme-presets"></div>
 
+    <div id="theme-warning"></div>
+
     <div class="theme-grid" id="theme-grid"></div>
 
     <div class="theme-actions">
       <button type="button" class="theme-reset-btn" onclick="resetTheme()">Сбросить к умолчаниям</button>
     </div>
-    <div class="theme-save-note">Оформление хранится локально в этом браузере и не влияет на других пользователей.</div>
+    <div class="theme-save-note">Оформление хранится локально в этом браузере и не влияет на других пользователей. Слишком похожие цвета автоматически чуть корректируются, чтобы текст и кнопки оставались читаемыми.</div>
   `;
 
   const presetsEl = document.getElementById('theme-presets');
@@ -2474,6 +2544,7 @@ function renderThemePanel() {
   });
 
   const gridEl = document.getElementById('theme-grid');
+  const inputsByKey = {};
   THEME_VARS.forEach(v => {
     const field = document.createElement('div');
     field.className = 'theme-field';
@@ -2484,12 +2555,32 @@ function renderThemePanel() {
     input.type = 'color';
     input.value = toHexColor(current[v.key], v.def);
     input.oninput = () => {
-      applyThemeValue(v.key, input.value);
+      const values = getCurrentThemeValues();
+      values[v.key] = input.value;
+      const { values: fixed, warnings } = enforceThemeContrast(values);
+      applyThemeValues(fixed);
       saveCurrentTheme();
+      // Reflect any auto-corrected value back into its own color picker.
+      Object.keys(fixed).forEach(k => {
+        if (inputsByKey[k] && inputsByKey[k].value.toLowerCase() !== fixed[k].toLowerCase()) {
+          inputsByKey[k].value = fixed[k];
+        }
+      });
+      showThemeWarning(warnings);
     };
+    inputsByKey[v.key] = input;
     field.appendChild(input);
     gridEl.appendChild(field);
   });
+}
+
+function showThemeWarning(warnings) {
+  const el = document.getElementById('theme-warning');
+  if (!el) return;
+  if (!warnings || warnings.length === 0) { el.innerHTML = ''; return; }
+  const labelOf = key => (THEME_VARS.find(v => v.key === key) || {}).label || key;
+  const lines = warnings.map(w => `«${escapeHtml(labelOf(w.key))}» был слишком похож на «${escapeHtml(labelOf(w.against))}» — цвет немного скорректирован для читаемости.`);
+  el.innerHTML = `<div class="theme-warning-box">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
 }
 
 // <input type="color"> requires a #rrggbb value; convert rgba()/named
@@ -2507,6 +2598,88 @@ function toHexColor(value, fallback) {
     return '#' + toHex(m[1]) + toHex(m[2]) + toHex(m[3]);
   }
   return fallback;
+}
+
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.substring(0, 2), 16),
+    g: parseInt(h.substring(2, 4), 16),
+    b: parseInt(h.substring(4, 6), 16),
+  };
+}
+
+function rgbToHex(r, g, b) {
+  const c = n => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+  return '#' + c(r) + c(g) + c(b);
+}
+
+// Relative luminance (WCAG-style approximation) — used to detect when two
+// colors are too visually close (e.g. an accent that blends into its own
+// background), not for exact accessibility contrast-ratio compliance.
+function relativeLuminance(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const lin = c => {
+    const p = c / 255;
+    return p <= 0.03928 ? p / 12.92 : Math.pow((p + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function contrastRatio(hexA, hexB) {
+  const lA = relativeLuminance(hexA);
+  const lB = relativeLuminance(hexB);
+  const lighter = Math.max(lA, lB);
+  const darker = Math.min(lA, lB);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// If a color is too close in luminance to a reference (its usual background),
+// push it toward black or white until it's distinguishable again — this is
+// what keeps e.g. the accent color from "disappearing" into a similarly-toned
+// panel background and turning a card into a solid color block.
+function ensureContrast(hex, referenceHex, minRatio) {
+  if (contrastRatio(hex, referenceHex) >= minRatio) return hex;
+  const refIsLight = relativeLuminance(referenceHex) > 0.5;
+  let { r, g, b } = hexToRgb(hex);
+  for (let i = 0; i < 20; i++) {
+    const step = refIsLight ? -12 : 12;
+    r += step; g += step; b += step;
+    const candidate = rgbToHex(r, g, b);
+    if (contrastRatio(candidate, referenceHex) >= minRatio) return candidate;
+  }
+  return refIsLight ? '#0A0A0A' : '#FFFFFF';
+}
+
+// Minimum contrast checks between color pairs that appear together in the
+// UI. Each entry auto-corrects `key`'s color if it gets too close to
+// `against`'s color, so a bad theme choice can't render a whole block
+// unreadable (e.g. accent buttons vanishing into the featured plan card).
+const THEME_CONTRAST_RULES = [
+  { key: '--accent',   against: '--panel-3', minRatio: 2.2 },
+  { key: '--accent',   against: '--bg',      minRatio: 1.8 },
+  { key: '--text',     against: '--bg',      minRatio: 4.5 },
+  { key: '--text-dim', against: '--bg',      minRatio: 2.5 },
+];
+
+// Runs every contrast rule against the given values object (as produced by
+// getCurrentThemeValues) and returns { values, warnings } — values has any
+// necessary auto-corrections applied, warnings lists which keys were adjusted
+// and why, for a small inline notice in the theme panel.
+function enforceThemeContrast(values) {
+  const result = { ...values };
+  const warnings = [];
+  THEME_CONTRAST_RULES.forEach(rule => {
+    const color = result[rule.key];
+    const reference = result[rule.against];
+    if (!color || !reference) return;
+    const fixed = ensureContrast(color, reference, rule.minRatio);
+    if (fixed.toLowerCase() !== color.toLowerCase()) {
+      result[rule.key] = fixed;
+      warnings.push({ key: rule.key, against: rule.against });
+    }
+  });
+  return { values: result, warnings };
 }
 
 /* =========================================================
@@ -3134,6 +3307,18 @@ function renderEditor() {
     exportBtn.onclick = () => exportNote(note);
     actions.appendChild(exportBtn);
   }
+
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'icon-btn neutral';
+  copyBtn.textContent = 'скопировать';
+  copyBtn.onclick = () => {
+    copyTextToClipboard(textarea.value, () => {
+      copyBtn.textContent = 'скопировано ✓';
+      setTimeout(() => { copyBtn.textContent = 'скопировать'; }, 1200);
+    });
+  };
+  actions.appendChild(copyBtn);
 
   if (plan.perks.history) {
     const histBtn = document.createElement('button');
@@ -4142,11 +4327,21 @@ async function renderGroupArea() {
       postEl.innerHTML = `
         <div class="group-post-head">
           <span class="group-post-author">${escapeHtml(p.author_name)}</span>
-          <span class="group-post-time">${formatGroupTime(p.created_at)}</span>
+          <span class="group-post-meta">
+            <button type="button" class="group-post-copy-btn">скопировать</button>
+            <span class="group-post-time">${formatGroupTime(p.created_at)}</span>
+          </span>
         </div>
         <div class="group-post-text"></div>
       `;
       postEl.querySelector('.group-post-text').textContent = p.text;
+      const copyPostBtn = postEl.querySelector('.group-post-copy-btn');
+      copyPostBtn.onclick = () => {
+        copyTextToClipboard(p.text, () => {
+          copyPostBtn.textContent = 'скопировано ✓';
+          setTimeout(() => { copyPostBtn.textContent = 'скопировать'; }, 1200);
+        });
+      };
       feed.appendChild(postEl);
     });
   }
