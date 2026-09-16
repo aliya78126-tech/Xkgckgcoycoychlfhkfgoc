@@ -621,8 +621,9 @@
   }
 
   .editor-title-input {
-    background: none;
-    border: none;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
     outline: none;
     color: var(--text);
     font-family: 'JetBrains Mono', monospace;
@@ -631,6 +632,13 @@
     font-variant: small-caps;
     width: 100%;
     min-width: 0;
+    padding: 10px 14px;
+    transition: border-color var(--dur) var(--ease-soft), box-shadow var(--dur) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .editor-title-input:focus {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
   }
   .editor-title-input::placeholder { color: var(--text-dim); }
 
@@ -2979,9 +2987,9 @@ function renderThemePanel() {
     <div class="theme-grid" id="theme-grid"></div>
 
     <div class="theme-actions">
-      <button type="button" class="theme-reset-btn" onclick="resetTheme()">Сбросить к умолчаниям</button>
+      <button type="button" class="theme-reset-btn" onclick="resetTheme()">Сбросить кастомное оформление</button>
     </div>
-    <div class="theme-save-note">Оформление хранится локально в этом браузере и не влияет на других пользователей. Слишком похожие цвета автоматически чуть корректируются, чтобы текст и кнопки оставались читаемыми.</div>
+    <div class="theme-save-note">Оформление хранится локально в этом браузере и не влияет на других пользователей. Слишком похожие цвета автоматически корректируются, чтобы текст и кнопки оставались читаемыми.</div>
   `;
 
   const presetsEl = document.getElementById('theme-presets');
@@ -3271,6 +3279,7 @@ let currentSection = 'notes';
 let activeGroupName = null;  // name_lower of currently open group
 let activeGroupId = null;    // uuid of currently open group
 let groupManageOpen = false; // whether the owner's "manage group" panel is expanded
+const unlockedGroupIds = new Set(); // ids of password-protected groups already unlocked this session (cleared on logout/reload)
 let noteSelectMode = false;
 let selectedNoteIds = new Set();
 
@@ -3392,6 +3401,7 @@ async function handleLogout() {
   unlockedNoteId = null;
   activeGroupName = null;
   activeGroupId = null;
+  unlockedGroupIds.clear();
   currentSection = 'notes';
   showMobileList();
   document.getElementById('app').classList.add('hidden');
@@ -3481,6 +3491,7 @@ async function enterApp(user) {
     await db.auth.signOut();
     currentUser = null;
     currentProfile = null;
+    unlockedGroupIds.clear();
     showError('Этот аккаунт заблокирован администратором.');
     return;
   }
@@ -3777,7 +3788,7 @@ function renderEditor() {
     const tagInput = document.createElement('input');
     tagInput.value = note.tag || '';
     tagInput.placeholder = 'тег';
-    tagInput.style.cssText = 'width:90px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px;color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:12px;padding:8px 10px;outline:none;min-height:38px;';
+    tagInput.style.cssText = 'width:90px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:12px;padding:8px 10px;outline:none;min-height:38px;';
     tagInput.oninput = () => { note.tag = tagInput.value.trim(); scheduleSave(); };
     tagInput.onblur = () => renderSidebar();
     actions.appendChild(tagInput);
@@ -4899,7 +4910,8 @@ async function renderGroupsPanel() {
     const isProtected = !!g.password_hash;
     const isOwn = g.owner_id === currentUser.id;
     const delay = Math.min(i * 30, 240);
-    const clickHandler = isProtected
+    const alreadyUnlocked = isProtected && unlockedGroupIds.has(g.id);
+    const clickHandler = (isProtected && !alreadyUnlocked)
       ? `openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')`
       : `enterOpenGroup('${g.id}')`;
     return `
@@ -4996,6 +5008,7 @@ async function enterOpenGroup(groupId) {
   const { data: g } = await db.from('groups').select('*').eq('id', groupId).maybeSingle();
   if (!g) return;
   if (activeGroupId !== g.id) groupManageOpen = false;
+  unlockedGroupIds.add(g.id);
   activeGroupName = g.name_lower;
   activeGroupId = g.id;
   await renderGroupsPanel();
@@ -5076,6 +5089,7 @@ async function joinGroup() {
 
   await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: g.id, last_visited: new Date().toISOString() });
 
+  unlockedGroupIds.add(g.id);
   groupManageOpen = false;
   activeGroupName = g.name_lower;
   activeGroupId = g.id;
