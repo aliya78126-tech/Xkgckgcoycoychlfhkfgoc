@@ -473,6 +473,87 @@
   }
   .note-item-empty { color: var(--text-dim); }
 
+  .note-check {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .note-item.select-mode .note-check { display: flex; }
+  .note-item.select-mode .note-num { display: none; }
+  .note-check::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform var(--dur-fast) var(--ease-soft);
+  }
+  .note-item.checked .note-check { border-color: var(--accent); background: var(--accent-soft); }
+  .note-item.checked .note-check::after { transform: scale(1); }
+  .note-item.checked { background: var(--panel-2); border-color: var(--line); }
+
+  .list-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 10px 8px;
+  }
+  .list-toolbar-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 4px;
+    min-height: 32px;
+    transition: color var(--dur-fast) var(--ease-soft);
+  }
+  .list-toolbar-btn:hover { color: var(--text); }
+  .list-toolbar-btn.accent { color: var(--accent); }
+
+  .select-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    margin: 0 4px 6px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    animation: fadeSlideDown var(--dur) var(--ease-soft);
+  }
+  .select-bar.active { display: flex; }
+  .select-bar-count {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .select-bar-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .select-bar-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    min-height: 32px;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .select-bar-btn:hover { transform: translateY(-1px); }
+  .select-bar-btn.danger { border-color: var(--error); color: var(--error); }
+  .select-bar-btn.danger:hover { background: rgba(229,72,77,0.12); }
 
   .note-item-empty-state {
     padding: 28px 16px;
@@ -518,6 +599,14 @@
     min-height: 0;
     padding-top: var(--safe-top);
     padding-right: var(--safe-right);
+  }
+
+  /* Desktop "← назад": collapses the editor and lets the note list
+     take the full width. Mobile has its own mechanism (mobile-hidden /
+     mobile-visible, gated by the media query below) and is unaffected. */
+  @media (min-width: 761px) {
+    #app.editor-collapsed #editor-area { display: none; }
+    #app.editor-collapsed #sidebar { flex: 1; width: auto; max-width: none; }
   }
 
   .editor-topbar {
@@ -2146,6 +2235,37 @@
   .group-leave-btn:hover { border-color: var(--error); color: var(--error); transform: translateY(-1px); }
   .group-leave-btn:active { transform: scale(0.96); }
 
+  .group-delete-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--error);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 9px 13px;
+    min-height: 38px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+  }
+  .group-delete-btn:hover { border-color: var(--error); background: rgba(229,72,77,0.12); transform: translateY(-1px); }
+  .group-delete-btn:active { transform: scale(0.96); }
+
+  .recent-group-delete {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1;
+    padding: 6px;
+    min-height: 28px;
+    min-width: 28px;
+    border-radius: 8px;
+    transition: color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  }
+  .recent-group-delete:hover { color: var(--error); background: rgba(229,72,77,0.12); }
+
   /* ================= RESPONSIVE ================= */
 
   @media (max-width: 760px) {
@@ -2347,6 +2467,19 @@
     <div id="notes-section">
       <div class="sidebar-search hidden" id="sidebar-search">
         <input type="text" id="search-input" placeholder="поиск по заметкам…" oninput="renderSidebar()">
+      </div>
+
+      <div class="list-toolbar" id="list-toolbar">
+        <button type="button" class="list-toolbar-btn" id="select-mode-toggle" onclick="toggleSelectMode()">выбрать несколько</button>
+      </div>
+
+      <div class="select-bar" id="select-bar">
+        <span class="select-bar-count" id="select-bar-count">0 выбрано</span>
+        <div class="select-bar-actions">
+          <button type="button" class="select-bar-btn" onclick="selectAllNotesVisible()">все</button>
+          <button type="button" class="select-bar-btn danger" onclick="deleteSelectedNotes()">удалить</button>
+          <button type="button" class="select-bar-btn" onclick="toggleSelectMode()">готово</button>
+        </div>
       </div>
 
       <div id="note-list"></div>
@@ -3042,6 +3175,8 @@ let unlockedNoteId = null;
 let currentSection = 'notes';
 let activeGroupName = null;  // name_lower of currently open group
 let activeGroupId = null;    // uuid of currently open group
+let noteSelectMode = false;
+let selectedNoteIds = new Set();
 
 /* =========================================================
    AUTH SCREEN LOGIC
@@ -3293,7 +3428,8 @@ async function loadNotes() {
 function isMobile() { return window.innerWidth <= 760; }
 
 // On mobile, showing the editor/chat hides the sidebar list entirely
-// and shows a back button; on desktop both panels are always visible.
+// and shows a back button; on desktop both panels are always visible,
+// except when the back button collapses the editor (see below).
 function showMobileEditor() {
   if (!isMobile()) return;
   document.getElementById('sidebar').classList.add('mobile-hidden');
@@ -3306,6 +3442,18 @@ function showMobileList() {
 }
 function collapseMobileSidebar() {
   showMobileEditor();
+  document.getElementById('app').classList.remove('editor-collapsed');
+}
+
+// Desktop "← назад": hides the editor and lets the note list take the
+// full width, acting as leaving the note. On mobile this is handled
+// by showMobileList() instead, so this only touches the desktop state.
+function goBackFromNote() {
+  if (isMobile()) {
+    showMobileList();
+    return;
+  }
+  document.getElementById('app').classList.add('editor-collapsed');
 }
 
 /* =========================================================
@@ -3358,10 +3506,20 @@ function renderSidebar() {
 
   visible.forEach((note, visibleIdx) => {
     const idx = notes.indexOf(note);
+    const isChecked = selectedNoteIds.has(note.id);
     const item = document.createElement('div');
-    item.className = 'note-item' + (note.id === activeNoteId ? ' active' : '');
+    item.className = 'note-item'
+      + (note.id === activeNoteId ? ' active' : '')
+      + (noteSelectMode ? ' select-mode' : '')
+      + (isChecked ? ' checked' : '');
     item.style.animationDelay = Math.min(visibleIdx * 25, 300) + 'ms';
-    item.onclick = () => selectNote(note.id);
+    item.onclick = () => {
+      if (noteSelectMode) toggleNoteSelected(note.id);
+      else selectNote(note.id);
+    };
+
+    const check = document.createElement('span');
+    check.className = 'note-check';
 
     const num = document.createElement('span');
     num.className = 'note-num';
@@ -3374,6 +3532,7 @@ function renderSidebar() {
     title.title = 'Двойной клик — переименовать';
     title.ondblclick = (e) => { e.stopPropagation(); renameNotePrompt(note.id); };
 
+    item.appendChild(check);
     item.appendChild(num);
 
     if (plan.perks.pin) {
@@ -3413,6 +3572,10 @@ function renderSidebar() {
 
     listEl.appendChild(item);
   });
+
+  const toolbar = document.getElementById('list-toolbar');
+  if (toolbar) toolbar.classList.toggle('hidden', notes.length === 0);
+  updateSelectBar();
 
   const count = notes.length;
   document.getElementById('quota-text').textContent = count + ' / ' + limit + ' заметок';
@@ -3498,7 +3661,7 @@ function renderEditor() {
   backBtn.type = 'button';
   backBtn.className = 'mobile-back-btn';
   backBtn.textContent = '← назад';
-  backBtn.onclick = showMobileList;
+  backBtn.onclick = goBackFromNote;
   topbar.appendChild(backBtn);
 
   const titleInput = document.createElement('input');
@@ -3771,6 +3934,86 @@ async function deleteNote(id) {
   if (activeNoteId === id) {
     activeNoteId = notes.length > 0 ? notes[0].id : null;
   }
+  renderSidebar();
+  renderEditor();
+
+  await loadNotes();
+  renderSidebar();
+  renderEditor();
+  showMobileList();
+}
+
+function toggleSelectMode() {
+  noteSelectMode = !noteSelectMode;
+  if (!noteSelectMode) selectedNoteIds.clear();
+  renderSidebar();
+}
+
+function toggleNoteSelected(id) {
+  if (selectedNoteIds.has(id)) selectedNoteIds.delete(id);
+  else selectedNoteIds.add(id);
+  renderSidebar();
+}
+
+function selectAllNotesVisible() {
+  const query = document.getElementById('search-input') ? document.getElementById('search-input').value.trim().toLowerCase() : '';
+  const target = query
+    ? notes.filter(n =>
+        (n.title || '').toLowerCase().includes(query) ||
+        (n.content || '').toLowerCase().includes(query) ||
+        (n.tag || '').toLowerCase().includes(query))
+    : notes;
+  const allSelected = target.length > 0 && target.every(n => selectedNoteIds.has(n.id));
+  if (allSelected) {
+    target.forEach(n => selectedNoteIds.delete(n.id));
+  } else {
+    target.forEach(n => selectedNoteIds.add(n.id));
+  }
+  renderSidebar();
+}
+
+function updateSelectBar() {
+  const bar = document.getElementById('select-bar');
+  const toggleBtn = document.getElementById('select-mode-toggle');
+  if (!bar) return;
+  bar.classList.toggle('active', noteSelectMode);
+  if (toggleBtn) toggleBtn.classList.toggle('hidden', noteSelectMode);
+  const countEl = document.getElementById('select-bar-count');
+  if (countEl) {
+    const n = selectedNoteIds.size;
+    countEl.textContent = n + (n === 1 ? ' выбрана' : ' выбрано');
+  }
+}
+
+async function deleteSelectedNotes() {
+  const ids = Array.from(selectedNoteIds);
+  if (ids.length === 0) return;
+
+  const ok = await showConfirm(
+    ids.length === 1
+      ? 'Удалить выбранную заметку без возможности восстановления?'
+      : `Удалить выбранные заметки (${ids.length}) без возможности восстановления?`,
+    { eyebrow: 'удаление заметок', confirmLabel: 'Удалить', danger: true }
+  );
+  if (!ok) return;
+
+  const { error } = await db
+    .from('notes')
+    .delete()
+    .in('id', ids)
+    .eq('user_id', currentUser.id);
+
+  if (error) {
+    await showAlert('Не удалось удалить заметки: ' + error.message, 'ошибка');
+    return;
+  }
+
+  notes = notes.filter(n => !selectedNoteIds.has(n.id));
+  if (selectedNoteIds.has(activeNoteId)) {
+    activeNoteId = notes.length > 0 ? notes[0].id : null;
+  }
+  selectedNoteIds.clear();
+  noteSelectMode = false;
   renderSidebar();
   renderEditor();
 
@@ -4522,6 +4765,7 @@ async function getMyMessageCountInGroup(groupId) {
 function switchSection(section) {
   currentSection = section;
   showMobileList();
+  document.getElementById('app').classList.remove('editor-collapsed');
   document.getElementById('tab-section-notes').classList.toggle('active', section === 'notes');
   document.getElementById('tab-section-groups').classList.toggle('active', section === 'groups');
   document.getElementById('notes-section').classList.toggle('hidden', section !== 'notes');
@@ -4557,6 +4801,7 @@ async function renderGroupsPanel() {
   function renderGroupItem(r, i) {
     const g = r.groups;
     const isProtected = !!g.password_hash;
+    const isOwn = g.owner_id === currentUser.id;
     const delay = Math.min(i * 30, 240);
     const clickHandler = isProtected
       ? `openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')`
@@ -4565,6 +4810,7 @@ async function renderGroupsPanel() {
       <div class="recent-group-item${g.name_lower === activeGroupName ? ' active' : ''}" style="animation-delay:${delay}ms" onclick="${clickHandler}">
         <span class="recent-group-name">${escapeHtml(g.name)}</span>
         ${!isProtected ? '<span class="group-lock-tag">без пароля</span>' : ''}
+        ${isOwn ? `<button type="button" class="recent-group-delete" title="Удалить группу" aria-label="Удалить группу" onclick="event.stopPropagation(); deleteGroup('${g.id}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')">✕</button>` : ''}
       </div>`;
   }
 
@@ -4740,6 +4986,33 @@ async function joinGroup() {
   collapseMobileSidebar();
 }
 
+async function deleteGroup(groupId, groupName) {
+  const ok = await showConfirm(
+    `Удалить группу «${groupName}» без возможности восстановления? Все сообщения в ней также будут удалены.`,
+    { eyebrow: 'удаление группы', confirmLabel: 'Удалить', danger: true }
+  );
+  if (!ok) return;
+
+  await db.from('group_posts').delete().eq('group_id', groupId);
+  await db.from('recent_groups').delete().eq('group_id', groupId);
+
+  const { error } = await db
+    .from('groups')
+    .delete()
+    .eq('id', groupId)
+    .eq('owner_id', currentUser.id);
+
+  if (error) {
+    await showAlert('Не удалось удалить группу: ' + error.message, 'ошибка');
+    return;
+  }
+
+  if (activeGroupId === groupId) { activeGroupName = null; activeGroupId = null; }
+  await renderGroupsPanel();
+  await renderGroupArea();
+  showMobileList();
+}
+
 async function forgetRecentGroup(groupId) {
   await db.from('recent_groups').delete().eq('user_id', currentUser.id).eq('group_id', groupId);
   if (activeGroupId === groupId) { activeGroupName = null; activeGroupId = null; }
@@ -4797,6 +5070,14 @@ async function renderGroupArea() {
       <div class="group-topbar-sub">${isOwner ? 'вы создатель группы' : 'участник группы'}</div>
     </div>
   `;
+  if (isOwner) {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'group-delete-btn';
+    deleteBtn.textContent = 'удалить группу';
+    deleteBtn.onclick = () => deleteGroup(g.id, g.name);
+    topbar.appendChild(deleteBtn);
+  }
   const leaveBtn = document.createElement('button');
   leaveBtn.type = 'button';
   leaveBtn.className = 'group-leave-btn';
