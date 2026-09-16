@@ -691,13 +691,22 @@
   .editor-empty button:hover { filter: brightness(1.08); transform: translateY(-1px); }
   .editor-empty button:active { transform: scale(0.97); }
 
-  /* Scrollbars, subtle */
-  #note-list::-webkit-scrollbar, #note-textarea::-webkit-scrollbar { width: 9px; }
-  #note-list::-webkit-scrollbar-thumb, #note-textarea::-webkit-scrollbar-thumb {
+  /* Scrollbars, subtle — themed to match the site's own colors everywhere,
+     not just note list/textarea, so no default white OS scrollbar ever shows. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
     background: var(--line);
     border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
-  #note-list::-webkit-scrollbar-track, #note-textarea::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); background-clip: padding-box; }
+  ::-webkit-scrollbar-corner { background: transparent; }
 
   /* Focus visibility for accessibility */
   button:focus-visible, input:focus-visible, textarea:focus-visible {
@@ -3862,25 +3871,34 @@ async function renderGroupsPanel() {
     .limit(30);
 
   const recent = (recentRows || []).filter(r => r.groups);
+  const myGroups = recent.filter(r => r.groups.owner_id === currentUser.id);
+  const otherGroups = recent.filter(r => r.groups.owner_id !== currentUser.id);
 
-  const recentHtml = recent.length === 0 ? '' : `
-    <div class="groups-block-title">Недавние группы</div>
-    ${recent.map((r, i) => {
-      const g = r.groups;
-      const isOwner = g.owner_id === currentUser.id;
-      const isProtected = !!g.password_hash;
-      const delay = Math.min(i * 30, 240);
-      const clickHandler = isProtected
-        ? `openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')`
-        : `enterOpenGroup('${g.id}')`;
-      return `
-        <div class="recent-group-item${g.name_lower === activeGroupName ? ' active' : ''}" style="animation-delay:${delay}ms" onclick="${clickHandler}">
-          <span class="recent-group-name">${escapeHtml(g.name)}</span>
-          ${isOwner ? '<span class="recent-group-owner-tag">моя</span>' : ''}
-          ${!isProtected ? '<span class="group-lock-tag">без пароля</span>' : ''}
-        </div>`;
-    }).join('')}
+  function renderGroupItem(r, i) {
+    const g = r.groups;
+    const isProtected = !!g.password_hash;
+    const delay = Math.min(i * 30, 240);
+    const clickHandler = isProtected
+      ? `openGroupPrompt('${g.name_lower.replace(/'/g,"\\'")}', '${escapeHtml(g.name).replace(/'/g,"\\'")}')`
+      : `enterOpenGroup('${g.id}')`;
+    return `
+      <div class="recent-group-item${g.name_lower === activeGroupName ? ' active' : ''}" style="animation-delay:${delay}ms" onclick="${clickHandler}">
+        <span class="recent-group-name">${escapeHtml(g.name)}</span>
+        ${!isProtected ? '<span class="group-lock-tag">без пароля</span>' : ''}
+      </div>`;
+  }
+
+  const myGroupsHtml = myGroups.length === 0 ? '' : `
+    <div class="groups-block-title">Мои группы</div>
+    ${myGroups.map(renderGroupItem).join('')}
   `;
+
+  const otherGroupsHtml = otherGroups.length === 0 ? '' : `
+    <div class="groups-block-title">Группы</div>
+    ${otherGroups.map(renderGroupItem).join('')}
+  `;
+
+  const recentHtml = myGroupsHtml + otherGroupsHtml;
 
   panel.innerHTML = `
     <div class="groups-block-title-row">
