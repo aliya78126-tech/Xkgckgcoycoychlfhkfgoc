@@ -738,6 +738,7 @@
   .plan-badge.plan-s { color: var(--blue); border-color: rgba(91,122,150,0.4); background: rgba(91,122,150,0.08); }
   .plan-badge.plan-m { color: var(--accent); border-color: rgba(255,111,94,0.4); background: rgba(255,111,94,0.08); }
   .plan-badge.plan-l { color: #A78BFA; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
+  .plan-badge.plan-custom { color: #5FD4A8; border-color: rgba(95,212,168,0.4); background: rgba(95,212,168,0.08); }
   .plan-badge {
     transition: color var(--dur) var(--ease-soft), border-color var(--dur) var(--ease-soft), background var(--dur) var(--ease-soft);
     animation: popIn var(--dur-slow) var(--ease);
@@ -752,7 +753,7 @@
     padding: 6px 0;
     transition: transform var(--dur-fast) var(--ease-soft), opacity var(--dur-fast) var(--ease-soft);
   }
-  .upgrade-link:hover { text-decoration: underline; transform: translateX(2px); }
+  .upgrade-link:hover { transform: translateX(2px); }
 
   /* ---------- PRICING MODAL ---------- */
 
@@ -836,7 +837,7 @@
 
   .plans-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 14px;
   }
 
@@ -961,6 +962,90 @@
     color: var(--text-dim);
     margin-top: 24px;
     line-height: 1.6;
+  }
+
+  /* ---------- CUSTOM PLAN BUILDER ---------- */
+  /* Reuses .admin-limit-row / .admin-limit-head / .admin-limit-label /
+     .admin-limit-controls from the admin panel so the sliders look
+     identical everywhere they appear. */
+
+  .custom-builder-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 22px 0 10px;
+  }
+  .custom-builder-section-title:first-of-type { margin-top: 0; }
+
+  .custom-limit-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--accent);
+    flex-shrink: 0;
+    min-width: 64px;
+    text-align: right;
+  }
+
+  .custom-perk-row {
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color var(--dur-fast) var(--ease-soft);
+  }
+  .custom-perk-row:hover { border-color: var(--text-dim); }
+  .custom-perk-row.checked { border-color: var(--accent); }
+  .custom-perk-row input[type="checkbox"] {
+    width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0;
+  }
+  .custom-perk-label {
+    display: flex; align-items: center; gap: 10px; font-size: 13px; flex: 1; min-width: 0;
+  }
+  .custom-perk-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .custom-builder-sticky {
+    position: sticky;
+    bottom: -1px;
+    background: var(--panel-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .custom-builder-price-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .custom-builder-price {
+    font-size: 26px;
+    font-weight: 500;
+  }
+  .custom-builder-price span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 400;
   }
 
   /* ---------- ADMIN PANEL ---------- */
@@ -1268,8 +1353,8 @@
     padding: 7px 8px;
     text-align: center;
   }
-  .admin-limit-controls input[type="number"]:focus,
-  .admin-limit-controls input[type="range"]:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .admin-limit-controls input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .admin-limit-controls input[type="range"]:focus { outline: none; }
   .admin-limit-reset-btn {
     background: none;
     border: none;
@@ -2398,33 +2483,88 @@ const PLANS = {
     limit: 200, charLimit: 50000, groupLimit: 10, messageLimit: 20,
     features: ['200 заметок', 'До 50 000 символов в заметке', 'Всё из "Про"', 'История изменений (откат версий)', 'Пароль на отдельную заметку', 'Светлая / тёмная тема', '10 своих групп', '20 сообщений в каждой группе'],
     perks: { search: true, pin: true, tags: true, exportTxt: true, history: true, lockNote: true, theme: true }
+  },
+  custom: {
+    key: 'custom', name: 'Кастомный', price: 0, badgeClass: 'plan-custom',
+    // Defaults here only seed the builder's sliders on first open — the
+    // real values (and real price) for a given user live in their profile
+    // row (limit_notes / limit_chars / limit_groups / limit_messages /
+    // custom_perks / custom_price) once they've configured and paid.
+    limit: 200, charLimit: 50000, groupLimit: 10, messageLimit: 20,
+    features: ['Лимиты и функции — по вашему выбору'],
+    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
   }
 };
 
 function getCharLimit() { return getCurrentPlan().charLimit; }
 
-// Per-user limit overrides (set from the admin panel) let an individual
-// account exceed or shrink its plan's defaults without changing plans.
-// Each override column is nullable — null means "use the plan's value".
+// Per-user limit overrides (set from the admin panel, or from the custom
+// plan builder) let an individual account exceed or shrink its plan's
+// defaults without changing plans. Each override column is nullable —
+// null means "use the plan's value". `base` / `rate` are what the custom
+// plan builder uses: the first `base` units are free, each unit above
+// that costs `rate` — so limits are not capped at Студия's values.
 const LIMIT_OVERRIDE_FIELDS = [
-  { column: 'limit_notes',    planKey: 'limit',       label: 'Заметок',              min: 1,   max: 2000,   step: 1 },
-  { column: 'limit_chars',    planKey: 'charLimit',   label: 'Символов в заметке',   min: 500, max: 500000, step: 500 },
-  { column: 'limit_groups',   planKey: 'groupLimit',  label: 'Своих групп',          min: 0,   max: 200,    step: 1 },
-  { column: 'limit_messages', planKey: 'messageLimit',label: 'Сообщ. в каждой группе', min: 0, max: 1000,   step: 1 },
+  { column: 'limit_notes',    planKey: 'limit',       label: 'Заметок',              min: 1,   max: 2000,   step: 1,   base: 10,   rate: 0.5 },
+  { column: 'limit_chars',    planKey: 'charLimit',   label: 'Символов в заметке',   min: 500, max: 500000, step: 500, base: 5000, rate: 0.01 },
+  { column: 'limit_groups',   planKey: 'groupLimit',  label: 'Своих групп',          min: 0,   max: 200,    step: 1,   base: 1,    rate: 5 },
+  { column: 'limit_messages', planKey: 'messageLimit',label: 'Сообщ. в каждой группе', min: 0, max: 1000,   step: 1,   base: 3,    rate: 2 },
 ];
+
+// Perks purchasable individually in the custom plan builder, with their
+// monthly add-on price. Keys match PLANS[*].perks.
+const CUSTOM_PERK_PRICES = [
+  { key: 'search',    label: 'Поиск по заметкам',                price: 15 },
+  { key: 'pin',       label: 'Закрепление важных заметок',       price: 10 },
+  { key: 'tags',      label: 'Теги и папки для заметок',         price: 20 },
+  { key: 'exportTxt', label: 'Экспорт заметки в .txt',           price: 10 },
+  { key: 'history',   label: 'История изменений (откат версий)', price: 35 },
+  { key: 'lockNote',  label: 'Пароль на отдельную заметку',      price: 15 },
+  { key: 'theme',     label: 'Светлая / тёмная тема',            price: 5 },
+];
+
+// Linear price for a set of limit values + selected perks — used both to
+// price-preview the builder live and to compute the final checkout total.
+// The first `base` units of each limit are included free; every unit
+// above that is billed at `rate`. There is no upper cap.
+function calcCustomPrice(limitValues, perkKeys) {
+  let total = 0;
+  LIMIT_OVERRIDE_FIELDS.forEach(f => {
+    const val = Number(limitValues[f.column]) || 0;
+    const billable = Math.max(0, val - f.base);
+    total += billable * f.rate;
+  });
+  CUSTOM_PERK_PRICES.forEach(p => {
+    if (perkKeys[p.key]) total += p.price;
+  });
+  return Math.round(total);
+}
 
 // Builds an effective plan object for a given profile row: starts from the
 // profile's plan defaults, then applies any non-null per-user overrides.
+// For the custom plan, perks also come from the profile (custom_perks),
+// since they're picked individually rather than fixed by plan key, and
+// price comes from the stored custom_price rather than PLANS.custom.price.
 function getEffectivePlan(profileRow) {
   const key = (profileRow && profileRow.plan) || 'free';
   const base = PLANS[key] || PLANS.free;
-  const effective = { ...base };
+  const effective = { ...base, perks: { ...base.perks } };
   LIMIT_OVERRIDE_FIELDS.forEach(f => {
     const override = profileRow ? profileRow[f.column] : null;
     if (override !== null && override !== undefined && override !== '') {
       effective[f.planKey] = Number(override);
     }
   });
+  if (key === 'custom' && profileRow) {
+    let storedPerks = profileRow.custom_perks;
+    if (typeof storedPerks === 'string') {
+      try { storedPerks = JSON.parse(storedPerks); } catch (e) { storedPerks = null; }
+    }
+    if (storedPerks && typeof storedPerks === 'object') {
+      effective.perks = { ...effective.perks, ...storedPerks };
+    }
+    effective.price = Number(profileRow.custom_price) || 0;
+  }
   return effective;
 }
 
@@ -3704,12 +3844,30 @@ function renderPricingGrid() {
       </div>`;
   }).join('');
 
+  const isCustomCurrent = currentKey === 'custom';
+  const customPriceLabel = isCustomCurrent ? (getCurrentPlan().price + ' ₽<span> / мес</span>') : 'от вас';
+  const customQuota = isCustomCurrent
+    ? `${getCurrentPlan().limit} заметок · ${getCurrentPlan().groupLimit} групп · ${getCurrentPlan().messageLimit} сообщ./группу`
+    : 'сами выбираете лимиты';
+  const customCardHtml = `
+    <div class="plan-card${isCustomCurrent ? ' current' : ''}">
+      <div class="plan-card-name"><span>Кастомный</span></div>
+      <div class="plan-card-price">${customPriceLabel}</div>
+      <div class="plan-card-quota">${customQuota}</div>
+      <ul class="plan-card-features">
+        <li>Свои лимиты заметок, символов, групп и сообщений — без верхней границы</li>
+        <li>Любые функции докупаются по отдельности</li>
+        <li>Цена считается из того, что вы выбрали</li>
+      </ul>
+      <button type="button" class="plan-card-btn" onclick="openCustomBuilder()">${isCustomCurrent ? 'изменить настройки' : 'настроить →'}</button>
+    </div>`;
+
   card.innerHTML = `
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">подписка</div>
     <h2 class="modal-title">Больше места, <em>больше возможностей.</em></h2>
     <p class="modal-sub">Один тариф сразу открывает лимиты по заметкам, группам и сообщениям в группах — покупать что-то отдельно не нужно. Отменить можно в любой момент.</p>
-    <div class="plans-grid">${cardsHtml}</div>
+    <div class="plans-grid">${cardsHtml}${customCardHtml}</div>
     <div class="modal-foot-note">Оплата симулируется локально — для этого демо не подключён настоящий платёжный шлюз.</div>
   `;
 }
@@ -3726,6 +3884,178 @@ async function downgradeToFree() {
 function openCheckout(planKey) {
   const p = PLANS[planKey];
   renderGenericCheckout(p, () => confirmPayment(planKey));
+}
+
+/* =========================================================
+   CUSTOM PLAN BUILDER
+   ---------------------------------------------------------
+   Lets the user drag a slider per limit (no upper cap beyond
+   the field's own max/step) and toggle individual perks, with
+   the price recalculated live from calcCustomPrice(). On
+   checkout this writes plan='custom' plus the four limit
+   override columns and a custom_perks / custom_price pair to
+   the user's profile row — reusing the same columns the admin
+   panel already writes to, so getEffectivePlan() picks it up
+   with no other changes needed.
+   ========================================================= */
+
+// Holds the in-progress selection while the builder modal is open.
+let customBuilderState = null;
+
+function openCustomBuilder() {
+  const current = getCurrentPlan();
+  const isCustomAlready = currentProfile && currentProfile.plan === 'custom';
+  const limits = {};
+  LIMIT_OVERRIDE_FIELDS.forEach(f => {
+    limits[f.column] = isCustomAlready ? Number(currentProfile[f.column]) || f.base : current[f.planKey];
+  });
+  const perks = {};
+  CUSTOM_PERK_PRICES.forEach(p => { perks[p.key] = isCustomAlready ? !!current.perks[p.key] : false; });
+  customBuilderState = { limits, perks };
+  renderCustomBuilder();
+}
+
+function renderCustomBuilder() {
+  const card = document.getElementById('pricing-card');
+  const { limits, perks } = customBuilderState;
+  const price = calcCustomPrice(limits, perks);
+
+  const limitsHtml = LIMIT_OVERRIDE_FIELDS.map(f => {
+    const val = limits[f.column];
+    const sliderMax = Math.max(f.max, val * 2);
+    return `
+      <div class="admin-limit-row">
+        <div class="admin-limit-head">
+          <span class="admin-limit-label">${escapeHtml(f.label)}</span>
+          <span class="custom-limit-value">${val.toLocaleString('ru-RU')}</span>
+        </div>
+        <div class="admin-limit-controls">
+          <input type="range" id="custom-range-${f.column}" min="${f.min}" max="${sliderMax}" step="${f.step}" value="${val}"
+            oninput="syncCustomLimitInput('${f.column}', this.value)">
+          <input type="number" id="custom-number-${f.column}" min="${f.min}" max="${sliderMax}" step="${f.step}" value="${val}"
+            oninput="syncCustomLimitInput('${f.column}', this.value)">
+        </div>
+      </div>`;
+  }).join('');
+
+  const perksHtml = CUSTOM_PERK_PRICES.map(p => `
+    <label class="custom-perk-row${perks[p.key] ? ' checked' : ''}" for="custom-perk-${p.key}">
+      <span class="custom-perk-label">
+        <input type="checkbox" id="custom-perk-${p.key}" ${perks[p.key] ? 'checked' : ''} onchange="toggleCustomPerk('${p.key}', this.checked)">
+        ${escapeHtml(p.label)}
+      </span>
+      <span class="custom-perk-price">+${p.price} ₽</span>
+    </label>
+  `).join('');
+
+  card.innerHTML = `
+    <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">кастомный тариф</div>
+    <h2 class="modal-title">Соберите <em>свой план.</em></h2>
+    <p class="modal-sub">Выберите лимиты и функции — цена пересчитывается сразу. Верхней границы у ползунков нет: если нужно больше, чем в «Студии», просто продвиньте дальше.</p>
+
+    <div class="custom-builder-section-title">Лимиты</div>
+    ${limitsHtml}
+
+    <div class="custom-builder-section-title">Функции</div>
+    ${perksHtml}
+
+    <div class="custom-builder-sticky">
+      <div>
+        <div class="custom-builder-price-label">итого</div>
+        <div class="custom-builder-price" id="custom-price-display">${price} ₽<span> / мес</span></div>
+      </div>
+      <button type="button" class="btn-primary" style="width:auto; padding:13px 22px;" onclick="proceedToCustomCheckout()">К оплате →</button>
+    </div>
+    <button type="button" class="upgrade-link" style="margin-top:14px; width:100%; text-align:center;" onclick="renderPricingGrid()">← назад к тарифам</button>
+  `;
+}
+
+function syncCustomLimitInput(column, value) {
+  const field = LIMIT_OVERRIDE_FIELDS.find(f => f.column === column);
+  if (!field) return;
+  let num = Number(value);
+  if (Number.isNaN(num)) return;
+  const rangeEl = document.getElementById('custom-range-' + column);
+  const maxAllowed = rangeEl ? Number(rangeEl.max) : field.max;
+  num = Math.max(field.min, Math.min(maxAllowed, num));
+  customBuilderState.limits[column] = num;
+
+  const numberEl = document.getElementById('custom-number-' + column);
+  if (rangeEl) rangeEl.value = num;
+  if (numberEl) numberEl.value = num;
+  const valueLabel = rangeEl && rangeEl.closest('.admin-limit-row').querySelector('.custom-limit-value');
+  if (valueLabel) valueLabel.textContent = num.toLocaleString('ru-RU');
+
+  updateCustomPriceDisplay();
+}
+
+function toggleCustomPerk(key, checked) {
+  customBuilderState.perks[key] = checked;
+  const row = document.getElementById('custom-perk-' + key).closest('.custom-perk-row');
+  if (row) row.classList.toggle('checked', checked);
+  updateCustomPriceDisplay();
+}
+
+function updateCustomPriceDisplay() {
+  const price = calcCustomPrice(customBuilderState.limits, customBuilderState.perks);
+  const el = document.getElementById('custom-price-display');
+  if (el) el.innerHTML = `${price} ₽<span> / мес</span>`;
+}
+
+function proceedToCustomCheckout() {
+  const { limits, perks } = customBuilderState;
+  const price = calcCustomPrice(limits, perks);
+  const perkLabels = CUSTOM_PERK_PRICES.filter(p => perks[p.key]).map(p => p.label);
+  const customPlanForCheckout = {
+    key: 'custom',
+    name: 'Кастомный',
+    price,
+    limit: limits.limit_notes,
+    charLimit: limits.limit_chars,
+    groupLimit: limits.limit_groups,
+    messageLimit: limits.limit_messages,
+    perks: { ...PLANS.custom.perks, ...perks }
+  };
+  renderGenericCheckout(customPlanForCheckout, () => confirmCustomPayment(limits, perks, price));
+  const backBtn = document.querySelector('#pricing-card .upgrade-link');
+  if (backBtn) backBtn.onclick = renderCustomBuilder;
+}
+
+async function confirmCustomPayment(limits, perks, price) {
+  if (!validateCheckoutForm()) return;
+
+  currentProfile.plan = 'custom';
+  currentProfile.limit_notes = limits.limit_notes;
+  currentProfile.limit_chars = limits.limit_chars;
+  currentProfile.limit_groups = limits.limit_groups;
+  currentProfile.limit_messages = limits.limit_messages;
+  currentProfile.custom_perks = perks;
+  currentProfile.custom_price = price;
+
+  const { error } = await db.from('profiles').update({
+    plan: 'custom',
+    limit_notes: limits.limit_notes,
+    limit_chars: limits.limit_chars,
+    limit_groups: limits.limit_groups,
+    limit_messages: limits.limit_messages,
+    custom_perks: perks,
+    custom_price: price
+  }).eq('id', currentUser.id);
+
+  if (error) {
+    await showAlert('Не удалось сохранить кастомный тариф: ' + error.message + '\n\nПроверьте, что в таблице profiles есть колонки custom_perks (jsonb) и custom_price (numeric).', 'ошибка сохранения');
+    return;
+  }
+
+  const p = { name: 'Кастомный', price };
+  const perkNames = CUSTOM_PERK_PRICES.filter(x => perks[x.key]).map(x => x.label);
+  const perksSummary = perkNames.length ? `Включены функции: ${perkNames.join(', ')}.` : 'Дополнительные функции не выбраны.';
+  showPaymentSuccess(p, `Лимиты обновлены: ${limits.limit_notes} заметок, ${limits.limit_groups} групп, ${limits.limit_messages} сообщений в каждой группе. ${perksSummary}`);
+
+  renderSidebar();
+  renderEditor();
+  if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
 }
 
 function renderGenericCheckout(p, onConfirm) {
@@ -4274,7 +4604,7 @@ async function renderGroupsPanel() {
     <div class="group-form">
       <div class="group-quota-line">
         <span>создано вами: ${owned} / ${plan.groupLimit}</span>
-        ${plan.key === 'l' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
+        ${plan.key === 'l' || plan.key === 'custom' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
       </div>
       <div id="create-group-error"></div>
       ${limitReached ? `
@@ -4300,7 +4630,7 @@ async function renderGroupsPanel() {
     <div class="group-form">
       <div class="group-quota-line">
         <span>лимит на группу: ${plan.messageLimit} сообщений</span>
-        ${plan.key === 'l' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
+        ${plan.key === 'l' || plan.key === 'custom' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
       </div>
     </div>
   `;
