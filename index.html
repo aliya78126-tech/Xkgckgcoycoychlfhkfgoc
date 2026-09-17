@@ -1052,6 +1052,21 @@
   }
   .plan-card.featured .plan-card-btn:hover:not(:disabled) { filter: brightness(1.08); color: #1B1E23; }
 
+  .plan-card-btn-secondary {
+    margin-top: 8px;
+    color: var(--accent);
+    border-color: rgba(255,111,94,0.35);
+  }
+  .plan-card-btn-secondary:hover:not(:disabled) { border-color: var(--accent); }
+
+  .plan-card-addon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: -8px;
+    margin-bottom: 12px;
+  }
+
   .modal-foot-note {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11.5px;
@@ -1083,6 +1098,12 @@
     min-width: 64px;
     text-align: right;
   }
+  .custom-limit-included {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
 
   .custom-perk-row {
     background: var(--panel-2);
@@ -1099,6 +1120,7 @@
   }
   .custom-perk-row:hover { border-color: var(--text-dim); }
   .custom-perk-row.checked { border-color: var(--accent); }
+  .custom-perk-row.included { opacity: 0.65; cursor: default; }
   .custom-perk-row input[type="checkbox"] {
     width: 17px; height: 17px; accent-color: var(--accent); flex-shrink: 0;
   }
@@ -2713,7 +2735,25 @@ const PLANS = {
     key: 'free', name: 'Free', price: 0, badgeClass: 'plan-free',
     limit: 10, charLimit: 5000, groupLimit: 1, messageLimit: 3,
     features: ['10 заметок', 'До 5 000 символов в заметке', '1 своя группа', '3 сообщения в каждой группе'],
-    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
+    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false }
+  },
+  s: {
+    key: 's', name: 'Лайт', price: 39, badgeClass: 'plan-s',
+    limit: 30, charLimit: 15000, groupLimit: 3, messageLimit: 8,
+    features: ['30 заметок', 'До 15 000 символов в заметке', 'Поиск по заметкам', 'Закрепление важных заметок', '3 свои группы', '8 сообщений в каждой группе'],
+    perks: { search: true, pin: true, tags: false, exportTxt: false, history: false, lockNote: false }
+  },
+  m: {
+    key: 'm', name: 'Про', price: 99, badgeClass: 'plan-m',
+    limit: 80, charLimit: 35000, groupLimit: 6, messageLimit: 15,
+    features: ['80 заметок', 'До 35 000 символов в заметке', 'Всё из "Лайт"', 'Теги и папки для заметок', 'Экспорт заметки в .txt', '6 своих групп', '15 сообщений в каждой группе'],
+    perks: { search: true, pin: true, tags: true, exportTxt: true, history: false, lockNote: false }
+  },
+  l: {
+    key: 'l', name: 'Студия', price: 249, badgeClass: 'plan-l',
+    limit: 250, charLimit: 80000, groupLimit: 15, messageLimit: 40,
+    features: ['250 заметок', 'До 80 000 символов в заметке', 'Всё из "Про"', 'История изменений (откат версий)', 'Пароль на отдельную заметку', '15 своих групп', '40 сообщений в каждой группе'],
+    perks: { search: true, pin: true, tags: true, exportTxt: true, history: true, lockNote: true }
   },
   custom: {
     key: 'custom', name: 'Кастомный', price: 0, badgeClass: 'plan-custom',
@@ -2723,7 +2763,7 @@ const PLANS = {
     // custom_perks / custom_price) once they've configured and paid.
     limit: 200, charLimit: 50000, groupLimit: 10, messageLimit: 20,
     features: ['Лимиты и функции — по вашему выбору'],
-    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
+    perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false }
   }
 };
 
@@ -2752,31 +2792,35 @@ const CUSTOM_PERK_PRICES = [
   { key: 'exportTxt', label: 'Экспорт заметки в .txt',           price: 5 },
   { key: 'history',   label: 'История изменений (откат версий)', price: 18 },
   { key: 'lockNote',  label: 'Пароль на отдельную заметку',      price: 7 },
-  { key: 'theme',     label: 'Светлая / тёмная тема',            price: 3 },
 ];
 
-// Linear price for a set of limit values + selected perks — used both to
-// price-preview the builder live and to compute the final checkout total.
-// The first `base` units of each limit are included free; every unit
-// above that is billed at `rate`. There is no upper cap.
-function calcCustomPrice(limitValues, perkKeys) {
+// Linear add-on price for exceeding a plan's own limits + buying extra
+// perks not already included in that plan. `baseValues`/`basePerks` are
+// the limits/perks the plan already includes for free (pass the plan's
+// own values, not the global free-tier ones) — only what's ABOVE that is
+// billed. Used both to price-preview the builder live and to compute the
+// final checkout add-on total. There is no upper cap on the sliders.
+function calcCustomPrice(limitValues, perkKeys, baseValues, basePerks) {
   let total = 0;
   LIMIT_OVERRIDE_FIELDS.forEach(f => {
     const val = Number(limitValues[f.column]) || 0;
-    const billable = Math.max(0, val - f.base);
+    const floor = baseValues ? Number(baseValues[f.column]) || 0 : f.base;
+    const billable = Math.max(0, val - floor);
     total += billable * f.rate;
   });
   CUSTOM_PERK_PRICES.forEach(p => {
-    if (perkKeys[p.key]) total += p.price;
+    const alreadyIncluded = basePerks ? !!basePerks[p.key] : false;
+    if (perkKeys[p.key] && !alreadyIncluded) total += p.price;
   });
   return Math.round(total);
 }
 
 // Builds an effective plan object for a given profile row: starts from the
-// profile's plan defaults, then applies any non-null per-user overrides.
-// For the custom plan, perks also come from the profile (custom_perks),
-// since they're picked individually rather than fixed by plan key, and
-// price comes from the stored custom_price rather than PLANS.custom.price.
+// profile's plan defaults, then applies any non-null per-user limit
+// overrides (bought as an add-on, on top of ANY plan including free).
+// `custom_perks` holds extra perks bought on top of the plan's own perks,
+// and `custom_price` holds just the add-on amount — the final price is
+// always the plan's own price plus that add-on, for every plan.
 function getEffectivePlan(profileRow) {
   const key = (profileRow && profileRow.plan) || 'free';
   const base = PLANS[key] || PLANS.free;
@@ -2787,16 +2831,18 @@ function getEffectivePlan(profileRow) {
       effective[f.planKey] = Number(override);
     }
   });
-  if (key === 'custom' && profileRow) {
+  let addOnPerks = null;
+  if (profileRow) {
     let storedPerks = profileRow.custom_perks;
     if (typeof storedPerks === 'string') {
       try { storedPerks = JSON.parse(storedPerks); } catch (e) { storedPerks = null; }
     }
-    if (storedPerks && typeof storedPerks === 'object') {
-      effective.perks = { ...effective.perks, ...storedPerks };
-    }
-    effective.price = Number(profileRow.custom_price) || 0;
+    if (storedPerks && typeof storedPerks === 'object') addOnPerks = storedPerks;
   }
+  if (addOnPerks) effective.perks = { ...effective.perks, ...addOnPerks };
+  const addOnPrice = profileRow ? (Number(profileRow.custom_price) || 0) : 0;
+  effective.price = base.price + addOnPrice;
+  effective.addOnPrice = addOnPrice;
   return effective;
 }
 
@@ -3071,6 +3117,47 @@ function rgbToHex(r, g, b) {
   return '#' + c(r) + c(g) + c(b);
 }
 
+// RGB <-> HSL conversions so contrast fixes can move along lightness only,
+// preserving the hue/saturation the user actually picked (e.g. a light
+// yellow accent gets darkened toward a richer yellow, not toward grey/black).
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s;
+  const l = (max + min) / 2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      default: h = (r - g) / d + 4;
+    }
+    h /= 6;
+  }
+  return { h, s, l };
+}
+
+function hslToRgb(h, s, l) {
+  if (s === 0) { const v = l * 255; return { r: v, g: v, b: v }; }
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return {
+    r: hue2rgb(p, q, h + 1 / 3) * 255,
+    g: hue2rgb(p, q, h) * 255,
+    b: hue2rgb(p, q, h - 1 / 3) * 255,
+  };
+}
+
 // Relative luminance (WCAG-style approximation) — used to detect when two
 // colors are too visually close (e.g. an accent that blends into its own
 // background), not for exact accessibility contrast-ratio compliance.
@@ -3092,17 +3179,25 @@ function contrastRatio(hexA, hexB) {
 }
 
 // If a color is too close in luminance to a reference (its usual background),
-// push it toward black or white until it's distinguishable again — this is
-// what keeps e.g. the accent color from "disappearing" into a similarly-toned
-// panel background and turning a card into a solid color block.
+// nudge it toward black or white along its OWN hue/saturation until it's
+// distinguishable again — this keeps e.g. the accent color from
+// "disappearing" into a similarly-toned panel background, without turning
+// it into a washed-out grey. Only falls back to pure black/white if the
+// color's hue genuinely can't reach the required contrast (e.g. a fully
+// saturated mid-tone that would need to go past black/white to comply).
 function ensureContrast(hex, referenceHex, minRatio) {
   if (contrastRatio(hex, referenceHex) >= minRatio) return hex;
   const refIsLight = relativeLuminance(referenceHex) > 0.5;
-  let { r, g, b } = hexToRgb(hex);
-  for (let i = 0; i < 20; i++) {
-    const step = refIsLight ? -12 : 12;
-    r += step; g += step; b += step;
-    const candidate = rgbToHex(r, g, b);
+  const { r, g, b } = hexToRgb(hex);
+  const { h, s, l } = rgbToHsl(r, g, b);
+  // Walk lightness in small steps toward 0 (if reference is light, so the
+  // color needs to darken to stand out) or toward 1 (if reference is dark).
+  const target = refIsLight ? 0 : 1;
+  for (let i = 1; i <= 20; i++) {
+    const t = i / 20;
+    const newL = l + (target - l) * t;
+    const { r: cr, g: cg, b: cb } = hslToRgb(h, s, newL);
+    const candidate = rgbToHex(cr, cg, cb);
     if (contrastRatio(candidate, referenceHex) >= minRatio) return candidate;
   }
   return refIsLight ? '#0A0A0A' : '#FFFFFF';
@@ -3112,11 +3207,22 @@ function ensureContrast(hex, referenceHex, minRatio) {
 // UI. Each entry auto-corrects `key`'s color if it gets too close to
 // `against`'s color, so a bad theme choice can't render a whole block
 // unreadable (e.g. accent buttons vanishing into the featured plan card).
+// Text is checked against every surface it actually renders on (page
+// background AND all three panel tones) — checking only against --bg was
+// the bug that let text turn unreadable on panels/cards/modals whenever a
+// theme (like a light theme, or any custom mix) set panel tones far from
+// the page background's own lightness.
 const THEME_CONTRAST_RULES = [
   { key: '--accent',   against: '--panel-3', minRatio: 2.2 },
   { key: '--accent',   against: '--bg',      minRatio: 1.8 },
   { key: '--text',     against: '--bg',      minRatio: 4.5 },
+  { key: '--text',     against: '--panel',   minRatio: 4.5 },
+  { key: '--text',     against: '--panel-2', minRatio: 4.5 },
+  { key: '--text',     against: '--panel-3', minRatio: 4.5 },
   { key: '--text-dim', against: '--bg',      minRatio: 2.5 },
+  { key: '--text-dim', against: '--panel',   minRatio: 2.5 },
+  { key: '--text-dim', against: '--panel-2', minRatio: 2.5 },
+  { key: '--text-dim', against: '--panel-3', minRatio: 2.5 },
 ];
 
 // Runs every contrast rule against the given values object (as produced by
@@ -4167,43 +4273,42 @@ function closePricing() {
 
 function renderPricingGrid() {
   const card = document.getElementById('pricing-card');
-  const currentKey = getCurrentPlan().key;
+  const currentPlan = getCurrentPlan();
+  const currentKey = currentPlan.key;
+  const order = ['free', 's', 'm', 'l'];
 
-  const isCustomCurrent = currentKey === 'custom';
-  const customPriceLabel = isCustomCurrent ? (getCurrentPlan().price + ' ₽<span> / мес</span>') : 'от вас';
-  const customQuota = isCustomCurrent
-    ? `${getCurrentPlan().limit} заметок · ${getCurrentPlan().groupLimit} групп · ${getCurrentPlan().messageLimit} сообщ./группу`
-    : 'сами выбираете лимиты';
-  const customCardHtml = `
-    <div class="plan-card featured${isCustomCurrent ? ' current' : ''}">
-      <div class="plan-card-name"><span>Кастомный тариф</span></div>
-      <div class="plan-card-price">${customPriceLabel}</div>
-      <div class="plan-card-quota">${customQuota}</div>
-      <ul class="plan-card-features">
-        <li>Свои лимиты заметок, символов, групп и сообщений — без верхней границы</li>
-        <li>Любые функции докупаются по отдельности</li>
-        <li>Цена считается из того, что вы выбрали</li>
-      </ul>
-      <button type="button" class="plan-card-btn" onclick="openCustomBuilder()">${isCustomCurrent ? 'изменить настройки' : 'настроить →'}</button>
-    </div>`;
-
-  const freePriceLabel = 'бесплатно';
-  const isFreeCurrent = currentKey === 'free';
-  const freeCardHtml = `
-    <div class="plan-card${isFreeCurrent ? ' current' : ''}">
-      <div class="plan-card-name"><span>${PLANS.free.name}</span></div>
-      <div class="plan-card-price">${freePriceLabel}</div>
-      <div class="plan-card-quota">${PLANS.free.limit} заметок · ${PLANS.free.groupLimit} групп · ${PLANS.free.messageLimit} сообщ./группу</div>
-      <ul class="plan-card-features">${PLANS.free.features.map(f => `<li>${f}</li>`).join('')}</ul>
-      <button type="button" class="plan-card-btn" ${isFreeCurrent ? 'disabled' : ''} onclick="downgradeToFree()">${isFreeCurrent ? 'текущий план' : 'перейти на free'}</button>
-    </div>`;
+  const cardsHtml = order.map(key => {
+    const p = PLANS[key];
+    const isCurrent = key === currentKey;
+    const featured = key === 'm';
+    const priceLabel = p.price === 0 ? 'бесплатно' : p.price + ' ₽<span> / мес</span>';
+    const btnLabel = isCurrent ? 'текущий план' : (p.price === 0 ? 'перейти на free' : 'оформить');
+    const addOnNote = (isCurrent && currentPlan.addOnPrice > 0)
+      ? `<div class="plan-card-addon">+ докуплено на ${currentPlan.addOnPrice} ₽/мес сверху</div>`
+      : '';
+    const buyBtn = isCurrent
+      ? ''
+      : `<button type="button" class="plan-card-btn" onclick="${p.price === 0 ? `downgradeToFree()` : `openCheckout('${key}')`}">${btnLabel}</button>`;
+    const addOnBtn = isCurrent
+      ? `<button type="button" class="plan-card-btn plan-card-btn-secondary" onclick="openCustomBuilder()">${currentPlan.addOnPrice > 0 ? 'изменить докупленное' : 'докупить лимиты →'}</button>`
+      : '';
+    return `
+      <div class="plan-card${isCurrent ? ' current' : ''}${featured ? ' featured' : ''}">
+        <div class="plan-card-name"><span>${p.name}</span>${featured ? '<span class="plan-card-featured-tag">популярный</span>' : ''}</div>
+        <div class="plan-card-price">${priceLabel}</div>
+        ${addOnNote}
+        <div class="plan-card-quota">${p.limit} заметок · ${p.groupLimit} групп · ${p.messageLimit} сообщ./группу</div>
+        <ul class="plan-card-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
+        ${buyBtn}${addOnBtn}
+      </div>`;
+  }).join('');
 
   card.innerHTML = `
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">подписка</div>
-    <h2 class="modal-title">Один тариф, <em>настраиваете сами.</em></h2>
-    <p class="modal-sub">Никаких готовых пакетов — сами выбираете лимиты по заметкам, символам, группам и сообщениям, и докупаете только нужные функции. Цена меняется вместе с ползунками. Отменить можно в любой момент.</p>
-    <div class="plans-grid">${freeCardHtml}${customCardHtml}</div>
+    <h2 class="modal-title">Выберите план, <em>докупите под себя.</em></h2>
+    <p class="modal-sub">4 плана с базовыми лимитами и функциями. К любому из них, включая бесплатный, можно докупить лимиты по заметкам, символам, группам и сообщениям, а также недостающие функции — цена докупки считается сверху. Отменить можно в любой момент.</p>
+    <div class="plans-grid">${cardsHtml}</div>
     <div class="modal-foot-note">Оплата симулируется локально — для этого демо не подключён настоящий платёжный шлюз.</div>
   `;
 }
@@ -4223,42 +4328,46 @@ function openCheckout(planKey) {
 }
 
 /* =========================================================
-   CUSTOM PLAN BUILDER
+   ADD-ON LIMITS/PERKS BUILDER
    ---------------------------------------------------------
-   Lets the user drag a slider per limit (no upper cap beyond
-   the field's own max/step) and toggle individual perks, with
-   the price recalculated live from calcCustomPrice(). On
-   checkout this writes plan='custom' plus the four limit
-   override columns and a custom_perks / custom_price pair to
-   the user's profile row — reusing the same columns the admin
-   panel already writes to, so getEffectivePlan() picks it up
-   with no other changes needed.
+   Lets the user drag a slider per limit above their CURRENT
+   plan's own included values (no upper cap beyond the field's
+   own max/step), and toggle perks not already included in the
+   plan, with the add-on price recalculated live from
+   calcCustomPrice(). On checkout this writes the four limit
+   override columns (final values, not deltas) plus a
+   custom_perks / custom_price pair to the user's profile row —
+   the plan itself (profiles.plan) never changes here.
    ========================================================= */
 
 // Holds the in-progress selection while the builder modal is open.
 let customBuilderState = null;
 
 function openCustomBuilder() {
+  const planKey = (currentProfile && currentProfile.plan) || 'free';
+  const planBase = PLANS[planKey] || PLANS.free;
   const current = getCurrentPlan();
-  const isCustomAlready = currentProfile && currentProfile.plan === 'custom';
   const limits = {};
   LIMIT_OVERRIDE_FIELDS.forEach(f => {
-    limits[f.column] = isCustomAlready ? Number(currentProfile[f.column]) || f.base : current[f.planKey];
+    limits[f.column] = current[f.planKey];
   });
   const perks = {};
-  CUSTOM_PERK_PRICES.forEach(p => { perks[p.key] = isCustomAlready ? !!current.perks[p.key] : false; });
-  customBuilderState = { limits, perks };
+  CUSTOM_PERK_PRICES.forEach(p => { perks[p.key] = !!current.perks[p.key]; });
+  customBuilderState = { planKey, planBase, limits, perks };
   renderCustomBuilder();
 }
 
 function renderCustomBuilder() {
   const card = document.getElementById('pricing-card');
-  const { limits, perks } = customBuilderState;
-  const price = calcCustomPrice(limits, perks);
+  const { planBase, limits, perks } = customBuilderState;
+  const baseValues = {};
+  LIMIT_OVERRIDE_FIELDS.forEach(f => { baseValues[f.column] = planBase[f.planKey]; });
+  const price = calcCustomPrice(limits, perks, baseValues, planBase.perks);
 
   const limitsHtml = LIMIT_OVERRIDE_FIELDS.map(f => {
     const val = limits[f.column];
-    const sliderMax = Math.max(f.max, val * 2);
+    const floor = baseValues[f.column];
+    const sliderMax = Math.max(f.max, val * 2, floor * 2);
     return `
       <div class="admin-limit-row">
         <div class="admin-limit-head">
@@ -4266,29 +4375,33 @@ function renderCustomBuilder() {
           <span class="custom-limit-value">${val.toLocaleString('ru-RU')}</span>
         </div>
         <div class="admin-limit-controls">
-          <input type="range" id="custom-range-${f.column}" min="${f.min}" max="${sliderMax}" step="${f.step}" value="${val}"
+          <input type="range" id="custom-range-${f.column}" min="${floor}" max="${sliderMax}" step="${f.step}" value="${val}"
             oninput="syncCustomLimitInput('${f.column}', this.value)">
-          <input type="number" id="custom-number-${f.column}" min="${f.min}" max="${sliderMax}" step="${f.step}" value="${val}"
+          <input type="number" id="custom-number-${f.column}" min="${floor}" max="${sliderMax}" step="${f.step}" value="${val}"
             oninput="syncCustomLimitInput('${f.column}', this.value)">
         </div>
+        <div class="custom-limit-included">включено в план: ${floor.toLocaleString('ru-RU')}</div>
       </div>`;
   }).join('');
 
-  const perksHtml = CUSTOM_PERK_PRICES.map(p => `
-    <label class="custom-perk-row${perks[p.key] ? ' checked' : ''}" for="custom-perk-${p.key}">
+  const perksHtml = CUSTOM_PERK_PRICES.map(p => {
+    const includedFree = !!planBase.perks[p.key];
+    const checked = includedFree || perks[p.key];
+    return `
+    <label class="custom-perk-row${checked ? ' checked' : ''}${includedFree ? ' included' : ''}" for="custom-perk-${p.key}">
       <span class="custom-perk-label">
-        <input type="checkbox" id="custom-perk-${p.key}" ${perks[p.key] ? 'checked' : ''} onchange="toggleCustomPerk('${p.key}', this.checked)">
+        <input type="checkbox" id="custom-perk-${p.key}" ${checked ? 'checked' : ''} ${includedFree ? 'disabled' : ''} onchange="toggleCustomPerk('${p.key}', this.checked)">
         ${escapeHtml(p.label)}
       </span>
-      <span class="custom-perk-price">+${p.price} ₽</span>
-    </label>
-  `).join('');
+      <span class="custom-perk-price">${includedFree ? 'уже в плане' : '+' + p.price + ' ₽'}</span>
+    </label>`;
+  }).join('');
 
   card.innerHTML = `
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
-    <div class="modal-eyebrow">кастомный тариф</div>
-    <h2 class="modal-title">Соберите <em>свой план.</em></h2>
-    <p class="modal-sub">Выберите лимиты и функции — цена пересчитывается сразу. Верхней границы у ползунков нет: двигайте настолько далеко, насколько нужно.</p>
+    <div class="modal-eyebrow">докупка · план «${escapeHtml(planBase.name)}»</div>
+    <h2 class="modal-title">Докупите <em>сверху плана.</em></h2>
+    <p class="modal-sub">Лимиты и функции вашего плана уже включены бесплатно — здесь докупается только то, что выше них. Цена пересчитывается сразу и добавляется к стоимости плана.</p>
 
     <div class="custom-builder-section-title">Лимиты</div>
     ${limitsHtml}
@@ -4298,8 +4411,8 @@ function renderCustomBuilder() {
 
     <div class="custom-builder-sticky">
       <div>
-        <div class="custom-builder-price-label">итого</div>
-        <div class="custom-builder-price" id="custom-price-display">${price} ₽<span> / мес</span></div>
+        <div class="custom-builder-price-label">доплата сверху плана</div>
+        <div class="custom-builder-price" id="custom-price-display">+${price} ₽<span> / мес</span></div>
       </div>
       <button type="button" class="btn-primary" style="width:auto; padding:13px 22px;" onclick="proceedToCustomCheckout()">К оплате →</button>
     </div>
@@ -4310,11 +4423,12 @@ function renderCustomBuilder() {
 function syncCustomLimitInput(column, value) {
   const field = LIMIT_OVERRIDE_FIELDS.find(f => f.column === column);
   if (!field) return;
+  const rangeEl = document.getElementById('custom-range-' + column);
+  const minAllowed = rangeEl ? Number(rangeEl.min) : field.min;
+  const maxAllowed = rangeEl ? Number(rangeEl.max) : field.max;
   let num = Number(value);
   if (Number.isNaN(num)) return;
-  const rangeEl = document.getElementById('custom-range-' + column);
-  const maxAllowed = rangeEl ? Number(rangeEl.max) : field.max;
-  num = Math.max(field.min, Math.min(maxAllowed, num));
+  num = Math.max(minAllowed, Math.min(maxAllowed, num));
   customBuilderState.limits[column] = num;
 
   const numberEl = document.getElementById('custom-number-' + column);
@@ -4334,59 +4448,63 @@ function toggleCustomPerk(key, checked) {
 }
 
 function updateCustomPriceDisplay() {
-  const price = calcCustomPrice(customBuilderState.limits, customBuilderState.perks);
+  const { planBase, limits, perks } = customBuilderState;
+  const baseValues = {};
+  LIMIT_OVERRIDE_FIELDS.forEach(f => { baseValues[f.column] = planBase[f.planKey]; });
+  const price = calcCustomPrice(limits, perks, baseValues, planBase.perks);
   const el = document.getElementById('custom-price-display');
-  if (el) el.innerHTML = `${price} ₽<span> / мес</span>`;
+  if (el) el.innerHTML = `+${price} ₽<span> / мес</span>`;
 }
 
 function proceedToCustomCheckout() {
-  const { limits, perks } = customBuilderState;
-  const price = calcCustomPrice(limits, perks);
-  const perkLabels = CUSTOM_PERK_PRICES.filter(p => perks[p.key]).map(p => p.label);
-  const customPlanForCheckout = {
-    key: 'custom',
-    name: 'Кастомный',
-    price,
+  const { planBase, limits, perks } = customBuilderState;
+  const baseValues = {};
+  LIMIT_OVERRIDE_FIELDS.forEach(f => { baseValues[f.column] = planBase[f.planKey]; });
+  const addOnPrice = calcCustomPrice(limits, perks, baseValues, planBase.perks);
+  const totalPrice = planBase.price + addOnPrice;
+  const planForCheckout = {
+    key: planBase.key,
+    name: planBase.name + ' + докупка',
+    price: totalPrice,
     limit: limits.limit_notes,
     charLimit: limits.limit_chars,
     groupLimit: limits.limit_groups,
     messageLimit: limits.limit_messages,
-    perks: { ...PLANS.custom.perks, ...perks }
+    perks: { ...planBase.perks, ...perks }
   };
-  renderGenericCheckout(customPlanForCheckout, () => confirmCustomPayment(limits, perks, price));
+  renderGenericCheckout(planForCheckout, () => confirmCustomPayment(limits, perks, addOnPrice));
   const backBtn = document.querySelector('#pricing-card .upgrade-link');
   if (backBtn) backBtn.onclick = renderCustomBuilder;
 }
 
-async function confirmCustomPayment(limits, perks, price) {
+async function confirmCustomPayment(limits, perks, addOnPrice) {
   if (!validateCheckoutForm()) return;
 
-  currentProfile.plan = 'custom';
   currentProfile.limit_notes = limits.limit_notes;
   currentProfile.limit_chars = limits.limit_chars;
   currentProfile.limit_groups = limits.limit_groups;
   currentProfile.limit_messages = limits.limit_messages;
   currentProfile.custom_perks = perks;
-  currentProfile.custom_price = price;
+  currentProfile.custom_price = addOnPrice;
 
   const { error } = await db.from('profiles').update({
-    plan: 'custom',
     limit_notes: limits.limit_notes,
     limit_chars: limits.limit_chars,
     limit_groups: limits.limit_groups,
     limit_messages: limits.limit_messages,
     custom_perks: perks,
-    custom_price: price
+    custom_price: addOnPrice
   }).eq('id', currentUser.id);
 
   if (error) {
-    await showAlert('Не удалось сохранить кастомный тариф: ' + error.message + '\n\nПроверьте, что в таблице profiles есть колонки custom_perks (jsonb) и custom_price (numeric).', 'ошибка сохранения');
+    await showAlert('Не удалось сохранить докупленные лимиты: ' + error.message + '\n\nПроверьте, что в таблице profiles есть колонки custom_perks (jsonb) и custom_price (numeric).', 'ошибка сохранения');
     return;
   }
 
-  const p = { name: 'Кастомный', price };
-  const perkNames = CUSTOM_PERK_PRICES.filter(x => perks[x.key]).map(x => x.label);
-  const perksSummary = perkNames.length ? `Включены функции: ${perkNames.join(', ')}.` : 'Дополнительные функции не выбраны.';
+  const planName = customBuilderState.planBase.name;
+  const p = { name: planName, price: customBuilderState.planBase.price + addOnPrice };
+  const perkNames = CUSTOM_PERK_PRICES.filter(x => perks[x.key] && !customBuilderState.planBase.perks[x.key]).map(x => x.label);
+  const perksSummary = perkNames.length ? `Дополнительно докуплены функции: ${perkNames.join(', ')}.` : 'Дополнительные функции сверху плана не докуплены.';
   showPaymentSuccess(p, `Лимиты обновлены: ${limits.limit_notes} заметок, ${limits.limit_groups} групп, ${limits.limit_messages} сообщений в каждой группе. ${perksSummary}`);
 
   renderSidebar();
@@ -4518,9 +4636,17 @@ function showPaymentSuccess(p, subMessage) {
   `;
 }
 
+// Switching to a new plan (including downgrading to free) clears any
+// previously purchased add-on: the add-on's limits/perks were priced
+// relative to the OLD plan's own included limits, so carrying them over
+// would silently misprice (or double-count) them against the new plan.
 async function setUserPlan(planKey) {
   currentProfile.plan = planKey;
-  await db.from('profiles').update({ plan: planKey }).eq('id', currentUser.id);
+  const clearFields = { plan: planKey, custom_perks: null, custom_price: 0 };
+  LIMIT_OVERRIDE_FIELDS.forEach(f => { clearFields[f.column] = null; currentProfile[f.column] = null; });
+  currentProfile.custom_perks = null;
+  currentProfile.custom_price = 0;
+  await db.from('profiles').update(clearFields).eq('id', currentUser.id);
 }
 
 /* =========================================================
@@ -4635,7 +4761,7 @@ async function renderAdminUserCard() {
   ]);
 
   const plan = getEffectivePlan(u);
-  const planOrder = ['free', 'custom'];
+  const planOrder = ['free', 's', 'm', 'l'];
   const isSelf = u.id === currentUser.id;
 
   const notesHtml = (noteRows || []).length === 0
@@ -4944,7 +5070,7 @@ async function renderGroupsPanel() {
     <div class="group-form">
       <div class="group-quota-line">
         <span>создано вами: ${owned} / ${plan.groupLimit}</span>
-        ${plan.key === 'l' || plan.key === 'custom' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
+        ${plan.key === 'l' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
       </div>
       <div id="create-group-error"></div>
       ${limitReached ? `
@@ -4970,7 +5096,7 @@ async function renderGroupsPanel() {
     <div class="group-form">
       <div class="group-quota-line">
         <span>лимит на группу: ${plan.messageLimit} сообщений</span>
-        ${plan.key === 'l' || plan.key === 'custom' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
+        ${plan.key === 'l' ? '' : `<button type="button" onclick="openPricing()">улучшить →</button>`}
       </div>
     </div>
   `;
