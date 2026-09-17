@@ -2715,24 +2715,6 @@ const PLANS = {
     features: ['10 заметок', 'До 5 000 символов в заметке', '1 своя группа', '3 сообщения в каждой группе'],
     perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
   },
-  s: {
-    key: 's', name: 'Лайт', price: 50, badgeClass: 'plan-s',
-    limit: 25, charLimit: 10000, groupLimit: 3, messageLimit: 5,
-    features: ['25 заметок', 'До 10 000 символов в заметке', 'Закрепление важных заметок', 'Поиск по заметкам', '3 свои группы', '5 сообщений в каждой группе'],
-    perks: { search: true, pin: true, tags: false, exportTxt: false, history: false, lockNote: false, theme: false }
-  },
-  m: {
-    key: 'm', name: 'Про', price: 100, badgeClass: 'plan-m',
-    limit: 50, charLimit: 25000, groupLimit: 5, messageLimit: 10,
-    features: ['50 заметок', 'До 25 000 символов в заметке', 'Всё из "Лайт"', 'Теги и папки для заметок', 'Экспорт заметки в .txt', '5 своих групп', '10 сообщений в каждой группе'],
-    perks: { search: true, pin: true, tags: true, exportTxt: true, history: false, lockNote: false, theme: false }
-  },
-  l: {
-    key: 'l', name: 'Студия', price: 250, badgeClass: 'plan-l',
-    limit: 200, charLimit: 50000, groupLimit: 10, messageLimit: 20,
-    features: ['200 заметок', 'До 50 000 символов в заметке', 'Всё из "Про"', 'История изменений (откат версий)', 'Пароль на отдельную заметку', 'Светлая / тёмная тема', '10 своих групп', '20 сообщений в каждой группе'],
-    perks: { search: true, pin: true, tags: true, exportTxt: true, history: true, lockNote: true, theme: true }
-  },
   custom: {
     key: 'custom', name: 'Кастомный', price: 0, badgeClass: 'plan-custom',
     // Defaults here only seed the builder's sliders on first open — the
@@ -2752,24 +2734,25 @@ function getCharLimit() { return getCurrentPlan().charLimit; }
 // defaults without changing plans. Each override column is nullable —
 // null means "use the plan's value". `base` / `rate` are what the custom
 // plan builder uses: the first `base` units are free, each unit above
-// that costs `rate` — so limits are not capped at Студия's values.
+// that costs `rate` — so limits are not capped and stay affordable even
+// at high values.
 const LIMIT_OVERRIDE_FIELDS = [
-  { column: 'limit_notes',    planKey: 'limit',       label: 'Заметок',              min: 1,   max: 2000,   step: 1,   base: 10,   rate: 0.5 },
-  { column: 'limit_chars',    planKey: 'charLimit',   label: 'Символов в заметке',   min: 500, max: 500000, step: 500, base: 5000, rate: 0.01 },
-  { column: 'limit_groups',   planKey: 'groupLimit',  label: 'Своих групп',          min: 0,   max: 200,    step: 1,   base: 1,    rate: 5 },
-  { column: 'limit_messages', planKey: 'messageLimit',label: 'Сообщ. в каждой группе', min: 0, max: 1000,   step: 1,   base: 3,    rate: 2 },
+  { column: 'limit_notes',    planKey: 'limit',       label: 'Заметок',              min: 1,   max: 2000,   step: 1,   base: 10,   rate: 0.15 },
+  { column: 'limit_chars',    planKey: 'charLimit',   label: 'Символов в заметке',   min: 500, max: 500000, step: 500, base: 5000, rate: 0.002 },
+  { column: 'limit_groups',   planKey: 'groupLimit',  label: 'Своих групп',          min: 0,   max: 200,    step: 1,   base: 1,    rate: 2 },
+  { column: 'limit_messages', planKey: 'messageLimit',label: 'Сообщ. в каждой группе', min: 0, max: 1000,   step: 1,   base: 3,    rate: 0.6 },
 ];
 
 // Perks purchasable individually in the custom plan builder, with their
 // monthly add-on price. Keys match PLANS[*].perks.
 const CUSTOM_PERK_PRICES = [
-  { key: 'search',    label: 'Поиск по заметкам',                price: 15 },
-  { key: 'pin',       label: 'Закрепление важных заметок',       price: 10 },
-  { key: 'tags',      label: 'Теги и папки для заметок',         price: 20 },
-  { key: 'exportTxt', label: 'Экспорт заметки в .txt',           price: 10 },
-  { key: 'history',   label: 'История изменений (откат версий)', price: 35 },
-  { key: 'lockNote',  label: 'Пароль на отдельную заметку',      price: 15 },
-  { key: 'theme',     label: 'Светлая / тёмная тема',            price: 5 },
+  { key: 'search',    label: 'Поиск по заметкам',                price: 7 },
+  { key: 'pin',       label: 'Закрепление важных заметок',       price: 5 },
+  { key: 'tags',      label: 'Теги и папки для заметок',         price: 10 },
+  { key: 'exportTxt', label: 'Экспорт заметки в .txt',           price: 5 },
+  { key: 'history',   label: 'История изменений (откат версий)', price: 18 },
+  { key: 'lockNote',  label: 'Пароль на отдельную заметку',      price: 7 },
+  { key: 'theme',     label: 'Светлая / тёмная тема',            price: 3 },
 ];
 
 // Linear price for a set of limit values + selected perks — used both to
@@ -3717,15 +3700,10 @@ function renderSidebar() {
 
   const hintRow = document.getElementById('locked-hint');
   const hintText = document.getElementById('locked-hint-text');
-  if (plan.key === 'free') {
+  const missingPerks = CUSTOM_PERK_PRICES.filter(p => !plan.perks[p.key]);
+  if (missingPerks.length) {
     hintRow.classList.remove('hidden');
-    hintText.textContent = 'поиск, закрепление и другое — в платных планах';
-  } else if (plan.key === 's') {
-    hintRow.classList.remove('hidden');
-    hintText.textContent = 'теги, экспорт и история — с плана "Про"';
-  } else if (plan.key === 'm') {
-    hintRow.classList.remove('hidden');
-    hintText.textContent = 'история версий и пароль на заметку — со "Студии"';
+    hintText.textContent = missingPerks.map(p => p.label.toLowerCase()).slice(0, 2).join(', ') + ' — донастройте тариф';
   } else {
     hintRow.classList.add('hidden');
   }
@@ -4190,22 +4168,6 @@ function closePricing() {
 function renderPricingGrid() {
   const card = document.getElementById('pricing-card');
   const currentKey = getCurrentPlan().key;
-  const order = ['free', 's', 'm', 'l'];
-  const cardsHtml = order.map(key => {
-    const p = PLANS[key];
-    const isCurrent = key === currentKey;
-    const featured = key === 'm';
-    const priceLabel = p.price === 0 ? 'бесплатно' : p.price + ' ₽<span> / мес</span>';
-    const btnLabel = isCurrent ? 'текущий план' : (p.price === 0 ? 'перейти на free' : 'оформить');
-    return `
-      <div class="plan-card${isCurrent ? ' current' : ''}${featured ? ' featured' : ''}">
-        <div class="plan-card-name"><span>${p.name}</span>${featured ? '<span class="plan-card-featured-tag">популярный</span>' : ''}</div>
-        <div class="plan-card-price">${priceLabel}</div>
-        <div class="plan-card-quota">${p.limit} заметок · ${p.groupLimit} групп · ${p.messageLimit} сообщ./группу</div>
-        <ul class="plan-card-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        <button type="button" class="plan-card-btn" ${isCurrent ? 'disabled' : ''} onclick="${p.price === 0 ? `downgradeToFree()` : `openCheckout('${key}')`}">${btnLabel}</button>
-      </div>`;
-  }).join('');
 
   const isCustomCurrent = currentKey === 'custom';
   const customPriceLabel = isCustomCurrent ? (getCurrentPlan().price + ' ₽<span> / мес</span>') : 'от вас';
@@ -4213,8 +4175,8 @@ function renderPricingGrid() {
     ? `${getCurrentPlan().limit} заметок · ${getCurrentPlan().groupLimit} групп · ${getCurrentPlan().messageLimit} сообщ./группу`
     : 'сами выбираете лимиты';
   const customCardHtml = `
-    <div class="plan-card${isCustomCurrent ? ' current' : ''}">
-      <div class="plan-card-name"><span>Кастомный</span></div>
+    <div class="plan-card featured${isCustomCurrent ? ' current' : ''}">
+      <div class="plan-card-name"><span>Кастомный тариф</span></div>
       <div class="plan-card-price">${customPriceLabel}</div>
       <div class="plan-card-quota">${customQuota}</div>
       <ul class="plan-card-features">
@@ -4225,12 +4187,23 @@ function renderPricingGrid() {
       <button type="button" class="plan-card-btn" onclick="openCustomBuilder()">${isCustomCurrent ? 'изменить настройки' : 'настроить →'}</button>
     </div>`;
 
+  const freePriceLabel = 'бесплатно';
+  const isFreeCurrent = currentKey === 'free';
+  const freeCardHtml = `
+    <div class="plan-card${isFreeCurrent ? ' current' : ''}">
+      <div class="plan-card-name"><span>${PLANS.free.name}</span></div>
+      <div class="plan-card-price">${freePriceLabel}</div>
+      <div class="plan-card-quota">${PLANS.free.limit} заметок · ${PLANS.free.groupLimit} групп · ${PLANS.free.messageLimit} сообщ./группу</div>
+      <ul class="plan-card-features">${PLANS.free.features.map(f => `<li>${f}</li>`).join('')}</ul>
+      <button type="button" class="plan-card-btn" ${isFreeCurrent ? 'disabled' : ''} onclick="downgradeToFree()">${isFreeCurrent ? 'текущий план' : 'перейти на free'}</button>
+    </div>`;
+
   card.innerHTML = `
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">подписка</div>
-    <h2 class="modal-title">Больше места, <em>больше возможностей.</em></h2>
-    <p class="modal-sub">Один тариф сразу открывает лимиты по заметкам, группам и сообщениям в группах — покупать что-то отдельно не нужно. Отменить можно в любой момент.</p>
-    <div class="plans-grid">${cardsHtml}${customCardHtml}</div>
+    <h2 class="modal-title">Один тариф, <em>настраиваете сами.</em></h2>
+    <p class="modal-sub">Никаких готовых пакетов — сами выбираете лимиты по заметкам, символам, группам и сообщениям, и докупаете только нужные функции. Цена меняется вместе с ползунками. Отменить можно в любой момент.</p>
+    <div class="plans-grid">${freeCardHtml}${customCardHtml}</div>
     <div class="modal-foot-note">Оплата симулируется локально — для этого демо не подключён настоящий платёжный шлюз.</div>
   `;
 }
@@ -4315,7 +4288,7 @@ function renderCustomBuilder() {
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">кастомный тариф</div>
     <h2 class="modal-title">Соберите <em>свой план.</em></h2>
-    <p class="modal-sub">Выберите лимиты и функции — цена пересчитывается сразу. Верхней границы у ползунков нет: если нужно больше, чем в «Студии», просто продвиньте дальше.</p>
+    <p class="modal-sub">Выберите лимиты и функции — цена пересчитывается сразу. Верхней границы у ползунков нет: двигайте настолько далеко, насколько нужно.</p>
 
     <div class="custom-builder-section-title">Лимиты</div>
     ${limitsHtml}
@@ -4662,7 +4635,7 @@ async function renderAdminUserCard() {
   ]);
 
   const plan = getEffectivePlan(u);
-  const planOrder = ['free', 's', 'm', 'l'];
+  const planOrder = ['free', 'custom'];
   const isSelf = u.id === currentUser.id;
 
   const notesHtml = (noteRows || []).length === 0
