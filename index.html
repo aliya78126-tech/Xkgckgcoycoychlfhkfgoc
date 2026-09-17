@@ -2681,6 +2681,15 @@
       -- сделать себя админом (замени UUID на свой, см. current-user-id в приложении):
       update public.profiles set is_admin = true where id = 'ВАШ-UUID-СЮДА';
 
+   1.1) Столбец для персонального оформления (чтобы тема хранилась
+        на аккаунте, а не только в localStorage браузера):
+
+      alter table public.profiles add column if not exists theme jsonb;
+
+      -- RLS для этого столбца отдельно не нужен: он покрывается
+      -- уже существующими политиками "users can update own profile"
+      -- (обычный пользователь правит только свою строку).
+
    2) RLS-политики, которые разрешают админам менять ЧУЖИЕ строки.
       Без этого кнопки в панели будут возвращать ошибку доступа —
       обычный anon-ключ подчиняется RLS как и все остальные запросы.
@@ -2897,12 +2906,15 @@ function copyTextToClipboard(text, onDone) {
 
 /* =========================================================
    CUSTOM THEME — user-editable color variables.
-   Values are stored per-device in localStorage and applied to
-   :root on load, so the whole UI (backgrounds, panels, text,
-   accent color, etc.) can be personalized.
+   Values are stored on the user's account (public.profiles.theme)
+   so the same theme follows them across devices/browsers. While
+   logged out (auth screen), we fall back to localStorage so the
+   auth screen itself can still be themed before login.
    ========================================================= */
 
-const THEME_STORAGE_KEY = 'tetrad_custom_theme_v1';
+const THEME_STORAGE_KEY = 'tetrad_custom_theme_v1'; // logged-out fallback only
+const THEME_SAVE_DEBOUNCE_MS = 600;
+let themeSaveTimer = null;
 
 // Every CSS variable exposed to the user, with a friendly label/hint
 // and the built-in default (must match :root in the stylesheet).
@@ -2942,10 +2954,25 @@ const THEME_PRESETS = [
   },
 ];
 
+// Called once before login (auth screen) — uses the logged-out
+// localStorage fallback only, since there is no account yet.
 function loadTheme() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY) || 'null'); } catch (e) { saved = null; }
   if (!saved) return;
+  const { values } = enforceThemeContrast({ ...getDefaultThemeValues(), ...saved });
+  THEME_VARS.forEach(v => {
+    if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
+  });
+}
+
+// Called right after login, once currentProfile is available. The
+// account's saved theme (profiles.theme) takes priority; if the
+// account has none yet, we leave whatever the auth screen already
+// applied (localStorage fallback) so there's no jarring flash.
+function loadThemeForAccount() {
+  const saved = currentProfile && currentProfile.theme;
+  if (!saved || typeof saved !== 'object') return;
   const { values } = enforceThemeContrast({ ...getDefaultThemeValues(), ...saved });
   THEME_VARS.forEach(v => {
     if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
@@ -2978,14 +3005,42 @@ function applyThemeValues(values) {
   });
 }
 
+// Persists the current theme. Logged-in users get it saved to their
+// account (profiles.theme) via a debounced Supabase update, so rapid
+// color-picker drags don't spam the network; logged-out (auth screen)
+// falls back to localStorage on this device only.
 function saveCurrentTheme() {
   const values = getCurrentThemeValues();
-  try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(values)); } catch (e) { /* noop */ }
+
+  if (!currentUser) {
+    try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(values)); } catch (e) { /* noop */ }
+    return;
+  }
+
+  if (currentProfile) currentProfile.theme = values;
+
+  if (themeSaveTimer) clearTimeout(themeSaveTimer);
+  themeSaveTimer = setTimeout(async () => {
+    themeSaveTimer = null;
+    const { error } = await db.from('profiles').update({ theme: values }).eq('id', currentUser.id);
+    if (error) {
+      const el = document.getElementById('theme-warning');
+      if (el) {
+        el.innerHTML = `<div class="theme-warning-box"><div>Не удалось сохранить оформление на аккаунте: ${escapeHtml(error.message)}</div></div>`;
+      }
+    }
+  }, THEME_SAVE_DEBOUNCE_MS);
 }
 
-function resetTheme() {
+async function resetTheme() {
   THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
-  try { localStorage.removeItem(THEME_STORAGE_KEY); } catch (e) { /* noop */ }
+  if (currentUser) {
+    if (currentProfile) currentProfile.theme = null;
+    if (themeSaveTimer) { clearTimeout(themeSaveTimer); themeSaveTimer = null; }
+    await db.from('profiles').update({ theme: null }).eq('id', currentUser.id);
+  } else {
+    try { localStorage.removeItem(THEME_STORAGE_KEY); } catch (e) { /* noop */ }
+  }
   renderThemePanel();
 }
 
@@ -3509,6 +3564,10 @@ async function handleLogout() {
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
   switchTab('login');
+  // Reset to this device's local (logged-out) theme, so the next
+  // account's saved theme doesn't leak in from the previous session.
+  THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
+  loadTheme();
 }
 
 /* =========================================================
@@ -3603,6 +3662,7 @@ async function enterApp(user) {
   document.getElementById('current-username').textContent = currentProfile.display_name;
   renderUserId();
   document.getElementById('admin-row').classList.toggle('hidden', !currentProfile.is_admin);
+  loadThemeForAccount();
 
   activeGroupName = null;
   activeGroupId = null;
