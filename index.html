@@ -5063,15 +5063,22 @@ async function renderGroupsPanel() {
   panel.innerHTML = `<div class="groups-block-title loading-pulse">Загрузка…</div>`;
 
   const plan = getCurrentPlan();
-  const owned = await getOwnedGroupsCount();
-  const limitReached = owned >= plan.groupLimit;
 
-  const { data: recentRows } = await db
-    .from('recent_groups')
-    .select('group_id, last_visited, groups(id, name, name_lower, owner_id, password_hash)')
-    .eq('user_id', currentUser.id)
-    .order('last_visited', { ascending: false })
-    .limit(30);
+  // Run both queries in parallel instead of one after another — this
+  // was the main cause of the visible "Загрузка…" delay, since the
+  // two requests don't depend on each other's results.
+  const [owned, recentResult] = await Promise.all([
+    getOwnedGroupsCount(),
+    db
+      .from('recent_groups')
+      .select('group_id, last_visited, groups(id, name, name_lower, owner_id, password_hash)')
+      .eq('user_id', currentUser.id)
+      .order('last_visited', { ascending: false })
+      .limit(30),
+  ]);
+
+  const limitReached = owned >= plan.groupLimit;
+  const recentRows = recentResult.data;
 
   const recent = (recentRows || []).filter(r => r.groups);
   const myGroups = recent.filter(r => r.groups.owner_id === currentUser.id);
@@ -5482,7 +5489,16 @@ async function renderGroupArea() {
 
   area.innerHTML = `<div class="editor-empty"><div class="editor-empty-title loading-pulse">Загрузка…</div></div>`;
 
-  const { data: g } = await db.from('groups').select('*').eq('id', activeGroupId).single();
+  // All three queries only need activeGroupId / currentUser.id, none
+  // depend on each other's results — run them in parallel instead of
+  // one after another to cut the visible loading time roughly by half.
+  const [groupResult, postsResult, myCount] = await Promise.all([
+    db.from('groups').select('*').eq('id', activeGroupId).single(),
+    db.from('group_posts').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true }),
+    getMyMessageCountInGroup(activeGroupId),
+  ]);
+
+  const g = groupResult.data;
   if (!g) {
     activeGroupName = null;
     activeGroupId = null;
@@ -5491,14 +5507,7 @@ async function renderGroupArea() {
   }
 
   const isOwner = g.owner_id === currentUser.id;
-
-  const { data: posts } = await db
-    .from('group_posts')
-    .select('*')
-    .eq('group_id', g.id)
-    .order('created_at', { ascending: true });
-
-  const myCount = await getMyMessageCountInGroup(g.id);
+  const posts = postsResult.data;
   const myLimit = getMessageLimit();
   const limitReached = myCount >= myLimit;
 
