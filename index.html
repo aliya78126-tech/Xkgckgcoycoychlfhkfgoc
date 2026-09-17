@@ -40,6 +40,25 @@
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+  /* Custom pixel-art "spear" cursors, PC only (fine-pointer devices).
+     Toggled by body.custom-cursor-on; default OFF until the user enables
+     it, and only ever applied when the device actually has a mouse. */
+  @media (pointer: fine) {
+    body.custom-cursor-on,
+    body.custom-cursor-on * {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236C8FAE"/><rect x="13" y="8" width="6" height="4" fill="%236C8FAE"/><rect x="12" y="12" width="8" height="4" fill="%237FA6C4"/><rect x="14" y="16" width="4" height="12" fill="%238A5A34"/><rect x="14" y="26" width="4" height="4" fill="%235C3A20"/></g></svg>') 6 6, auto !important;
+    }
+    body.custom-cursor-on a,
+    body.custom-cursor-on button,
+    body.custom-cursor-on [role="button"],
+    body.custom-cursor-on .clickable,
+    body.custom-cursor-on input[type="checkbox"],
+    body.custom-cursor-on input[type="color"],
+    body.custom-cursor-on select {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%23FF6F5E"/><rect x="13" y="8" width="6" height="4" fill="%23FF6F5E"/><rect x="12" y="12" width="8" height="4" fill="%23D46FE0"/><rect x="14" y="16" width="4" height="12" fill="%232A2A2A"/><rect x="14" y="26" width="4" height="4" fill="%23141414"/></g></svg>') 6 6, pointer !important;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -1305,6 +1324,31 @@
   }
   .theme-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
   .theme-field input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
+
+  .theme-field-cursor { margin-bottom: 22px; }
+
+  .theme-toggle { position: relative; display: inline-block; flex-shrink: 0; cursor: pointer; }
+  .theme-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .theme-toggle-track {
+    display: block;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--panel-3);
+    border: 1px solid var(--line);
+    transition: background var(--dur) var(--ease-soft), border-color var(--dur) var(--ease-soft);
+  }
+  .theme-toggle-thumb {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 2px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: transform var(--dur) var(--ease-soft), background var(--dur) var(--ease-soft);
+  }
+  .theme-toggle input:checked + .theme-toggle-track { background: var(--accent-soft); border-color: var(--accent); }
+  .theme-toggle input:checked + .theme-toggle-track .theme-toggle-thumb { transform: translateX(18px); background: var(--accent); }
 
   .theme-actions {
     display: flex;
@@ -2767,12 +2811,69 @@
    попытки сменить план/забанить/выдать права будут падать —
    это ограничение самого Supabase (anon-ключ = обычный
    пользовательский доступ), а не баг в этом файле.
+
+   ---------------------------------------------------------
+   3) ОПЛАТА ЧЕРЕЗ ЮMONEY (кошелёк, не ЮKassa)
+   ---------------------------------------------------------
+   Полная инструкция по подключению — см. PAYMENTS_SETUP_README
+   в конце этого файла (после </html>) или в отдельном файле
+   yoomoney-webhook/README.md, который идёт вместе с этим
+   index.html. Здесь — только SQL, который нужно выполнить.
+
+   3.1) Таблица заказов на оплату. Каждая попытка оплаты (обычный
+        план или докупка лимитов) создаёт тут одну строку со
+        статусом pending; Edge Function переводит её в paid только
+        после того, как ЮMoney подтвердит перевод по HTTP-уведомлению
+        с правильной подписью — клиент сам никогда не помечает
+        платёж оплаченным.
+
+      create table if not exists public.payments (
+        id uuid primary key default gen_random_uuid(),
+        user_id uuid not null references auth.users(id) on delete cascade,
+        label text not null unique,            -- уникальный идентификатор, передаётся в ЮMoney
+        kind text not null,                    -- 'plan' или 'custom'
+        plan_key text,                         -- для kind='plan': 's' | 'm' | 'l'
+        custom_payload jsonb,                  -- для kind='custom': лимиты/перки/сумма докупки
+        amount numeric not null,               -- ожидаемая сумма в рублях
+        status text not null default 'pending',-- pending | paid | failed
+        yoomoney_operation_id text,            -- operation_id из уведомления, для защиты от повторов
+        created_at timestamptz not null default now(),
+        paid_at timestamptz
+      );
+
+      alter table public.payments enable row level security;
+
+      -- пользователь может создавать свои заказы и видеть только их статус
+      create policy "users can insert own payments"
+      on public.payments for insert
+      with check (auth.uid() = user_id);
+
+      create policy "users can read own payments"
+      on public.payments for select
+      using (auth.uid() = user_id);
+
+      -- обновлять статус платежа (pending -> paid) может только сама
+      -- Edge Function — она использует service_role ключ, который
+      -- обходит RLS. Обычным пользователям (anon-ключ) update запрещён
+      -- полностью: ни одной policy "for update" здесь нет специально.
+
+   3.2) Секретное слово из настроек HTTP-уведомлений ЮMoney нужно
+        положить в Supabase как секрет для Edge Function (НЕ в этот
+        HTML-файл — он публичный и виден всем в браузере):
+
+      supabase secrets set YOOMONEY_NOTIFICATION_SECRET=ваше-секретное-слово
+
    ========================================================= */
 
 const SUPABASE_URL = 'https://vudpaeodsuqdphxjlaje.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1ZHBhZW9kc3VxZHBoeGpsYWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNjUxMTYsImV4cCI6MjEwNDY0MTExNn0.PHS4rWYkSEl2H_k2mivcwqyoFDGVT1gNfmKTkcwwiA0';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ЮMoney: номер кошелька, куда уходят все оплаты планов/докупок.
+// Секретное слово для проверки подписи HTTP-уведомлений НЕ хранится
+// здесь — оно известно только Edge Function на стороне Supabase.
+const YOOMONEY_WALLET = '4100119630704520';
 
 /* =========================================================
    PLANS
@@ -2995,6 +3096,22 @@ const THEME_PRESETS = [
   },
 ];
 
+// CUSTOM CURSOR — "spear" cursor toggle, PC only. Stored alongside the
+// rest of the theme (profiles.theme.customCursor: boolean), same
+// logged-out localStorage fallback pattern as colors above.
+function applyCustomCursorSetting(on) {
+  document.body.classList.toggle('custom-cursor-on', !!on);
+}
+
+function isCustomCursorOn() {
+  return document.body.classList.contains('custom-cursor-on');
+}
+
+function toggleCustomCursor(on) {
+  applyCustomCursorSetting(on);
+  saveCurrentTheme();
+}
+
 // Called once before login (auth screen) — uses the logged-out
 // localStorage fallback only, since there is no account yet.
 function loadTheme() {
@@ -3005,6 +3122,7 @@ function loadTheme() {
   THEME_VARS.forEach(v => {
     if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
   });
+  applyCustomCursorSetting(saved.customCursor);
 }
 
 // Called right after login, once currentProfile is available. The
@@ -3018,6 +3136,7 @@ function loadThemeForAccount() {
   THEME_VARS.forEach(v => {
     if (values[v.key]) document.documentElement.style.setProperty(v.key, values[v.key]);
   });
+  applyCustomCursorSetting(saved.customCursor);
 }
 
 function getDefaultThemeValues() {
@@ -3033,6 +3152,7 @@ function getCurrentThemeValues() {
     const inline = document.documentElement.style.getPropertyValue(v.key).trim();
     out[v.key] = inline || styles.getPropertyValue(v.key).trim() || v.def;
   });
+  out.customCursor = isCustomCursorOn();
   return out;
 }
 
@@ -3075,6 +3195,7 @@ function saveCurrentTheme() {
 
 async function resetTheme() {
   THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
+  applyCustomCursorSetting(false);
   if (currentUser) {
     if (currentProfile) currentProfile.theme = null;
     if (themeSaveTimer) { clearTimeout(themeSaveTimer); themeSaveTimer = null; }
@@ -3123,6 +3244,14 @@ function renderThemePanel() {
     <div id="theme-warning"></div>
 
     <div class="theme-grid" id="theme-grid"></div>
+
+    <div class="theme-field theme-field-cursor">
+      <span class="theme-field-label">Кастомный курсор<span class="theme-field-hint">курсор-«копьё» вместо системного (только на ПК)</span></span>
+      <label class="theme-toggle">
+        <input type="checkbox" id="cursor-toggle-input" ${isCustomCursorOn() ? 'checked' : ''} onchange="toggleCustomCursor(this.checked)">
+        <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+      </label>
+    </div>
 
     <div class="theme-actions">
       <button type="button" class="theme-reset-btn" onclick="resetTheme()">Сбросить кастомное оформление</button>
@@ -3733,7 +3862,15 @@ function openChangePasswordDialog() {
       errorEl.innerHTML = `<div class="auth-error" style="margin:10px 0 0;">${escapeHtml(msg)}</div>`;
     };
 
-    const finish = (result) => { closeDialog(); resolve(result); };
+    let settled = false;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      overlay.classList.add('hidden');
+      card.innerHTML = '';
+      overlay.onclick = null;
+      resolve(result);
+    };
 
     const submit = async () => {
       const pw1 = input1.value;
@@ -3748,13 +3885,25 @@ function openChangePasswordDialog() {
         const { error } = await db.auth.updateUser({ password: pw1 });
         if (error) {
           showLocalError(translateAuthError(error.message));
+          confirmBtn.disabled = false;
           return;
         }
-        finish(true);
-        await showAlert('Пароль успешно изменён.', 'готово');
+        // Show the success state inside this same dialog instead of
+        // closing it and opening a second one — avoids the two
+        // dialogs racing on the same overlay/card elements.
+        card.innerHTML = `
+          <div class="dialog-eyebrow">готово</div>
+          <div class="dialog-message">Пароль успешно изменён.</div>
+          <div class="dialog-actions">
+            <button type="button" class="dialog-btn primary" id="change-pw-ok">Понятно</button>
+          </div>
+        `;
+        const okBtn = document.getElementById('change-pw-ok');
+        okBtn.onclick = () => finish(true);
+        overlay.onclick = (e) => { if (e.target === overlay) finish(true); };
+        okBtn.focus();
       } catch (err) {
         showLocalError('Не удалось сохранить пароль: ' + (err && err.message ? err.message : 'неизвестная ошибка'));
-      } finally {
         confirmBtn.disabled = false;
       }
     };
@@ -4592,7 +4741,7 @@ function renderPricingGrid() {
     <h2 class="modal-title">Выберите план, <em>докупите под себя.</em></h2>
     <p class="modal-sub">4 плана с базовыми лимитами и функциями. К любому из них, включая бесплатный, можно докупить лимиты по заметкам, символам, группам и сообщениям, а также недостающие функции — цена докупки считается сверху. Отменить можно в любой момент.</p>
     <div class="plans-grid">${cardsHtml}</div>
-    <div class="modal-foot-note">Оплата симулируется локально — для этого демо не подключён настоящий платёжный шлюз.</div>
+    <div class="modal-foot-note">Оплата проходит через ЮMoney — картой или с кошелька.</div>
   `;
 }
 
@@ -4761,38 +4910,168 @@ function proceedToCustomCheckout() {
 }
 
 async function confirmCustomPayment(limits, perks, addOnPrice) {
-  if (!validateCheckoutForm()) return;
+  if (addOnPrice <= 0) {
+    // Nothing billable was added (e.g. only toggled off perks / lowered
+    // limits back to plan defaults) — apply immediately, no payment needed.
+    currentProfile.limit_notes = limits.limit_notes;
+    currentProfile.limit_chars = limits.limit_chars;
+    currentProfile.limit_groups = limits.limit_groups;
+    currentProfile.limit_messages = limits.limit_messages;
+    currentProfile.custom_perks = perks;
+    currentProfile.custom_price = 0;
 
-  currentProfile.limit_notes = limits.limit_notes;
-  currentProfile.limit_chars = limits.limit_chars;
-  currentProfile.limit_groups = limits.limit_groups;
-  currentProfile.limit_messages = limits.limit_messages;
-  currentProfile.custom_perks = perks;
-  currentProfile.custom_price = addOnPrice;
+    const { error } = await db.from('profiles').update({
+      limit_notes: limits.limit_notes,
+      limit_chars: limits.limit_chars,
+      limit_groups: limits.limit_groups,
+      limit_messages: limits.limit_messages,
+      custom_perks: perks,
+      custom_price: 0
+    }).eq('id', currentUser.id);
 
-  const { error } = await db.from('profiles').update({
-    limit_notes: limits.limit_notes,
-    limit_chars: limits.limit_chars,
-    limit_groups: limits.limit_groups,
-    limit_messages: limits.limit_messages,
-    custom_perks: perks,
-    custom_price: addOnPrice
-  }).eq('id', currentUser.id);
+    if (error) {
+      await showAlert('Не удалось сохранить лимиты: ' + error.message, 'ошибка сохранения');
+      return;
+    }
 
-  if (error) {
-    await showAlert('Не удалось сохранить докупленные лимиты: ' + error.message + '\n\nПроверьте, что в таблице profiles есть колонки custom_perks (jsonb) и custom_price (numeric).', 'ошибка сохранения');
+    showPaymentSuccess({ name: 'Кастомный план', price: 0 }, 'Лимиты обновлены — доплата не требовалась.');
+    renderSidebar();
+    renderEditor();
+    if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
     return;
   }
 
-  const planName = customBuilderState.planBase.name;
-  const p = { name: planName, price: customBuilderState.planBase.price + addOnPrice };
-  const perkNames = CUSTOM_PERK_PRICES.filter(x => perks[x.key] && !customBuilderState.planBase.perks[x.key]).map(x => x.label);
-  const perksSummary = perkNames.length ? `Дополнительно докуплены функции: ${perkNames.join(', ')}.` : 'Дополнительные функции сверху плана не докуплены.';
-  showPaymentSuccess(p, `Лимиты обновлены: ${limits.limit_notes} заметок, ${limits.limit_groups} групп, ${limits.limit_messages} сообщений в каждой группе. ${perksSummary}`);
+  const label = await buildYoomoneyCheckout({
+    amount: addOnPrice,
+    kind: 'custom',
+    customPayload: { limits, perks },
+  });
+  if (!label) return;
+  redirectToYoomoney(label, addOnPrice, 'Тетрадь — докупка лимитов');
+}
 
-  renderSidebar();
-  renderEditor();
-  if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
+/* =========================================================
+   REAL PAYMENTS — via YooMoney (yoomoney.ru wallet), not a
+   simulation. Flow:
+     1. buildYoomoneyCheckout() creates a `payments` row with a
+        unique label and status 'pending', then redirects the
+        browser to YooMoney's quickpay form for that amount.
+     2. The user pays on yoomoney.ru (wallet or card).
+     3. YooMoney sends an HTTP notification to our Edge Function,
+        which verifies the signature and flips the row to 'paid'
+        AND applies the plan/limits server-side (service_role key,
+        bypasses RLS) — the browser never marks its own payment
+        as paid.
+     4. YooMoney redirects the user back to successURL (this same
+        page, with ?paid_label=... in the query string). We poll
+        the payments row for a few seconds waiting for status to
+        flip to 'paid', then refresh the UI.
+   ========================================================= */
+
+function generatePaymentLabel() {
+  // Random enough for this purpose; doesn't need to be cryptographically
+  // unguessable since the row itself is only ever flipped to 'paid' by
+  // the Edge Function after verifying YooMoney's signature.
+  return 'pay_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+async function buildYoomoneyCheckout({ amount, kind, planKey, customPayload }) {
+  const label = generatePaymentLabel();
+
+  const { error } = await db.from('payments').insert({
+    user_id: currentUser.id,
+    label,
+    kind,
+    plan_key: planKey || null,
+    custom_payload: customPayload || null,
+    amount,
+    status: 'pending',
+  });
+
+  if (error) {
+    await showAlert('Не удалось создать заказ на оплату: ' + error.message + '\n\nПроверьте, что в базе создана таблица payments (см. инструкцию в исходном коде страницы).', 'ошибка');
+    return null;
+  }
+
+  return label;
+}
+
+function redirectToYoomoney(label, amount, description) {
+  const successUrl = window.location.origin + window.location.pathname + '?paid_label=' + encodeURIComponent(label);
+  const params = new URLSearchParams({
+    receiver: YOOMONEY_WALLET,
+    'quickpay-form': 'shop',
+    'paymentType': 'AC',
+    sum: String(amount),
+    label,
+    targets: description,
+    successURL: successUrl,
+  });
+  window.location.href = 'https://yoomoney.ru/quickpay/confirm?' + params.toString();
+}
+
+// Called on page load if the URL contains ?paid_label=... (i.e. we've
+// just been redirected back from YooMoney). Polls the payments row for
+// up to ~20 seconds, since the HTTP notification to our Edge Function
+// can arrive a few seconds after the redirect.
+async function checkReturnFromYoomoney() {
+  const url = new URL(window.location.href);
+  const label = url.searchParams.get('paid_label');
+  if (!label) return;
+
+  // Clean the query string immediately so refreshing doesn't re-trigger this.
+  history.replaceState(null, '', window.location.pathname);
+
+  if (!currentUser) return; // shouldn't happen, but guard just in case
+
+  openPricing();
+  const card = document.getElementById('pricing-card');
+  card.innerHTML = `
+    <div class="modal-eyebrow">оплата</div>
+    <h2 class="modal-title">Проверяем оплату<em>…</em></h2>
+    <p class="modal-sub">Обычно это занимает несколько секунд. Не закрывайте окно.</p>
+    <div class="checkout-box" style="text-align:center; padding:40px 20px;">
+      <div class="loading-pulse">Ожидание подтверждения от ЮMoney…</div>
+    </div>
+  `;
+
+  const maxAttempts = 15;
+  for (let i = 0; i < maxAttempts; i++) {
+    const { data: payment } = await db.from('payments').select('*').eq('label', label).single();
+
+    if (payment && payment.status === 'paid') {
+      const { data: freshProfile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+      if (freshProfile) currentProfile = freshProfile;
+
+      const p = payment.kind === 'plan'
+        ? PLANS[payment.plan_key]
+        : { name: 'Кастомный план', price: payment.amount };
+      showPaymentSuccess(p || { name: 'план', price: payment.amount }, 'Оплата подтверждена, новые лимиты уже применены.');
+      renderSidebar();
+      renderEditor();
+      if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
+      return;
+    }
+
+    if (payment && payment.status === 'failed') {
+      card.innerHTML = `
+        <div class="modal-eyebrow">оплата</div>
+        <h2 class="modal-title">Не удалось подтвердить оплату</h2>
+        <p class="modal-sub">Если деньги списались, они автоматически вернутся отправителю в течение нескольких минут. Попробуйте ещё раз или напишите в поддержку.</p>
+        <button type="button" class="btn-primary" style="max-width:220px;" onclick="closePricing()">Понятно</button>
+      `;
+      return;
+    }
+
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  card.innerHTML = `
+    <div class="modal-eyebrow">оплата</div>
+    <h2 class="modal-title">Оплата ещё обрабатывается</h2>
+    <p class="modal-sub">Иногда подтверждение приходит чуть дольше обычного. План подключится автоматически в течение нескольких минут после оплаты — обновите страницу чуть позже.</p>
+    <button type="button" class="btn-primary" style="max-width:220px;" onclick="closePricing()">Понятно</button>
+  `;
 }
 
 function renderGenericCheckout(p, onConfirm) {
@@ -4801,65 +5080,17 @@ function renderGenericCheckout(p, onConfirm) {
     <button class="modal-close" onclick="closePricing()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">оплата</div>
     <h2 class="modal-title">Подключить «<em>${p.name}</em>»</h2>
-    <p class="modal-sub">Демонстрационная оплата — карта не списывается по-настоящему.</p>
+    <p class="modal-sub">Оплата через ЮMoney — картой или с кошелька. После оплаты вы автоматически вернётесь сюда, план подключится сам.</p>
     <div class="checkout-box">
       <div class="checkout-row"><span>План</span><strong>${p.name}</strong></div>
       <div class="checkout-row"><span>Период</span><strong>1 месяц</strong></div>
       <div class="checkout-divider"></div>
       <div class="checkout-total"><span>Итого</span><span>${p.price} ₽</span></div>
-      <div class="field">
-        <label>Номер карты</label>
-        <input type="text" inputmode="numeric" autocomplete="cc-number" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
-        <div class="card-field-error" id="err-number"></div>
-      </div>
-      <div class="checkout-fields-row">
-        <div class="field">
-          <label>Срок ММ/ГГ</label>
-          <input type="text" inputmode="numeric" autocomplete="cc-exp" id="card-exp" placeholder="ММ/ГГ" maxlength="5">
-          <div class="card-field-error" id="err-exp"></div>
-        </div>
-        <div class="field">
-          <label>CVC</label>
-          <input type="text" inputmode="numeric" autocomplete="cc-csc" id="card-cvc" placeholder="000" maxlength="3">
-          <div class="card-field-error" id="err-cvc"></div>
-        </div>
-      </div>
-      <button type="button" class="btn-primary" id="checkout-confirm-btn">Оплатить ${p.price} ₽</button>
-      <button type="button" class="upgrade-link" style="margin-top:14px; width:100%; text-align:center;" onclick="history.back ? renderPricingGrid() : renderPricingGrid()">← назад к тарифам</button>
+      <button type="button" class="btn-primary" id="checkout-confirm-btn">Оплатить через ЮMoney — ${p.price} ₽</button>
+      <button type="button" class="upgrade-link" style="margin-top:14px; width:100%; text-align:center;" onclick="renderPricingGrid()">← назад к тарифам</button>
     </div>
   `;
   document.getElementById('checkout-confirm-btn').onclick = onConfirm;
-  attachCardFormatting();
-}
-
-function attachCardFormatting() {
-  const numInput = document.getElementById('card-number');
-  const expInput = document.getElementById('card-exp');
-  const cvcInput = document.getElementById('card-cvc');
-
-  numInput.addEventListener('input', () => {
-    let digits = numInput.value.replace(/\D/g, '').slice(0, 16);
-    numInput.value = digits.replace(/(.{4})/g, '$1 ').trim();
-    clearFieldError('card-number', 'err-number');
-  });
-  expInput.addEventListener('input', () => {
-    let digits = expInput.value.replace(/\D/g, '').slice(0, 4);
-    expInput.value = digits.length >= 3 ? digits.slice(0, 2) + '/' + digits.slice(2) : digits;
-    clearFieldError('card-exp', 'err-exp');
-  });
-  cvcInput.addEventListener('input', () => {
-    cvcInput.value = cvcInput.value.replace(/\D/g, '').slice(0, 3);
-    clearFieldError('card-cvc', 'err-cvc');
-  });
-}
-
-function clearFieldError(inputId, errId) {
-  document.getElementById(inputId).classList.remove('field-invalid');
-  document.getElementById(errId).textContent = '';
-}
-function setFieldError(inputId, errId, message) {
-  document.getElementById(inputId).classList.add('field-invalid');
-  document.getElementById(errId).textContent = message;
 }
 
 function luhnValid(digits) {
@@ -4873,39 +5104,11 @@ function luhnValid(digits) {
   return sum % 10 === 0;
 }
 
-function validateCheckoutForm() {
-  let valid = true;
-  const rawNumber = document.getElementById('card-number').value.replace(/\D/g, '');
-  if (rawNumber.length !== 16) { setFieldError('card-number', 'err-number', 'Номер карты должен содержать 16 цифр.'); valid = false; }
-  else if (!luhnValid(rawNumber)) { setFieldError('card-number', 'err-number', 'Похоже, номер карты введён с ошибкой.'); valid = false; }
-
-  const expRaw = document.getElementById('card-exp').value.trim();
-  const expMatch = expRaw.match(/^(\d{2})\/(\d{2})$/);
-  if (!expMatch) { setFieldError('card-exp', 'err-exp', 'Формат — ММ/ГГ, например 09/28.'); valid = false; }
-  else {
-    const month = parseInt(expMatch[1], 10);
-    const year = 2000 + parseInt(expMatch[2], 10);
-    if (month < 1 || month > 12) { setFieldError('card-exp', 'err-exp', 'Месяц должен быть от 01 до 12.'); valid = false; }
-    else {
-      const now = new Date();
-      const expiresBeforeNow = year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1);
-      if (expiresBeforeNow) { setFieldError('card-exp', 'err-exp', 'Срок действия карты уже истёк.'); valid = false; }
-    }
-  }
-
-  const cvc = document.getElementById('card-cvc').value.trim();
-  if (!/^\d{3}$/.test(cvc)) { setFieldError('card-cvc', 'err-cvc', 'CVC — это 3 цифры на обороте карты.'); valid = false; }
-  return valid;
-}
-
 async function confirmPayment(planKey) {
-  if (!validateCheckoutForm()) return;
-  await setUserPlan(planKey);
   const p = PLANS[planKey];
-  showPaymentSuccess(p, `Лимиты обновлены: ${p.limit} заметок, ${p.groupLimit} групп, ${p.messageLimit} сообщений в каждой группе. Новые функции уже доступны в боковой панели и редакторе.`);
-  renderSidebar();
-  renderEditor();
-  if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
+  const label = await buildYoomoneyCheckout({ amount: p.price, kind: 'plan', planKey });
+  if (!label) return;
+  redirectToYoomoney(label, p.price, `Тетрадь — план «${p.name}»`);
 }
 
 function showPaymentSuccess(p, subMessage) {
@@ -5899,6 +6102,7 @@ function formatGroupTime(ts) {
   const { data } = await db.auth.getSession();
   if (data.session && !passwordRecoveryLinkPresent()) {
     await enterApp(data.session.user);
+    await checkReturnFromYoomoney();
   }
 })();
 </script>
