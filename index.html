@@ -299,6 +299,20 @@
   .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,111,94,0.25); }
   .btn-primary:active { filter: brightness(0.95); transform: scale(0.98); box-shadow: none; }
 
+  .auth-link-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 14px 4px 2px;
+    transition: color var(--dur-fast) var(--ease-soft);
+  }
+  .auth-link-btn:hover { color: var(--accent); }
+
   .auth-foot {
     margin-top: 20px;
     font-family: 'JetBrains Mono', monospace;
@@ -2539,6 +2553,7 @@
         <input type="password" id="login-password" autocomplete="current-password" required>
       </div>
       <button type="submit" class="btn-primary">Войти</button>
+      <button type="button" class="auth-link-btn" onclick="switchTab('forgot')">Забыли пароль?</button>
     </form>
 
     <!-- REGISTER FORM -->
@@ -2562,6 +2577,31 @@
       <button type="submit" class="btn-primary">Создать аккаунт</button>
     </form>
 
+    <!-- FORGOT PASSWORD: request reset link -->
+    <form id="forgot-form" class="hidden" onsubmit="handleForgotPassword(event)">
+      <p class="auth-sub" style="margin:0 0 20px;">Введите email — пришлём ссылку для сброса пароля.</p>
+      <div class="field">
+        <label for="forgot-email">Email</label>
+        <input type="email" id="forgot-email" autocomplete="username" required>
+      </div>
+      <button type="submit" class="btn-primary">Отправить ссылку</button>
+      <button type="button" class="auth-link-btn" onclick="switchTab('login')">← Назад ко входу</button>
+    </form>
+
+    <!-- RESET PASSWORD: shown after following the emailed link -->
+    <form id="reset-form" class="hidden" onsubmit="handleResetPassword(event)">
+      <p class="auth-sub" style="margin:0 0 20px;">Придумайте новый пароль для входа.</p>
+      <div class="field">
+        <label for="reset-password">Новый пароль</label>
+        <input type="password" id="reset-password" autocomplete="new-password" minlength="6" required>
+      </div>
+      <div class="field">
+        <label for="reset-password2">Повторите пароль</label>
+        <input type="password" id="reset-password2" autocomplete="new-password" minlength="6" required>
+      </div>
+      <button type="submit" class="btn-primary">Сохранить новый пароль</button>
+    </form>
+
     <div class="auth-foot" id="auth-foot-note">Данные хранятся в облаке и доступны с любого устройства.</div>
   </div>
 </div>
@@ -2576,6 +2616,7 @@
           <span id="current-username"></span>
           <span class="side-user-btns">
             <button onclick="openThemePanel()" type="button">оформление</button>
+            <button onclick="openChangePasswordDialog()" type="button">пароль</button>
             <button onclick="handleLogout()" type="button">выйти</button>
           </span>
         </div>
@@ -3449,18 +3490,32 @@ function switchTab(which) {
   const regTab = document.getElementById('tab-register');
   const loginForm = document.getElementById('login-form');
   const regForm = document.getElementById('register-form');
+  const forgotForm = document.getElementById('forgot-form');
+  const resetForm = document.getElementById('reset-form');
+  const tabsRow = document.querySelector('.auth-tabs');
   hideError();
 
+  loginForm.classList.add('hidden');
+  regForm.classList.add('hidden');
+  forgotForm.classList.add('hidden');
+  resetForm.classList.add('hidden');
+  loginTab.classList.remove('active');
+  regTab.classList.remove('active');
+
   if (which === 'login') {
+    tabsRow.classList.remove('hidden');
     loginTab.classList.add('active');
-    regTab.classList.remove('active');
     loginForm.classList.remove('hidden');
-    regForm.classList.add('hidden');
-  } else {
+  } else if (which === 'register') {
+    tabsRow.classList.remove('hidden');
     regTab.classList.add('active');
-    loginTab.classList.remove('active');
     regForm.classList.remove('hidden');
-    loginForm.classList.add('hidden');
+  } else if (which === 'forgot') {
+    tabsRow.classList.add('hidden');
+    forgotForm.classList.remove('hidden');
+  } else if (which === 'reset') {
+    tabsRow.classList.add('hidden');
+    resetForm.classList.remove('hidden');
   }
 }
 
@@ -3546,7 +3601,175 @@ function translateAuthError(msg) {
   if (/invalid login credentials/i.test(msg)) return 'Неверный email или пароль.';
   if (/already registered/i.test(msg)) return 'Такой email уже зарегистрирован.';
   if (/password.*at least/i.test(msg)) return 'Пароль слишком короткий.';
+  if (/same password/i.test(msg)) return 'Новый пароль должен отличаться от текущего.';
+  if (/rate limit|too many/i.test(msg)) return 'Слишком много попыток. Подождите немного и попробуйте снова.';
   return msg;
+}
+
+/* ---------------------------------------------------------
+   FORGOT PASSWORD — request a reset link by email.
+   Supabase sends an email with a link back to this same page;
+   see handlePasswordRecoveryRedirect() below for the return leg.
+   --------------------------------------------------------- */
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  hideError();
+
+  const email = document.getElementById('forgot-email').value.trim();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  try {
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname,
+    });
+
+    if (error) {
+      showError(translateAuthError(error.message));
+      return;
+    }
+
+    e.target.reset();
+    switchTab('login');
+    showError('Если такой email зарегистрирован, на него отправлена ссылка для сброса пароля. Проверьте почту.');
+  } catch (err) {
+    console.error('Password reset request failed:', err);
+    showError('Не удалось отправить письмо: ' + (err && err.message ? err.message : 'неизвестная ошибка') + '. Попробуйте ещё раз.');
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+/* Checks whether the current page load is the "return leg" of a
+   password-reset email link, and if so switches the auth screen to
+   the reset-password form instead of the normal login form. Supabase
+   delivers this as a PASSWORD_RECOVERY auth event (and/or a
+   recovery-type token in the URL hash, depending on client version),
+   so we listen for both to be safe. Returns true if we're in recovery
+   mode, so init() knows not to auto-enter the app for this session. */
+function setupPasswordRecoveryListener() {
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+      switchTab('reset');
+    }
+  });
+}
+
+function passwordRecoveryLinkPresent() {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  return /type=recovery/.test(hash) || /type=recovery/.test(search);
+}
+
+async function handleResetPassword(e) {
+  e.preventDefault();
+  hideError();
+
+  const password = document.getElementById('reset-password').value;
+  const password2 = document.getElementById('reset-password2').value;
+
+  if (password.length < 6) { showError('Пароль должен содержать не менее 6 символов.'); return; }
+  if (password !== password2) { showError('Пароли не совпадают.'); return; }
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  try {
+    const { data, error } = await db.auth.updateUser({ password });
+
+    if (error) {
+      showError(translateAuthError(error.message));
+      return;
+    }
+
+    // Clean the recovery token out of the URL so refreshing the page
+    // doesn't re-trigger the reset form.
+    history.replaceState(null, '', window.location.pathname);
+
+    e.target.reset();
+    if (data.user) {
+      await enterApp(data.user);
+    } else {
+      switchTab('login');
+      showError('Пароль обновлён. Войдите с новым паролем.');
+    }
+  } catch (err) {
+    console.error('Password update failed:', err);
+    showError('Не удалось сохранить пароль: ' + (err && err.message ? err.message : 'неизвестная ошибка') + '. Попробуйте ещё раз.');
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+/* ---------------------------------------------------------
+   CHANGE PASSWORD — from inside the app, while already logged in.
+   Reuses the dialog overlay with two password fields side by side
+   in one prompt (showPrompt only supports a single field).
+   --------------------------------------------------------- */
+function openChangePasswordDialog() {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('dialog-overlay');
+    const card = document.getElementById('dialog-card');
+    card.innerHTML = `
+      <div class="dialog-eyebrow">смена пароля</div>
+      <div class="dialog-message">Придумайте новый пароль для входа в аккаунт.</div>
+      <input type="password" class="dialog-input" id="change-pw-1" placeholder="новый пароль" autocomplete="new-password">
+      <input type="password" class="dialog-input" id="change-pw-2" placeholder="повторите пароль" autocomplete="new-password" style="margin-top:10px;">
+      <div id="change-pw-error"></div>
+      <div class="dialog-actions">
+        <button type="button" class="dialog-btn" id="change-pw-cancel">Отмена</button>
+        <button type="button" class="dialog-btn primary" id="change-pw-confirm">Сохранить</button>
+      </div>
+    `;
+    overlay.classList.remove('hidden');
+    const input1 = document.getElementById('change-pw-1');
+    const input2 = document.getElementById('change-pw-2');
+    const errorEl = document.getElementById('change-pw-error');
+    const confirmBtn = document.getElementById('change-pw-confirm');
+
+    const showLocalError = (msg) => {
+      errorEl.innerHTML = `<div class="auth-error" style="margin:10px 0 0;">${escapeHtml(msg)}</div>`;
+    };
+
+    const finish = (result) => { closeDialog(); resolve(result); };
+
+    const submit = async () => {
+      const pw1 = input1.value;
+      const pw2 = input2.value;
+      errorEl.innerHTML = '';
+
+      if (pw1.length < 6) { showLocalError('Пароль должен содержать не менее 6 символов.'); return; }
+      if (pw1 !== pw2) { showLocalError('Пароли не совпадают.'); return; }
+
+      confirmBtn.disabled = true;
+      try {
+        const { error } = await db.auth.updateUser({ password: pw1 });
+        if (error) {
+          showLocalError(translateAuthError(error.message));
+          return;
+        }
+        finish(true);
+        await showAlert('Пароль успешно изменён.', 'готово');
+      } catch (err) {
+        showLocalError('Не удалось сохранить пароль: ' + (err && err.message ? err.message : 'неизвестная ошибка'));
+      } finally {
+        confirmBtn.disabled = false;
+      }
+    };
+
+    confirmBtn.onclick = submit;
+    document.getElementById('change-pw-cancel').onclick = () => finish(false);
+    overlay.onclick = (e) => { if (e.target === overlay) finish(false); };
+    [input1, input2].forEach(inp => {
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') submit();
+        if (e.key === 'Escape') finish(false);
+      });
+    });
+    setTimeout(() => input1.focus(), 30);
+  });
 }
 
 async function handleLogout() {
@@ -5662,8 +5885,19 @@ function formatGroupTime(ts) {
 (async function init() {
   loadTheme();
   switchTab('login');
+  setupPasswordRecoveryListener();
+
+  // If the page was just opened via a password-recovery email link,
+  // Supabase's client will fire PASSWORD_RECOVERY shortly after this
+  // via onAuthStateChange (handled above) — but we also check the URL
+  // directly here so the reset form shows immediately without a flash
+  // of the normal login form first.
+  if (passwordRecoveryLinkPresent()) {
+    switchTab('reset');
+  }
+
   const { data } = await db.auth.getSession();
-  if (data.session) {
+  if (data.session && !passwordRecoveryLinkPresent()) {
     await enterApp(data.session.user);
   }
 })();
