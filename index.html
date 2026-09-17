@@ -937,6 +937,21 @@
   }
   .modal-close:hover { color: var(--text); background: var(--panel-2); transform: rotate(90deg); }
 
+  .email-pending-card {
+    max-width: 420px;
+    text-align: center;
+    padding: 40px 32px 32px;
+  }
+  .email-pending-icon {
+    font-size: 40px;
+    margin-bottom: 14px;
+    animation: emailPendingPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes emailPendingPulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.12); opacity: 1; }
+  }
+
   .modal-eyebrow {
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -2742,6 +2757,16 @@
   </div>
 </div>
 
+<!-- ================= "CHECK YOUR EMAIL" MODAL (shown while signUp() is in flight) ================= -->
+<div id="email-pending-modal" class="modal-overlay hidden">
+  <div class="modal-card email-pending-card">
+    <div class="email-pending-icon">✉️</div>
+    <div class="modal-eyebrow">регистрация</div>
+    <h2 class="modal-title">Сейчас придёт <em>письмо на почту.</em></h2>
+    <p class="modal-sub" id="email-pending-text">Отправляем письмо с подтверждением — проверьте почту (в том числе папку «Спам») и перейдите по ссылке из письма, чтобы завершить регистрацию.</p>
+  </div>
+</div>
+
 <!-- ================= CUSTOM DIALOG (replaces alert/confirm/prompt) ================= -->
 <div id="dialog-overlay" class="dialog-overlay hidden">
   <div class="dialog-card" id="dialog-card">
@@ -3673,11 +3698,15 @@ async function handleRegister(e) {
   const submitBtn = e.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
 
+  showEmailPendingModal(email);
+
   try {
     const { data, error } = await db.auth.signUp({
       email, password,
       options: { data: { display_name: displayName } }
     });
+
+    hideEmailPendingModal();
 
     if (error) {
       showError(translateAuthError(error.message));
@@ -3691,11 +3720,25 @@ async function handleRegister(e) {
       switchTab('login');
     }
   } catch (err) {
+    hideEmailPendingModal();
     console.error('Registration failed:', err);
     showError('Не удалось зарегистрироваться: ' + (err && err.message ? err.message : 'неизвестная ошибка') + '. Попробуйте ещё раз.');
   } finally {
     submitBtn.disabled = false;
   }
+}
+
+function showEmailPendingModal(email) {
+  const textEl = document.getElementById('email-pending-text');
+  if (textEl) {
+    textEl.textContent = email
+      ? `Отправляем письмо с подтверждением на ${email} — проверьте почту (в том числе папку «Спам») и перейдите по ссылке из письма, чтобы завершить регистрацию.`
+      : 'Отправляем письмо с подтверждением — проверьте почту (в том числе папку «Спам») и перейдите по ссылке из письма, чтобы завершить регистрацию.';
+  }
+  document.getElementById('email-pending-modal').classList.remove('hidden');
+}
+function hideEmailPendingModal() {
+  document.getElementById('email-pending-modal').classList.add('hidden');
 }
 
 async function handleLogin(e) {
