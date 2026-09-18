@@ -46,7 +46,7 @@
   @media (pointer: fine) {
     body.custom-cursor-on,
     body.custom-cursor-on * {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236C8FAE"/><rect x="13" y="8" width="6" height="4" fill="%236C8FAE"/><rect x="12" y="12" width="8" height="4" fill="%237FA6C4"/><rect x="14" y="16" width="4" height="12" fill="%238A5A34"/><rect x="14" y="26" width="4" height="4" fill="%235C3A20"/></g></svg>') 6 6, auto !important;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="translate(32,0) scale(-1,1) rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236C8FAE"/><rect x="13" y="8" width="6" height="4" fill="%236C8FAE"/><rect x="12" y="12" width="8" height="4" fill="%237FA6C4"/><rect x="14" y="16" width="4" height="12" fill="%238A5A34"/><rect x="14" y="26" width="4" height="4" fill="%235C3A20"/></g></svg>') 26 6, auto !important;
     }
     body.custom-cursor-on a,
     body.custom-cursor-on button,
@@ -55,7 +55,7 @@
     body.custom-cursor-on input[type="checkbox"],
     body.custom-cursor-on input[type="color"],
     body.custom-cursor-on select {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%23FF6F5E"/><rect x="13" y="8" width="6" height="4" fill="%23FF6F5E"/><rect x="12" y="12" width="8" height="4" fill="%23D46FE0"/><rect x="14" y="16" width="4" height="12" fill="%232A2A2A"/><rect x="14" y="26" width="4" height="4" fill="%23141414"/></g></svg>') 6 6, pointer !important;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="translate(32,0) scale(-1,1) rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236B5B95"/><rect x="13" y="8" width="6" height="4" fill="%236B5B95"/><rect x="12" y="12" width="8" height="4" fill="%23473763"/><rect x="14" y="16" width="4" height="12" fill="%23241B2E"/><rect x="14" y="26" width="4" height="4" fill="%23120E18"/></g></svg>') 26 6, pointer !important;
     }
   }
 
@@ -1106,6 +1106,14 @@
     border-color: rgba(255,111,94,0.35);
   }
   .plan-card-btn-secondary:hover:not(:disabled) { border-color: var(--accent); }
+
+  .plan-card-btn-test {
+    margin-top: 8px;
+    color: var(--text-dim);
+    border: 1px dashed var(--line);
+    background: none;
+  }
+  .plan-card-btn-test:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
 
   .plan-card-addon {
     font-family: 'JetBrains Mono', monospace;
@@ -2675,7 +2683,6 @@
           <span id="current-username"></span>
           <span class="side-user-btns">
             <button onclick="openThemePanel()" type="button">оформление</button>
-            <button onclick="openChangePasswordDialog()" type="button">пароль</button>
             <button onclick="handleLogout()" type="button">выйти</button>
           </span>
         </div>
@@ -4764,6 +4771,9 @@ function renderPricingGrid() {
     const buyBtn = isCurrent
       ? ''
       : `<button type="button" class="plan-card-btn" onclick="${p.price === 0 ? `downgradeToFree()` : `openCheckout('${key}')`}">${btnLabel}</button>`;
+    const testBtn = (!isCurrent && p.price > 0 && currentProfile && currentProfile.is_admin)
+      ? `<button type="button" class="plan-card-btn plan-card-btn-test" onclick="confirmPaymentTest('${key}')" title="Только для админа: подтверждает оплату без ЮMoney">оплатить (тест)</button>`
+      : '';
     const addOnBtn = isCurrent
       ? `<button type="button" class="plan-card-btn plan-card-btn-secondary" onclick="openCustomBuilder()">${currentPlan.addOnPrice > 0 ? 'изменить докупленное' : 'докупить лимиты →'}</button>`
       : '';
@@ -4774,7 +4784,7 @@ function renderPricingGrid() {
         ${addOnNote}
         <div class="plan-card-quota">${p.limit} заметок · ${p.groupLimit} групп · ${p.messageLimit} сообщ./группу</div>
         <ul class="plan-card-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        ${buyBtn}${addOnBtn}
+        ${buyBtn}${testBtn}${addOnBtn}
       </div>`;
   }).join('');
 
@@ -5053,6 +5063,25 @@ function redirectToYoomoney(label, amount, description) {
   window.location.href = 'https://yoomoney.ru/quickpay/confirm?' + params.toString();
 }
 
+/* =========================================================
+   TEST PAYMENTS — admin-only shortcut that skips YooMoney
+   entirely, so you can verify the whole pipeline (payments row
+   -> profile update) without spending real money. Calls the
+   `admin_mark_payment_paid` SQL function (see PAYMENTS_SETUP_README
+   in the source comments), which checks profiles.is_admin itself
+   server-side — the browser has no direct permission to flip a
+   payment to 'paid', on purpose, even for admins.
+   ========================================================= */
+async function simulatePayment(label) {
+  if (!currentProfile || !currentProfile.is_admin) return;
+  const { error } = await db.rpc('admin_mark_payment_paid', { p_label: label });
+  if (error) {
+    await showAlert('Не удалось имитировать оплату: ' + error.message, 'ошибка (тест)');
+    return false;
+  }
+  return true;
+}
+
 // Called on page load if the URL contains ?paid_label=... (i.e. we've
 // just been redirected back from YooMoney). Polls the payments row for
 // up to ~20 seconds, since the HTTP notification to our Edge Function
@@ -5152,6 +5181,24 @@ async function confirmPayment(planKey) {
   const label = await buildYoomoneyCheckout({ amount: p.price, kind: 'plan', planKey });
   if (!label) return;
   redirectToYoomoney(label, p.price, `Тетрадь — план «${p.name}»`);
+}
+
+// Admin-only: creates the same pending payments row as a real purchase,
+// then immediately marks it paid via admin_mark_payment_paid() instead
+// of redirecting to YooMoney — lets you test the full pipeline (row ->
+// profile update -> UI refresh) without spending real money.
+async function confirmPaymentTest(planKey) {
+  const p = PLANS[planKey];
+  const label = await buildYoomoneyCheckout({ amount: p.price, kind: 'plan', planKey });
+  if (!label) return;
+  const ok = await simulatePayment(label);
+  if (!ok) return;
+  const { data: freshProfile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (freshProfile) currentProfile = freshProfile;
+  showPaymentSuccess(p, 'Тестовая оплата подтверждена (реальные деньги не списывались).');
+  renderSidebar();
+  renderEditor();
+  if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
 }
 
 function showPaymentSuccess(p, subMessage) {
