@@ -609,30 +609,18 @@
     padding: 2px 10px 8px;
   }
   .list-toolbar-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--panel-2);
+    background: none;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: var(--radius-sm);
     color: var(--text-dim);
     font-family: 'Nunito', sans-serif;
-    font-weight: 700;
-    font-size: 12.5px;
-    padding: 7px 14px;
-    min-height: 34px;
-    transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+    font-size: 13px;
+    padding: 8px 16px;
+    min-height: 38px;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
   }
-  .list-toolbar-btn::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 2px;
-    border: 1.5px solid currentColor;
-    flex-shrink: 0;
-  }
-  .list-toolbar-btn:hover { color: var(--accent); background: var(--panel-3); border-color: var(--accent); transform: translateY(-1px); }
-  .list-toolbar-btn:active { transform: translateY(0) scale(0.98); }
+  .list-toolbar-btn:hover { border-color: var(--text-dim); color: var(--text); transform: translateY(-1px); }
+  .list-toolbar-btn:active { transform: scale(0.96); }
   .list-toolbar-btn.accent { color: var(--accent); }
 
   .select-bar {
