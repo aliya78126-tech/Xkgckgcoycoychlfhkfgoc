@@ -380,6 +380,40 @@
     min-height: 0;
   }
 
+  #sidebar-resize-handle {
+    display: none;
+    flex-shrink: 0;
+    width: 6px;
+    margin-left: -3px;
+    margin-right: -3px;
+    position: relative;
+    z-index: 5;
+    cursor: col-resize;
+    touch-action: none;
+  }
+  #sidebar-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: transparent;
+    transition: background var(--dur-fast) var(--ease-soft);
+  }
+  #sidebar-resize-handle:hover::after,
+  #sidebar-resize-handle.resizing::after {
+    background: var(--accent);
+  }
+  body.sidebar-resizing {
+    cursor: col-resize !important;
+    user-select: none !important;
+  }
+  body.sidebar-resizing * {
+    cursor: col-resize !important;
+  }
+
   .side-head {
     padding: 20px 20px 16px;
     border-bottom: 1px solid var(--line);
@@ -553,16 +587,18 @@
     padding: 2px 10px 8px;
   }
   .list-toolbar-btn {
-    background: none;
-    border: none;
-    color: var(--text-dim);
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    color: var(--text);
     font-family: 'Nunito', sans-serif;
-    font-size: 11.5px;
-    padding: 6px 4px;
-    min-height: 32px;
-    transition: color var(--dur-fast) var(--ease-soft);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 14px;
+    min-height: 36px;
+    transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
   }
-  .list-toolbar-btn:hover { color: var(--text); }
+  .list-toolbar-btn:hover { color: var(--text); background: var(--panel-3); border-color: var(--accent); }
   .list-toolbar-btn.accent { color: var(--accent); }
 
   .select-bar {
@@ -2681,6 +2717,10 @@
   }
 
 
+  @media (min-width: 761px) {
+    #sidebar-resize-handle { display: block; }
+  }
+
   @media (min-width: 761px) and (max-width: 1024px) {
     #sidebar { width: 240px; }
     .editor-topbar { padding: 14px 22px; }
@@ -2842,6 +2882,8 @@
 
     <div id="groups-panel" class="hidden"></div>
   </aside>
+
+  <div id="sidebar-resize-handle" title="Перетащите, чтобы изменить ширину"></div>
 
   <main id="editor-area"></main>
 </div>
@@ -5311,15 +5353,23 @@ async function loadAdminLogs() {
     return;
   }
 
+  const userIds = [...new Set(data.map(row => row.user_id).filter(Boolean))];
+  let namesById = {};
+  if (userIds.length > 0) {
+    const { data: profiles } = await db.from('profiles').select('id, display_name').in('id', userIds);
+    (profiles || []).forEach(p => { namesById[p.id] = p.display_name; });
+  }
+
   listEl.className = 'admin-logs-list';
-  listEl.innerHTML = data.map(logRowHtml).join('');
+  listEl.innerHTML = data.map(row => logRowHtml(row, namesById)).join('');
 }
 
-function logRowHtml(row) {
+function logRowHtml(row, namesById) {
   const dt = new Date(row.created_at);
   const time = dt.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const catLabel = (ADMIN_LOG_CATEGORIES.find(c => c.key === row.category) || { label: row.category }).label;
   const metaStr = row.meta ? JSON.stringify(row.meta) : '';
+  const userName = row.user_id ? ((namesById || {})[row.user_id] || null) : null;
   return `
     <div class="admin-log-row admin-log-cat-${escapeHtml(row.category)}">
       <div class="admin-log-row-top">
@@ -5328,7 +5378,7 @@ function logRowHtml(row) {
         <span class="admin-log-source">${row.source === 'webhook' ? 'webhook' : 'клиент'}</span>
       </div>
       <div class="admin-log-message">${escapeHtml(row.message)}</div>
-      ${row.user_id ? `<div class="admin-log-user" onclick="selectAdminUserById('${row.user_id}')">пользователь: ${escapeHtml(row.user_id)}</div>` : ''}
+      ${row.user_id ? `<div class="admin-log-user" onclick="selectAdminUserById('${row.user_id}')">пользователь: ${userName ? escapeHtml(userName) + ' · ' : ''}${escapeHtml(row.user_id)}</div>` : ''}
       ${metaStr ? `<div class="admin-log-meta">${escapeHtml(metaStr)}</div>` : ''}
     </div>
   `;
@@ -6051,11 +6101,20 @@ async function removeGroupMember(g, authorId, authorName) {
   );
   if (!ok) return;
 
-
-  await Promise.all([
-    db.from('group_posts').delete().eq('group_id', g.id).eq('author_id', authorId),
-    db.from('recent_groups').delete().eq('group_id', g.id).eq('user_id', authorId),
+  const [postsRes, recentRes] = await Promise.all([
+    db.from('group_posts').delete().eq('group_id', g.id).eq('author_id', authorId).select('id'),
+    db.from('recent_groups').delete().eq('group_id', g.id).eq('user_id', authorId).select('user_id'),
   ]);
+
+  if (postsRes.error || recentRes.error) {
+    await showAlert('Не удалось удалить участника: ' + (postsRes.error?.message || recentRes.error?.message), 'ошибка');
+    return;
+  }
+
+  if ((postsRes.data || []).length === 0) {
+    await showAlert('Участник не был удалён: недостаточно прав на удаление его сообщений. Проверьте политику доступа (RLS) для таблицы group_posts — владельцу группы нужно разрешить удаление чужих постов в своей группе.', 'ошибка');
+    return;
+  }
 
   await renderGroupArea();
 }
@@ -6237,9 +6296,72 @@ function formatGroupTime(ts) {
 }
 
 
+const SIDEBAR_WIDTH_KEY = 'sidebarWidth';
+const SIDEBAR_MIN_WIDTH = 200;
+const SIDEBAR_MAX_WIDTH = 480;
+
+function clampSidebarWidth(w) {
+  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, w));
+}
+
+function applySidebarWidth(w) {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.style.width = w + 'px';
+}
+
+function loadSidebarWidth() {
+  const saved = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY), 10);
+  if (!isNaN(saved)) applySidebarWidth(clampSidebarWidth(saved));
+}
+
+function setupSidebarResize() {
+  const handle = document.getElementById('sidebar-resize-handle');
+  const sidebar = document.getElementById('sidebar');
+  if (!handle || !sidebar) return;
+
+  let dragging = false;
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const rect = sidebar.getBoundingClientRect();
+    const width = clampSidebarWidth(e.clientX - rect.left);
+    applySidebarWidth(width);
+  }
+
+  function onPointerUp() {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('resizing');
+    document.body.classList.remove('sidebar-resizing');
+    const currentWidth = sidebar.getBoundingClientRect().width;
+    localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(currentWidth)));
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+  }
+
+  handle.addEventListener('pointerdown', (e) => {
+    if (window.innerWidth <= 760) return;
+    dragging = true;
+    handle.classList.add('resizing');
+    document.body.classList.add('sidebar-resizing');
+    e.preventDefault();
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  });
+
+  handle.addEventListener('dblclick', () => {
+    if (window.innerWidth <= 760) return;
+    sidebar.style.width = '';
+    localStorage.removeItem(SIDEBAR_WIDTH_KEY);
+  });
+}
+
 
 (async function init() {
   loadTheme();
+  loadSidebarWidth();
+  setupSidebarResize();
   switchTab('login');
   setupPasswordRecoveryListener();
 
