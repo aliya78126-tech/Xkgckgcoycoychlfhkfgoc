@@ -604,23 +604,35 @@
   .list-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 8px;
     padding: 2px 10px 8px;
   }
   .list-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: var(--panel-2);
     border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    color: var(--text);
+    border-radius: 999px;
+    color: var(--text-dim);
     font-family: 'Nunito', sans-serif;
     font-weight: 700;
-    font-size: 13px;
-    padding: 8px 14px;
-    min-height: 36px;
-    transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+    font-size: 12.5px;
+    padding: 7px 14px;
+    min-height: 34px;
+    transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
   }
-  .list-toolbar-btn:hover { color: var(--text); background: var(--panel-3); border-color: var(--accent); }
+  .list-toolbar-btn::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    border: 1.5px solid currentColor;
+    flex-shrink: 0;
+  }
+  .list-toolbar-btn:hover { color: var(--accent); background: var(--panel-3); border-color: var(--accent); transform: translateY(-1px); }
+  .list-toolbar-btn:active { transform: translateY(0) scale(0.98); }
   .list-toolbar-btn.accent { color: var(--accent); }
 
   .select-bar {
@@ -1171,14 +1183,6 @@
     border-color: rgba(255,111,94,0.35);
   }
   .plan-card-btn-secondary:hover:not(:disabled) { border-color: var(--accent); }
-
-  .plan-card-btn-test {
-    margin-top: 8px;
-    color: var(--text-dim);
-    border: 1px dashed var(--line);
-    background: none;
-  }
-  .plan-card-btn-test:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
 
   .plan-card-addon {
     font-family: 'Nunito', sans-serif;
@@ -4879,9 +4883,6 @@ function renderPricingGrid() {
     const buyBtn = isCurrent
       ? ''
       : `<button type="button" class="plan-card-btn" onclick="${p.price === 0 ? `downgradeToFree()` : `openCheckout('${key}')`}">${btnLabel}</button>`;
-    const testBtn = (!isCurrent && p.price > 0 && currentProfile && currentProfile.is_admin)
-      ? `<button type="button" class="plan-card-btn plan-card-btn-test" onclick="confirmPaymentTest('${key}')" title="Только для админа: подтверждает оплату без ЮMoney">оплатить (тест)</button>`
-      : '';
     const addOnBtn = isCurrent
       ? `<button type="button" class="plan-card-btn plan-card-btn-secondary" onclick="openCustomBuilder()">${currentPlan.addOnPrice > 0 ? 'изменить докупленное' : 'докупить лимиты →'}</button>`
       : '';
@@ -4892,7 +4893,7 @@ function renderPricingGrid() {
         ${addOnNote}
         <div class="plan-card-quota">${p.limit} заметок · ${p.groupLimit} групп · ${p.messageLimit} сообщ./группу</div>
         <ul class="plan-card-features">${p.features.map(f => `<li>${f}</li>`).join('')}</ul>
-        ${buyBtn}${testBtn}${addOnBtn}
+        ${buyBtn}${addOnBtn}
       </div>`;
   }).join('');
 
@@ -5146,23 +5147,6 @@ function redirectToYoomoney(label, amount, description) {
   window.location.href = 'https://yoomoney.ru/quickpay/confirm?' + params.toString();
 }
 
-
-async function simulatePayment(label) {
-  if (!currentProfile || !currentProfile.is_admin) return;
-  const { error } = await db.rpc('admin_mark_payment_paid', { p_label: label });
-  if (error) {
-    await showAlert('Не удалось имитировать оплату: ' + error.message, 'ошибка (тест)');
-    logEvent('payment', 'Ошибка тестовой оплаты: ' + error.message, { label });
-    return false;
-  }
-  logEvent('payment', 'Тестовая оплата подтверждена админом', { label });
-  return true;
-}
-
-
-
-
-
 async function checkReturnFromYoomoney() {
   const url = new URL(window.location.href);
   const label = url.searchParams.get('paid_label');
@@ -5263,20 +5247,6 @@ async function confirmPayment(planKey) {
 
 
 
-
-async function confirmPaymentTest(planKey) {
-  const p = PLANS[planKey];
-  const label = await buildYoomoneyCheckout({ amount: p.price, kind: 'plan', planKey });
-  if (!label) return;
-  const ok = await simulatePayment(label);
-  if (!ok) return;
-  const { data: freshProfile } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
-  if (freshProfile) currentProfile = freshProfile;
-  showPaymentSuccess(p, 'Тестовая оплата подтверждена (реальные деньги не списывались).');
-  renderSidebar();
-  renderEditor();
-  if (currentSection === 'groups') { renderGroupsPanel(); renderGroupArea(); }
-}
 
 function showPaymentSuccess(p, subMessage) {
   const card = document.getElementById('pricing-card');
