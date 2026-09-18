@@ -6311,7 +6311,10 @@ async function renderGroupArea() {
   area.appendChild(limitRow);
   area.appendChild(composer);
 
+  const prevScrollBehavior = feed.style.scrollBehavior;
+  feed.style.scrollBehavior = 'auto';
   feed.scrollTop = feed.scrollHeight;
+  feed.style.scrollBehavior = prevScrollBehavior;
 }
 
 async function sendGroupPost(groupId, textarea) {
