@@ -1273,6 +1273,104 @@
     line-height: 1.5;
   }
 
+  .admin-tabs {
+    display: flex;
+    gap: 6px;
+    margin: 14px 0 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .admin-tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 8px 4px 10px;
+    margin-right: 14px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .admin-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .admin-tab-btn:hover:not(.active) { color: var(--text); }
+
+  .admin-log-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .admin-log-filter-btn {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .admin-log-filter-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .admin-log-filter-btn:hover:not(.active) { border-color: var(--text-dim); }
+
+  .admin-logs-list {
+    max-height: 55vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .admin-log-row {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .admin-log-cat-payment { border-left-color: var(--accent); }
+  .admin-log-cat-error { border-left-color: var(--error); }
+  .admin-log-cat-auth { border-left-color: #6C8FAE; }
+  .admin-log-cat-user_action { border-left-color: var(--text-dim); }
+
+  .admin-log-row-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .admin-log-cat {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .admin-log-source {
+    margin-left: auto;
+    opacity: 0.7;
+  }
+  .admin-log-message {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .admin-log-user {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--accent);
+    margin-top: 4px;
+    cursor: pointer;
+    word-break: break-all;
+  }
+  .admin-log-user:hover { text-decoration: underline; }
+  .admin-log-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    word-break: break-all;
+    opacity: 0.8;
+  }
+
   .theme-presets {
     display: flex;
     flex-wrap: wrap;
@@ -2902,6 +3000,20 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Глобальный перехват необработанных ошибок интерфейса — пишем в
+// event_logs (категория 'error'), чтобы админ видел их в панели логов.
+// Best-effort и не мешает стандартной обработке/выводу в консоль.
+window.addEventListener('error', (e) => {
+  logEvent('error', (e.message || 'Неизвестная ошибка JS'), {
+    filename: e.filename, lineno: e.lineno, colno: e.colno,
+  });
+});
+window.addEventListener('unhandledrejection', (e) => {
+  const reason = e.reason;
+  const msg = reason && reason.message ? reason.message : String(reason);
+  logEvent('error', 'Необработанный promise-reject: ' + msg, {});
+});
+
 // ЮMoney: номер кошелька, куда уходят все оплаты планов/докупок.
 // Секретное слово для проверки подписи HTTP-уведомлений НЕ хранится
 // здесь — оно известно только Edge Function на стороне Supabase.
@@ -3131,6 +3243,28 @@ const THEME_PRESETS = [
 // CUSTOM CURSOR — "spear" cursor toggle, PC only. Stored alongside the
 // rest of the theme (profiles.theme.customCursor: boolean), same
 // logged-out localStorage fallback pattern as colors above.
+
+/* =========================================================
+   EVENT LOGS — writes to public.event_logs (see event_logs.sql).
+   Anyone authenticated can insert a row about themselves; only
+   admins can read the table back (RLS). Best-effort: a failed log
+   write never blocks or breaks whatever the user was doing — logging
+   is diagnostics, not a feature the app depends on.
+   category: 'auth' | 'payment' | 'user_action' | 'error'
+   ========================================================= */
+async function logEvent(category, message, meta) {
+  try {
+    await db.from('event_logs').insert({
+      category,
+      message,
+      user_id: currentUser ? currentUser.id : null,
+      meta: meta || null,
+    });
+  } catch (e) {
+    // Swallow — logging must never break the actual user-facing action.
+    console.warn('logEvent failed:', e);
+  }
+}
 function applyCustomCursorSetting(on) {
   document.body.classList.toggle('custom-cursor-on', !!on);
 }
@@ -3717,9 +3851,11 @@ async function handleRegister(e) {
 
     if (error) {
       showError(translateAuthError(error.message));
+      logEvent('auth', 'Ошибка регистрации: ' + error.message, { email, displayName });
       return;
     }
 
+    logEvent('auth', 'Регистрация', { email, displayName });
     if (data.session) {
       await enterApp(data.session.user);
     } else {
@@ -3763,10 +3899,12 @@ async function handleLogin(e) {
 
     if (error) {
       showError(translateAuthError(error.message));
+      logEvent('auth', 'Ошибка входа: ' + error.message, { email });
       return;
     }
 
     await enterApp(data.user);
+    logEvent('auth', 'Вход выполнен', { email });
     document.getElementById('login-form').reset();
   } catch (err) {
     console.error('Login failed:', err);
@@ -4583,6 +4721,7 @@ async function createNote() {
 
   if (error) { await showAlert('Не удалось создать заметку: ' + error.message, 'ошибка'); return; }
 
+  logEvent('user_action', 'Создана заметка', { note_id: data.id });
   await loadNotes();
   activeNoteId = data.id;
   renderSidebar();
@@ -4613,6 +4752,7 @@ async function deleteNote(id) {
     return;
   }
 
+  logEvent('user_action', 'Удалена заметка', { note_id: id });
   // Убираем заметку локально сразу, чтобы интерфейс обновился
   // не дожидаясь ответа сервера (и даже если реального удаления
   // из-за какой-то гонки/кеша не произойдёт при следующей загрузке).
@@ -5043,9 +5183,11 @@ async function buildYoomoneyCheckout({ amount, kind, planKey, customPayload }) {
 
   if (error) {
     await showAlert('Не удалось создать заказ на оплату: ' + error.message + '\n\nПроверьте, что в базе создана таблица payments (см. инструкцию в исходном коде страницы).', 'ошибка');
+    logEvent('payment', 'Ошибка создания заказа: ' + error.message, { kind, planKey, amount });
     return null;
   }
 
+  logEvent('payment', 'Создан заказ на оплату', { label, kind, planKey, amount });
   return label;
 }
 
@@ -5077,8 +5219,10 @@ async function simulatePayment(label) {
   const { error } = await db.rpc('admin_mark_payment_paid', { p_label: label });
   if (error) {
     await showAlert('Не удалось имитировать оплату: ' + error.message, 'ошибка (тест)');
+    logEvent('payment', 'Ошибка тестовой оплаты: ' + error.message, { label });
     return false;
   }
+  logEvent('payment', 'Тестовая оплата подтверждена админом', { label });
   return true;
 }
 
@@ -5241,9 +5385,12 @@ async function setUserPlan(planKey) {
 
 let adminLookupResult = null; // profile row of the currently loaded target user
 let adminLookupNotesExpanded = false;
+let adminPanelTab = 'users'; // 'users' | 'logs'
+let adminLogsCategory = 'all'; // 'all' | 'auth' | 'payment' | 'user_action' | 'error'
 
 function openAdminPanel() {
   if (!currentProfile || !currentProfile.is_admin) return;
+  adminPanelTab = 'users';
   renderAdminSearch();
   document.getElementById('admin-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
@@ -5255,12 +5402,28 @@ function closeAdminPanel() {
   adminLookupNotesExpanded = false;
 }
 
+function adminTabsHtml() {
+  return `
+    <div class="admin-tabs">
+      <button type="button" class="admin-tab-btn${adminPanelTab === 'users' ? ' active' : ''}" onclick="switchAdminTab('users')">пользователи</button>
+      <button type="button" class="admin-tab-btn${adminPanelTab === 'logs' ? ' active' : ''}" onclick="switchAdminTab('logs')">логи</button>
+    </div>
+  `;
+}
+
+function switchAdminTab(tab) {
+  adminPanelTab = tab;
+  if (tab === 'users') renderAdminSearch();
+  else renderAdminLogs();
+}
+
 function renderAdminSearch(errorMsg) {
   const card = document.getElementById('admin-card');
   card.innerHTML = `
     <button class="modal-close" onclick="closeAdminPanel()" type="button" aria-label="Закрыть">×</button>
     <div class="modal-eyebrow">админ-панель</div>
     <h2 class="modal-title">Управление <em>пользователями.</em></h2>
+    ${adminTabsHtml()}
     <p class="modal-sub">Найдите пользователя по ID (UUID) или по отображаемому имени, чтобы выдать план, включить/выключить админ-доступ или заблокировать аккаунт.</p>
     ${errorMsg ? `<div class="admin-error">${escapeHtml(errorMsg)}</div>` : ''}
     <div class="admin-search-row">
@@ -5272,6 +5435,74 @@ function renderAdminSearch(errorMsg) {
   const input = document.getElementById('admin-search-input');
   input.addEventListener('keydown', e => { if (e.key === 'Enter') runAdminSearch(); });
   input.focus();
+}
+
+const ADMIN_LOG_CATEGORIES = [
+  { key: 'all', label: 'все' },
+  { key: 'auth', label: 'вход/регистрация' },
+  { key: 'payment', label: 'платежи' },
+  { key: 'user_action', label: 'действия' },
+  { key: 'error', label: 'ошибки' },
+];
+
+async function renderAdminLogs() {
+  const card = document.getElementById('admin-card');
+  card.innerHTML = `
+    <button class="modal-close" onclick="closeAdminPanel()" type="button" aria-label="Закрыть">×</button>
+    <div class="modal-eyebrow">админ-панель</div>
+    <h2 class="modal-title">Журнал <em>событий.</em></h2>
+    ${adminTabsHtml()}
+    <div class="admin-log-filters">
+      ${ADMIN_LOG_CATEGORIES.map(c => `<button type="button" class="admin-log-filter-btn${adminLogsCategory === c.key ? ' active' : ''}" onclick="setAdminLogsCategory('${c.key}')">${c.label}</button>`).join('')}
+    </div>
+    <div id="admin-logs-list" class="admin-empty loading-pulse">Загрузка…</div>
+  `;
+  await loadAdminLogs();
+}
+
+function setAdminLogsCategory(cat) {
+  adminLogsCategory = cat;
+  renderAdminLogs();
+}
+
+async function loadAdminLogs() {
+  let query = db.from('event_logs').select('*').order('created_at', { ascending: false }).limit(200);
+  if (adminLogsCategory !== 'all') query = query.eq('category', adminLogsCategory);
+  const { data, error } = await query;
+
+  const listEl = document.getElementById('admin-logs-list');
+  if (!listEl) return; // panel closed/tab switched while loading
+
+  if (error) {
+    listEl.innerHTML = `<div class="admin-error">Не удалось загрузить логи: ${escapeHtml(error.message)}</div>`;
+    return;
+  }
+  if (!data || data.length === 0) {
+    listEl.innerHTML = `<div class="admin-empty">Событий пока нет.</div>`;
+    return;
+  }
+
+  listEl.className = 'admin-logs-list';
+  listEl.innerHTML = data.map(logRowHtml).join('');
+}
+
+function logRowHtml(row) {
+  const dt = new Date(row.created_at);
+  const time = dt.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const catLabel = (ADMIN_LOG_CATEGORIES.find(c => c.key === row.category) || { label: row.category }).label;
+  const metaStr = row.meta ? JSON.stringify(row.meta) : '';
+  return `
+    <div class="admin-log-row admin-log-cat-${escapeHtml(row.category)}">
+      <div class="admin-log-row-top">
+        <span class="admin-log-time">${time}</span>
+        <span class="admin-log-cat">${escapeHtml(catLabel)}</span>
+        <span class="admin-log-source">${row.source === 'webhook' ? 'webhook' : 'клиент'}</span>
+      </div>
+      <div class="admin-log-message">${escapeHtml(row.message)}</div>
+      ${row.user_id ? `<div class="admin-log-user" onclick="selectAdminUserById('${row.user_id}')">пользователь: ${escapeHtml(row.user_id)}</div>` : ''}
+      ${metaStr ? `<div class="admin-log-meta">${escapeHtml(metaStr)}</div>` : ''}
+    </div>
+  `;
 }
 
 async function runAdminSearch() {
@@ -5749,6 +5980,7 @@ async function createGroup() {
   }
 
   await db.from('recent_groups').upsert({ user_id: currentUser.id, group_id: data.id, last_visited: new Date().toISOString() });
+  logEvent('user_action', 'Создана группа', { group_id: data.id, name });
 
   groupManageOpen = false;
   activeGroupName = data.name_lower;
@@ -5815,6 +6047,7 @@ async function deleteGroup(groupId, groupName) {
     return;
   }
 
+  logEvent('user_action', 'Удалена группа', { group_id: groupId, name: groupName });
   if (activeGroupId === groupId) { activeGroupName = null; activeGroupId = null; }
   await renderGroupsPanel();
   await renderGroupArea();
