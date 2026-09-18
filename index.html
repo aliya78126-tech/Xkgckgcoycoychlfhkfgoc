@@ -73,6 +73,73 @@
     }
   }
 
+  /* ===== Spear cursor: swing + Minecraft-style critical hit particles ===== */
+  #spear-swing-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    pointer-events: none;
+    z-index: 99999;
+    display: none;
+    transform: translate(-6px, -3px);
+  }
+  #spear-swing-layer.active { display: block; }
+  #spear-swing-layer img {
+    display: block;
+    width: 28px;
+    height: 28px;
+    image-rendering: pixelated;
+    transform-origin: 8% 12%;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35));
+  }
+  #spear-swing-layer.swinging img {
+    animation: spearSwing 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes spearSwing {
+    0%   { transform: rotate(0deg); }
+    28%  { transform: rotate(-34deg); }
+    60%  { transform: rotate(6deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .crit-particle-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 99998;
+  }
+  .crit-particle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    background: #EAEAEA;
+    box-shadow: 0 0 0 1px rgba(60,60,60,0.5) inset;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1);
+    opacity: 1;
+    will-change: transform, opacity;
+    animation: critParticleFly var(--crit-dur, 0.55s) cubic-bezier(0.25, 0.7, 0.4, 1) forwards;
+  }
+  @keyframes critParticleFly {
+    0% {
+      transform: translate(-50%, -50%) rotate(45deg) translate(0, 0) scale(1);
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(45deg) translate(var(--crit-x), var(--crit-y)) scale(0.4);
+      opacity: 0;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -3217,6 +3284,100 @@ function toggleSpearCursor(on) {
   applySpearCursorSetting(on);
   syncCursorToggles();
   saveCurrentTheme();
+  setupSpearSwingFeature();
+}
+
+/* ===== Spear swing + critical hit particle animation ===== */
+const SPEAR_CURSOR_DATA_URL = "data:image/png;base64,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";
+
+let spearMouseMoveHandler = null;
+let spearMouseDownHandler = null;
+
+function ensureSpearOverlayElements() {
+  let layer = document.getElementById('spear-swing-layer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.id = 'spear-swing-layer';
+    const img = document.createElement('img');
+    img.src = SPEAR_CURSOR_DATA_URL;
+    img.alt = '';
+    img.draggable = false;
+    layer.appendChild(img);
+    document.body.appendChild(layer);
+  }
+  let particleLayer = document.getElementById('crit-particle-layer');
+  if (!particleLayer) {
+    particleLayer = document.createElement('div');
+    particleLayer.id = 'crit-particle-layer';
+    particleLayer.className = 'crit-particle-layer';
+    document.body.appendChild(particleLayer);
+  }
+  return { layer, particleLayer };
+}
+
+function spawnCritParticles(x, y) {
+  const { particleLayer } = ensureSpearOverlayElements();
+  const count = 7 + Math.floor(Math.random() * 4);
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('span');
+    p.className = 'crit-particle';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 18 + Math.random() * 26;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist - 10;
+    p.style.setProperty('--crit-x', dx.toFixed(1) + 'px');
+    p.style.setProperty('--crit-y', dy.toFixed(1) + 'px');
+    p.style.setProperty('--crit-dur', (0.45 + Math.random() * 0.25).toFixed(2) + 's');
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    particleLayer.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+    setTimeout(() => { if (p.parentNode) p.remove(); }, 1200);
+  }
+}
+
+function playSpearSwing(x, y) {
+  const { layer } = ensureSpearOverlayElements();
+  layer.style.left = x + 'px';
+  layer.style.top = y + 'px';
+  layer.classList.remove('swinging');
+
+  void layer.offsetWidth;
+  layer.classList.add('swinging');
+  spawnCritParticles(x, y);
+}
+
+function setupSpearSwingFeature() {
+  if (spearMouseMoveHandler) {
+    document.removeEventListener('mousemove', spearMouseMoveHandler);
+    spearMouseMoveHandler = null;
+  }
+  if (spearMouseDownHandler) {
+    document.removeEventListener('mousedown', spearMouseDownHandler);
+    spearMouseDownHandler = null;
+  }
+
+  if (!isSpearCursorOn()) {
+    const layer = document.getElementById('spear-swing-layer');
+    if (layer) layer.classList.remove('active');
+    return;
+  }
+
+  const { layer } = ensureSpearOverlayElements();
+  layer.classList.add('active');
+
+  spearMouseMoveHandler = (e) => {
+    layer.style.left = e.clientX + 'px';
+    layer.style.top = e.clientY + 'px';
+  };
+  spearMouseDownHandler = (e) => {
+    if (!isSpearCursorOn()) return;
+    if (e.button !== 0) return;
+    playSpearSwing(e.clientX, e.clientY);
+  };
+
+  document.addEventListener('mousemove', spearMouseMoveHandler);
+  document.addEventListener('mousedown', spearMouseDownHandler);
 }
 
 
@@ -3231,6 +3392,7 @@ function loadTheme() {
   });
   applyCustomCursorSetting(saved.customCursor);
   applySpearCursorSetting(saved.customCursorSpear);
+  setupSpearSwingFeature();
 }
 
 
@@ -3246,6 +3408,7 @@ function loadThemeForAccount() {
   });
   applyCustomCursorSetting(saved.customCursor);
   applySpearCursorSetting(saved.customCursorSpear);
+  setupSpearSwingFeature();
 }
 
 function getDefaultThemeValues() {
@@ -3307,6 +3470,7 @@ async function resetTheme() {
   THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
   applyCustomCursorSetting(false);
   applySpearCursorSetting(false);
+  setupSpearSwingFeature();
   if (currentUser) {
     if (currentProfile) currentProfile.theme = null;
     if (themeSaveTimer) { clearTimeout(themeSaveTimer); themeSaveTimer = null; }
@@ -4057,6 +4221,7 @@ async function handleLogout() {
 
   THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
   loadTheme();
+  setupSpearSwingFeature();
 }
 
 
@@ -6360,6 +6525,7 @@ function setupSidebarResize() {
 
 (async function init() {
   loadTheme();
+  setupSpearSwingFeature();
   loadSidebarWidth();
   setupSidebarResize();
   switchTab('login');
