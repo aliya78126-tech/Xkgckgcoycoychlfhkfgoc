@@ -7,7 +7,7 @@
 <title>Тетрадь — заметки</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg: #12141C;
@@ -40,13 +40,11 @@
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-  /* Custom pixel-art "spear" cursors, PC only (fine-pointer devices).
-     Toggled by body.custom-cursor-on; default OFF until the user enables
-     it, and only ever applied when the device actually has a mouse. */
+
   @media (pointer: fine) {
     body.custom-cursor-on,
     body.custom-cursor-on * {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="translate(32,0) scale(-1,1) rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236C8FAE"/><rect x="13" y="8" width="6" height="4" fill="%236C8FAE"/><rect x="12" y="12" width="8" height="4" fill="%237FA6C4"/><rect x="14" y="16" width="4" height="12" fill="%238A5A34"/><rect x="14" y="26" width="4" height="4" fill="%235C3A20"/></g></svg>') 26 6, auto !important;
+      cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAHAElEQVR4nMWYTYxdZRnHf8/7vuec+zUf7czQgbaZtiBoaNRqC6SQGFxoDIlK1J17w8qNJibuNbp2z8rYlUIwmjQmpiFESSSNUFFpKBRoKS3T6dw7c77ej8fFnYFpy7SFman/5M3NPSd57i//5+M85wo7LBG55f25R76kdHOaZEhAMuPrJq197izeHUgttbVEgTyNwdbhANzdYHAKSYSFww9pKnrX3fv1iWdpZ+bYm3U51BlQr67w1NPf4e0L7xLMXQIEMMbQdh3Dyet/sp3dTej2qYIySeSewRTDd96nMIYsbQPgjTWWrYUUEjhL8C0J0KhUnQ6WnGgghBqrUCw2FDM1PQpKsWgBJrPE1pNkBxz0jAvo4KNf1fNSMsg6AKwSeOI3P+fS3j0MGvjBvYcZBDhuB5hUUtke33zvJSSVXJrL6FyomWy2oUkcQmEdmQoGQS2oyYg+YLTAd3K8s2S9KRpxGG+oTGL/MDEZI5XAfOqRJaWfDKbfgVHEW6XJ/NYd9JqYuG9ep/fuwRuQpKAZx575IVfumWAuK3j6yBPsmp7lufA+p4cf0PeRByYnCbT87t9/4zUabFRe/tFPYGkZ3jovQsGKCVsHdFYY7J1nMTNEcSCBnldWZif4YPeAK9HxvekZVsuWt0dDjHVk0XMv4HFcNon/zk4wnRJTixUNSh0cIaxijNn+GmyNoy0gkYN+HL7MA/eOAq5TMVlblgGPYYiwKwaKFLEa4Ia5vmVAoyAKwUIEFn71YwYNVA8sMIFBJSEYOlH46YPH2A+sAt+/fIpIxht/PUl/NdJPgSVaCuz18bcKeKM6bQaa0ViHaEYRoYhQW2F6PHAogUiG4ogC0YBVDxJvinfrB+UdyAJ20KOVtan6+GOKgcd/8TOK3jyx53l2z1G6wC9ffIGl4RKrKePU+ddpTcbot89D2WB8jfzrLYn9DKk9JAW2Y1A7RyobTEpYYGq5IRiYmcw5N9ly3xDmSazUIy6GkrOzfTKB4qyjkJpRCGSxRSSRuoJrIkH1I+e2DBjjWloEAhBZRTTQq2v6MsFyPeRKC64zRagUioQN4FJNFoEQKdpIEz2piZAEA6hsE+CNOlpdBgl8d3aWJnuQNBN58pXnmUqWi+dfpXtGWFFoc3AbthargI4bbaO23CSqgnM5qopRxeCByO7WYTLodg3dNhH6DWnVoQLBtmTBj8eK9UhQcmNRyUgoCUV1fLbeJKbg0PyEHljYg0swc09Dz8ObboKXX3+PojPBoutAJ/DQt55iZaLLrrrlzB9PQuXh7FlxrSF0HKZsSSlcF3/rNZg8BxbmyOJlIJDbKfLouPTqafbTQ5dh1AUqTwfLCoy3lA9HZE5oxBFDjVltSZ9g17bNQUuNlQqXoLXQWLDJ4tTTukieoBug58fHaMRpuG3cT53i9f1PVfnGI/vVGuXRI3vJuQap4MSfXiPQ5c0LpfgkH3Wjokwe2qe1G3si4zFHe/GymJWatCHuRn3mFDvASomVgE0JxAKWIBmRjGggbQCxOj5m/ftaB7e3M+TTgh358sO6SwKSKV97ZBZC5MWXXuXqUgXAGx8aiQbqOpGSQzY8vmyRE+R6hyQkbFSijom37OBU4Zly16jKZbI6sdI0DBuhtlOQJiibi0QDJIc1OUnH4FYhNi1Ori/7kCIGQ9zEqtsDGsEksKI4NTijDNurZDFDBzNMTudU9SWalBHNaOxEBEjEDSMjACgEvXkhaEmgN12+M0DR8ULw5NH71dLw6Ff20GtqktnH7/98lrKu+c87XlSqsXPbrFuGdM6hmqMoUUZoaqENBLFIPzAKDQFDv5ej6jHRbzvgpk3inGN+fl4/v29AkRqOHZ+liMrJv5zG+y7D0PLmBStKTeUVNWuh0ia5+oy6OcViQTNCiDy4MEXWLiFSkTc5JkHdRoYxoXGS1l/DrxfPNoNtCujE0dWaBPRji0qF04ZGBliT8GIJUqAWggHSzUF3FLBIDd9+eE4zazh8eIB3hkYGvPDcP2lszrn3otR6DRWFG94f7gqgAbqppJeEIhiSsWQ4GpvTmIwokMQhuv0N8YmAvbVGPv7w57QfA0UHvn5sH/3Wc+Lvr7A4aiit490LQYIZvyqS1ivv5pm27YDVWpYK13LQLjJaGbJ7ZCirQFMKGjNUBzRSE0RIqcRa+/Gqv8MyahQ1ShsamlgTQ0aaOMTMwv2MqoZRKig1EWNNCCXAXYMDkGe+MK0AX3zgPqbNKmXq84d/nGPJe16/GmU5WYxEggiobvpI2ikZxIN4gldi7OI1sVzW2G6fIu+QiARlPOfuMhyAe+zAQeoMTr18hmEA7eacXkbyumK5uTudekvAjAqio4mwagt826GipWwCkHP7lXJnZbwN5KnFrv8BJGy6m/0/9D97cHcEPWCVjwAAAABJRU5ErkJggg==') 4 4, auto !important;
     }
     body.custom-cursor-on a,
     body.custom-cursor-on button,
@@ -55,7 +53,7 @@
     body.custom-cursor-on input[type="checkbox"],
     body.custom-cursor-on input[type="color"],
     body.custom-cursor-on select {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g transform="translate(32,0) scale(-1,1) rotate(45 16 16)"><rect x="14" y="2" width="4" height="6" fill="%236B5B95"/><rect x="13" y="8" width="6" height="4" fill="%236B5B95"/><rect x="12" y="12" width="8" height="4" fill="%23473763"/><rect x="14" y="16" width="4" height="12" fill="%23241B2E"/><rect x="14" y="26" width="4" height="4" fill="%23120E18"/></g></svg>') 26 6, pointer !important;
+      cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAABf0lEQVR4nOWVPUvDYBSFn0j9GLRWI/0YRFrboUK17i6CuPjXXB3d3BRx0h/g6KBblyJFkHYRQRArDnGQe32hL9XUmF7xTJeb8ObwnJwkiKKIcWpvbXuogYm0jIyqTJoP89EKG8s612t1AA4P9nVnnqB5g78WsS/ObC2v8+TMNPAZK8D5xcnAOf+DoI9WkJ/SebFQAOCt/6o7IedS6952AGg/PgSyM0/QvMHESyLRzs3nBq6tN5o6S7TPL/2h55knGCT9L5bCuJ8UIecWQsg9dXu6c8shMk/QvMHES3LfvwNgq7Gru+PTo5HPM08wkZI0K6t6yGaYA+Cy3Rm4L1sq6izl8BXDlXmC5g3+qCQS7U61rLuzq2vAH111IYz9PpknGLskbiGEnFCDr1/6uDJP0LzBb5ckbiGS0t8mmHYhfDJP0LxBb8TjKoRP5gnqn8QtxNLKB7nOTbqF8Mk8QfMGg41yJQKYLZZ02Wu1gPHF6so8wYyQE2pgg5zIPEHzBt8BO7+A5sRbFW0AAAAASUVORK5CYII=') 4 4, pointer !important;
     }
   }
 
@@ -134,7 +132,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
     animation: fadeIn var(--dur-slow) var(--ease-soft);
@@ -152,14 +150,14 @@
   input, textarea {
     font-family: inherit;
   }
-  /* Prevent iOS auto-zoom on focus: keep inputs >=16px on small screens */
+
   input, textarea, select { font-size: 16px; }
 
   a { color: inherit; }
 
   .hidden { display: none !important; }
 
-  /* ---------- AUTH SCREEN ---------- */
+
 
   #auth-screen {
     min-height: 100vh;
@@ -197,19 +195,19 @@
   .auth-mark {
     font-size: 13px;
     letter-spacing: 0.04em;
-    text-transform: uppercase;
+    text-transform: none;
     color: var(--accent);
     margin-bottom: 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
   }
 
   .auth-title {
-    font-size: 42px;
+    font-size: 38px;
     font-weight: 500;
     line-height: 1.08;
     letter-spacing: -0.01em;
     margin: 0 0 12px;
-    font-variant: small-caps;
+    font-variant: normal;
   }
 
   .auth-title em {
@@ -218,7 +216,7 @@
   }
 
   .auth-sub {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     color: var(--text-dim);
     margin: 0 0 36px;
@@ -236,7 +234,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     padding: 12px 4px;
     margin-right: 24px;
@@ -256,11 +254,11 @@
 
   .field label {
     display: block;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     margin-bottom: 7px;
-    font-variant: small-caps;
+    font-variant: normal;
     letter-spacing: 0.02em;
   }
 
@@ -280,15 +278,12 @@
   .field input:focus {
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  }
-
-  .field input:focus {
     border-color: var(--accent);
     background: var(--panel-2);
   }
 
   .auth-error {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     color: var(--error);
     background: rgba(183,92,74,0.1);
@@ -306,7 +301,7 @@
     border: none;
     border-radius: var(--radius-sm);
     color: #1B1E23;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 13.5px;
     padding: 14px;
@@ -325,7 +320,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 14px 4px 2px;
     transition: color var(--dur-fast) var(--ease-soft);
@@ -334,7 +329,7 @@
 
   .auth-foot {
     margin-top: 20px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
   }
@@ -343,7 +338,7 @@
     animation: fadeSlideUp var(--dur) var(--ease-soft);
   }
 
-  /* ---------- APP SHELL ---------- */
+
 
   #app {
     display: flex;
@@ -354,7 +349,7 @@
     z-index: 1;
   }
 
-  /* Sidebar */
+
   #sidebar {
     width: 280px;
     flex-shrink: 0;
@@ -378,12 +373,12 @@
   .side-title {
     font-size: 21px;
     font-weight: 500;
-    font-variant: small-caps;
+    font-variant: normal;
     letter-spacing: 0.02em;
   }
 
   .side-user {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--text-dim);
     margin-top: 10px;
@@ -409,7 +404,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 9px 14px;
     min-height: 40px;
@@ -419,9 +414,9 @@
   .side-user button:hover { border-color: var(--error); color: var(--error); transform: translateY(-1px); }
   .side-user button:active { transform: scale(0.96); }
 
-  /* Immutable per-user ID, shown under the display name / logout row */
+
   .side-user-id {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10px;
     color: var(--text-dim);
     opacity: 0.6;
@@ -436,7 +431,7 @@
 
   .quota {
     padding: 14px 20px 10px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -487,7 +482,7 @@
   }
 
   .note-num {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     width: 16px;
@@ -545,7 +540,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     padding: 6px 4px;
     min-height: 32px;
@@ -578,7 +573,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     padding: 6px 10px;
     min-height: 32px;
@@ -592,7 +587,7 @@
     padding: 28px 16px;
     text-align: center;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     line-height: 1.6;
     animation: fadeIn var(--dur-slow) var(--ease-soft);
@@ -604,7 +599,7 @@
     border: 1px dashed var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 12px;
     text-align: left;
@@ -623,7 +618,7 @@
     cursor: not-allowed;
   }
 
-  /* Editor */
+
   #editor-area {
     flex: 1;
     display: flex;
@@ -634,9 +629,7 @@
     padding-right: var(--safe-right);
   }
 
-  /* Desktop "← назад": collapses the editor and lets the note list
-     take the full width. Mobile has its own mechanism (mobile-hidden /
-     mobile-visible, gated by the media query below) and is unaffected. */
+
   @media (min-width: 761px) {
     #app.editor-collapsed #editor-area { display: none; }
   }
@@ -659,10 +652,10 @@
     border-radius: var(--radius-sm);
     outline: none;
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 22px;
     font-weight: 500;
-    font-variant: small-caps;
+    font-variant: normal;
     width: 100%;
     min-width: 0;
     padding: 10px 14px;
@@ -684,7 +677,7 @@
   }
 
   .save-status {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--text-dim);
     min-width: 100px;
@@ -695,7 +688,7 @@
   .save-status.saved { color: var(--accent); animation: fadeIn var(--dur) var(--ease-soft); }
 
   .word-counter {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     white-space: nowrap;
@@ -709,7 +702,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 9px 13px;
     min-height: 38px;
@@ -727,7 +720,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 9px 14px;
     min-height: 40px;
@@ -746,7 +739,7 @@
     outline: none;
     resize: none;
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 14.5px;
     line-height: 1.7;
     padding: 24px 28px 40px;
@@ -774,10 +767,10 @@
     animation: fadeIn var(--dur-slow) var(--ease-soft);
   }
   .editor-empty-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 22px;
     color: var(--text);
-    font-variant: small-caps;
+    font-variant: normal;
   }
   .editor-empty-title-row {
     display: flex;
@@ -789,7 +782,7 @@
     border: 1px solid var(--line);
     border-radius: 50%;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     font-weight: 600;
     width: 26px;
@@ -800,16 +793,15 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: border-color .15s ease, color .15s ease;
+    transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
   }
   .info-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.08); }
-  .info-btn { transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft); }
   .editor-empty button {
     background: var(--accent);
     border: none;
     border-radius: var(--radius-sm);
     color: #1B1E23;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 13px;
     padding: 12px 20px;
@@ -820,8 +812,7 @@
   .editor-empty button:hover { filter: brightness(1.08); transform: translateY(-1px); }
   .editor-empty button:active { transform: scale(0.97); }
 
-  /* Scrollbars, subtle — themed to match the site's own colors everywhere,
-     not just note list/textarea, so no default white OS scrollbar ever shows. */
+
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--line) transparent;
@@ -837,13 +828,13 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); background-clip: padding-box; }
   ::-webkit-scrollbar-corner { background: transparent; }
 
-  /* Focus visibility for accessibility */
+
   button:focus-visible, input:focus-visible, textarea:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 
-  /* ---------- PLAN BADGE + UPGRADE BUTTON ---------- */
+
 
   .plan-row {
     display: flex;
@@ -854,10 +845,10 @@
   }
 
   .plan-badge {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     letter-spacing: 0.03em;
-    text-transform: uppercase;
+    text-transform: none;
     padding: 4px 9px;
     border-radius: 20px;
     border: 1px solid var(--line);
@@ -876,7 +867,7 @@
   .upgrade-link {
     background: none;
     border: none;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--accent);
     padding: 6px 0;
@@ -884,7 +875,7 @@
   }
   .upgrade-link:hover { transform: translateX(2px); }
 
-  /* ---------- PRICING MODAL ---------- */
+
 
   .modal-overlay {
     position: fixed;
@@ -923,7 +914,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 20px;
     line-height: 1;
     padding: 10px;
@@ -953,11 +944,11 @@
   }
 
   .modal-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--accent);
     letter-spacing: 0.03em;
-    text-transform: uppercase;
+    text-transform: none;
     margin-bottom: 8px;
   }
 
@@ -966,12 +957,12 @@
     font-weight: 500;
     margin: 0 0 6px;
     padding-right: 30px;
-    font-variant: small-caps;
+    font-variant: normal;
   }
   .modal-title em { color: var(--accent); font-style: normal; }
 
   .modal-sub {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     color: var(--text-dim);
     margin: 0 0 32px;
@@ -1012,7 +1003,7 @@
   .plan-card:nth-child(4) { animation-delay: 0.17s; }
 
   .plan-card-name {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     margin-bottom: 10px;
@@ -1036,14 +1027,14 @@
     word-break: break-word;
   }
   .plan-card-price span {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     font-weight: 400;
   }
 
   .plan-card-quota {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     color: var(--accent);
     margin-bottom: 16px;
@@ -1076,7 +1067,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 11px;
     min-height: 42px;
@@ -1116,7 +1107,7 @@
   .plan-card-btn-test:hover:not(:disabled) { border-color: var(--text-dim); color: var(--text); }
 
   .plan-card-addon {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--accent);
     margin-top: -8px;
@@ -1124,30 +1115,28 @@
   }
 
   .modal-foot-note {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--text-dim);
     margin-top: 24px;
     line-height: 1.6;
   }
 
-  /* ---------- CUSTOM PLAN BUILDER ---------- */
-  /* Reuses .admin-limit-row / .admin-limit-head / .admin-limit-label /
-     .admin-limit-controls from the admin panel so the sliders look
-     identical everywhere they appear. */
+
+
 
   .custom-builder-section-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.04em;
     margin: 22px 0 10px;
   }
   .custom-builder-section-title:first-of-type { margin-top: 0; }
 
   .custom-limit-value {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     color: var(--accent);
     flex-shrink: 0;
@@ -1155,7 +1144,7 @@
     text-align: right;
   }
   .custom-limit-included {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--text-dim);
     margin-top: 4px;
@@ -1184,7 +1173,7 @@
     display: flex; align-items: center; gap: 10px; font-size: 13px; flex: 1; min-width: 0;
   }
   .custom-perk-price {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -1205,10 +1194,10 @@
     flex-wrap: wrap;
   }
   .custom-builder-price-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.03em;
   }
   .custom-builder-price {
@@ -1216,13 +1205,13 @@
     font-weight: 500;
   }
   .custom-builder-price span {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     font-weight: 400;
   }
 
-  /* ---------- ADMIN PANEL ---------- */
+
 
   .admin-link { color: #A78BFA; }
 
@@ -1241,7 +1230,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 14px;
     padding: 11px 13px;
     outline: none;
@@ -1253,7 +1242,7 @@
     border: none;
     border-radius: var(--radius-sm);
     color: #1B1E23;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 13px;
     padding: 0 18px;
@@ -1262,7 +1251,7 @@
   }
 
   .admin-error {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     color: var(--error);
     background: rgba(183,92,74,0.1);
@@ -1283,7 +1272,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     padding: 8px 4px 10px;
     margin-right: 14px;
@@ -1304,7 +1293,7 @@
     border: 1px solid var(--line);
     border-radius: 999px;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     padding: 6px 12px;
     cursor: pointer;
@@ -1335,13 +1324,13 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--text-dim);
     margin-bottom: 4px;
   }
   .admin-log-cat {
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.04em;
   }
   .admin-log-source {
@@ -1354,7 +1343,7 @@
     line-height: 1.4;
   }
   .admin-log-user {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--accent);
     margin-top: 4px;
@@ -1363,7 +1352,7 @@
   }
   .admin-log-user:hover { text-decoration: underline; }
   .admin-log-meta {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--text-dim);
     margin-top: 4px;
@@ -1396,7 +1385,7 @@
   .theme-preset-swatch:hover .theme-preset-dot { transform: scale(1.08); }
   .theme-preset-swatch.active .theme-preset-dot { border-color: var(--accent); }
   .theme-preset-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 9.5px;
     color: var(--text-dim);
   }
@@ -1418,7 +1407,7 @@
     gap: 10px;
   }
   .theme-field-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--text);
     display: flex;
@@ -1485,14 +1474,14 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     padding: 0 18px;
     min-height: 44px;
   }
   .theme-reset-btn:hover { border-color: var(--error); color: var(--error); }
   .theme-save-note {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     margin-top: 14px;
@@ -1500,7 +1489,7 @@
   }
 
   .theme-warning-box {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--error);
     background: rgba(183,92,74,0.1);
@@ -1533,10 +1522,10 @@
   .admin-user-name {
     font-size: 18px;
     font-weight: 500;
-    font-variant: small-caps;
+    font-variant: normal;
   }
   .admin-user-id {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--text-dim);
     word-break: break-all;
@@ -1556,10 +1545,10 @@
     padding: 10px 12px;
   }
   .admin-stat-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10px;
     color: var(--text-dim);
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.03em;
     margin-bottom: 4px;
   }
@@ -1569,10 +1558,10 @@
   }
 
   .admin-section-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     letter-spacing: 0.04em;
-    text-transform: uppercase;
+    text-transform: none;
     color: var(--text-dim);
     margin: 16px 0 10px;
   }
@@ -1589,7 +1578,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 9px 14px;
     min-height: 40px;
@@ -1614,13 +1603,13 @@
     margin-bottom: 10px;
   }
   .admin-limit-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     color: var(--text);
   }
   .admin-limit-tag {
     font-size: 9.5px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     color: var(--text-dim);
     border: 1px solid var(--line);
     border-radius: 6px;
@@ -1645,7 +1634,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 7px 8px;
     text-align: center;
@@ -1656,7 +1645,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     padding: 2px 0;
     flex-shrink: 0;
@@ -1678,7 +1667,7 @@
     font-size: 13.5px;
   }
   .admin-toggle-sub {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     margin-top: 2px;
@@ -1688,7 +1677,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 8px 14px;
     min-height: 38px;
@@ -1710,7 +1699,7 @@
     border: 1px solid rgba(229,72,77,0.45);
     border-radius: var(--radius-sm);
     color: var(--error);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     padding: 10px 16px;
     min-height: 40px;
@@ -1721,12 +1710,12 @@
     background: none;
     border: none;
     color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 4px 0;
   }
   .admin-note-row {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     padding: 6px 0;
@@ -1739,7 +1728,7 @@
 
   .admin-empty {
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     text-align: center;
     padding: 30px 10px;
@@ -1750,7 +1739,7 @@
     .admin-search-row { flex-direction: column; }
   }
 
-  /* Simulated checkout step */
+
   .checkout-box {
     background: var(--panel-2);
     border: 1px solid var(--line);
@@ -1763,7 +1752,7 @@
   .checkout-row {
     display: flex;
     justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     color: var(--text-dim);
     margin-bottom: 10px;
@@ -1771,10 +1760,10 @@
   }
   .checkout-row strong { color: var(--text); font-weight: 500; text-align: right; }
   .checkout-divider { border-top: 1px solid var(--line); margin: 14px 0; }
-  .checkout-total { font-size: 16px; color: var(--text); display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; margin-bottom: 20px; }
+  .checkout-total { font-size: 16px; color: var(--text); display: flex; justify-content: space-between; font-family: 'Nunito', sans-serif; margin-bottom: 20px; }
 
   .card-field-error {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--error);
     margin-top: 5px;
@@ -1795,7 +1784,7 @@
   }
   .checkout-fields-row .field { flex: 1; min-width: 0; }
 
-  /* ---------- Custom dialog (replaces browser alert/confirm/prompt) ---------- */
+
 
   .dialog-overlay {
     position: fixed;
@@ -1825,11 +1814,11 @@
   }
 
   .dialog-eyebrow {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--accent);
     letter-spacing: 0.03em;
-    text-transform: uppercase;
+    text-transform: none;
     margin-bottom: 10px;
   }
 
@@ -1848,7 +1837,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 15px;
     padding: 11px 13px;
     outline: none;
@@ -1870,7 +1859,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     padding: 10px 18px;
     min-height: 42px;
@@ -1912,7 +1901,7 @@
     padding: 10px 12px;
     text-align: left;
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12.5px;
     line-height: 1.5;
     transition: border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
@@ -1930,7 +1919,7 @@
     .dialog-card { max-width: 100%; }
   }
 
-  /* ---------- Note options: pin + folders/tags + search ---------- */
+
 
   .sidebar-search {
     padding: 10px 20px 0;
@@ -1942,7 +1931,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     padding: 9px 10px;
     outline: none;
@@ -1966,7 +1955,7 @@
   .note-pin-btn:active { transform: scale(0.9); }
 
   .note-tag {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10px;
     color: var(--blue);
     border: 1px solid rgba(91,122,150,0.35);
@@ -1987,7 +1976,7 @@
     gap: 8px;
     padding: 11px 20px;
     padding-bottom: calc(11px + var(--safe-bottom));
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     border-top: 1px solid var(--line);
@@ -2000,13 +1989,13 @@
     background: none;
     border: none;
     color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     padding: 4px 0;
     flex-shrink: 0;
   }
 
-  /* Unlock note screen */
+
   .unlock-input {
     margin-top: 14px;
     background: var(--panel-2);
@@ -2014,7 +2003,7 @@
     border-radius: var(--radius-sm);
     color: var(--text);
     padding: 11px 12px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 15px;
     width: 220px;
     max-width: 100%;
@@ -2028,7 +2017,7 @@
   }
   .unlock-input.shake { animation: shakeError 0.4s var(--ease-soft); }
 
-  /* ---------- SECTION SWITCHER (Notes / Groups) ---------- */
+
 
   .section-switcher {
     display: flex;
@@ -2041,7 +2030,7 @@
     background: none;
     border: 1px solid var(--line);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     padding: 9px 6px;
     min-height: 38px;
@@ -2068,7 +2057,7 @@
     z-index: 1;
   }
 
-  /* ---------- GROUPS ---------- */
+
 
   #groups-panel {
     flex: 1;
@@ -2080,10 +2069,10 @@
   }
 
   .groups-block-title {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     letter-spacing: 0.04em;
-    text-transform: uppercase;
+    text-transform: none;
     color: var(--text-dim);
     margin: 18px 0 10px;
   }
@@ -2123,7 +2112,7 @@
     border: none;
     border-radius: var(--radius-sm);
     color: #1B1E23;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 12.5px;
     padding: 11px;
@@ -2141,7 +2130,7 @@
   .group-form-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
 
   .group-form-error {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--error);
     background: rgba(183,92,74,0.1);
@@ -2154,7 +2143,7 @@
   }
 
   .group-quota-line {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     margin-bottom: 10px;
@@ -2167,7 +2156,7 @@
     background: none;
     border: none;
     color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     padding: 2px 0;
     flex-shrink: 0;
@@ -2209,7 +2198,7 @@
     transform: rotate(45deg) translate(-1px, -1px);
   }
   .group-form-checkbox label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     cursor: pointer;
@@ -2247,7 +2236,7 @@
     text-overflow: ellipsis;
   }
   .recent-group-owner-tag {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 9.5px;
     color: var(--accent);
     border: 1px solid rgba(255,111,94,0.4);
@@ -2256,7 +2245,7 @@
     flex-shrink: 0;
   }
 
-  /* Group feed area (reuses #editor-area layout) */
+
   .group-topbar {
     display: flex;
     align-items: center;
@@ -2286,10 +2275,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-variant: small-caps;
+    font-variant: normal;
   }
   .group-topbar-sub {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     margin-top: 3px;
@@ -2325,13 +2314,13 @@
     margin-bottom: 6px;
   }
   .group-post-author {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11.5px;
     color: var(--accent);
     font-weight: 600;
   }
   .group-post-time {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     color: var(--text-dim);
     flex-shrink: 0;
@@ -2346,7 +2335,7 @@
     background: none;
     border: none;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 10.5px;
     padding: 2px 0;
     flex-shrink: 0;
@@ -2354,7 +2343,7 @@
   }
   .group-post-copy-btn:hover { color: var(--accent); }
   .group-post-text {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 14px;
     line-height: 1.6;
     white-space: pre-wrap;
@@ -2367,7 +2356,7 @@
     align-items: center;
     justify-content: center;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 13px;
     text-align: center;
     padding: 24px;
@@ -2389,7 +2378,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 14px;
     padding: 11px 13px;
     outline: none;
@@ -2407,7 +2396,7 @@
     border: none;
     border-radius: var(--radius-sm);
     color: #1B1E23;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-weight: 600;
     font-size: 12.5px;
     padding: 0 18px;
@@ -2420,7 +2409,7 @@
   .group-composer button:disabled { opacity: 0.4; cursor: default; }
 
   .group-composer-limit {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
     padding: 0 28px 10px;
@@ -2434,7 +2423,7 @@
     background: none;
     border: none;
     color: var(--accent);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     padding: 2px 0;
     flex-shrink: 0;
@@ -2445,7 +2434,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 9px 13px;
     min-height: 38px;
@@ -2461,7 +2450,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--error);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 9px 13px;
     min-height: 38px;
@@ -2477,7 +2466,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     padding: 9px 13px;
     min-height: 38px;
@@ -2506,10 +2495,10 @@
   }
   .group-manage-row:last-child { border-bottom: none; }
   .group-manage-label {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     color: var(--text-dim);
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.02em;
     flex-shrink: 0;
   }
@@ -2531,7 +2520,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 11px;
     padding: 6px 10px;
     min-height: 32px;
@@ -2562,7 +2551,7 @@
     white-space: nowrap;
   }
   .group-member-empty {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Nunito', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     padding: 6px 0;
@@ -2583,7 +2572,7 @@
   }
   .recent-group-delete:hover { color: var(--error); background: rgba(229,72,77,0.12); }
 
-  /* ================= RESPONSIVE ================= */
+
 
   @media (max-width: 760px) {
     #app {
@@ -2625,7 +2614,7 @@
     }
     #editor-area.mobile-visible { display: flex; animation: slideInFromRight var(--dur-slow) var(--ease-soft); }
 
-    .auth-title { font-size: 30px; }
+    .auth-title { font-size: 26px; }
     .auth-wrap { max-width: 100%; }
     #auth-screen { padding: 24px 18px; }
 
@@ -2675,7 +2664,7 @@
     .group-composer-limit { padding: 0 14px 8px; }
   }
 
-  /* Comfortable tablet / small desktop range */
+
   @media (min-width: 761px) and (max-width: 1024px) {
     #sidebar { width: 240px; }
     .editor-topbar { padding: 14px 22px; }
@@ -2683,7 +2672,7 @@
     .plans-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
-  /* Larger desktop: give the editor more breathing room */
+
   @media (min-width: 1400px) {
     #sidebar { width: 300px; }
     #note-textarea { padding: 32px 48px 56px; font-size: 15px; }
@@ -2697,7 +2686,7 @@
 <div id="auth-screen">
   <div class="auth-wrap">
     <div class="auth-mark">тетрадь</div>
-    <h1 class="auth-title">Заметки,<br><em>как вы их написали.</em></h1>
+    <h1 class="auth-title">Сайт для сохранения текстов<br><em>и обмена ими с другими людьми.</em></h1>
     <p class="auth-sub">Табы, пробелы, переносы строк — сохраняется точь-в-точь. 10 заметок бесплатно.</p>
 
     <div class="auth-tabs">
@@ -2881,128 +2870,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-/* =========================================================
-   SUPABASE SETUP
-   Вставь сюда свои значения из Project Settings -> API
 
-   ---------------------------------------------------------
-   ЧТО НУЖНО ДОБАВИТЬ В БАЗУ ДЛЯ АДМИН-ПАНЕЛИ
-   ---------------------------------------------------------
-   1) Столбцы в public.profiles (если их ещё нет):
-
-      alter table public.profiles add column if not exists is_admin boolean not null default false;
-      alter table public.profiles add column if not exists banned boolean not null default false;
-
-      -- сделать себя админом (замени UUID на свой, см. current-user-id в приложении):
-      update public.profiles set is_admin = true where id = 'ВАШ-UUID-СЮДА';
-
-   1.1) Столбец для персонального оформления (чтобы тема хранилась
-        на аккаунте, а не только в localStorage браузера):
-
-      alter table public.profiles add column if not exists theme jsonb;
-
-      -- RLS для этого столбца отдельно не нужен: он покрывается
-      -- уже существующими политиками "users can update own profile"
-      -- (обычный пользователь правит только свою строку).
-
-   2) RLS-политики, которые разрешают админам менять ЧУЖИЕ строки.
-      Без этого кнопки в панели будут возвращать ошибку доступа —
-      обычный anon-ключ подчиняется RLS как и все остальные запросы.
-
-      -- разрешить админам читать все профили (для поиска по имени/ID)
-      create policy "admins can read all profiles"
-      on public.profiles for select
-      using (
-        auth.uid() = id
-        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
-      );
-
-      -- разрешить админам обновлять любой профиль (план, is_admin, banned)
-      create policy "admins can update any profile"
-      on public.profiles for update
-      using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin));
-
-      -- (опционально) разрешить админам видеть чужие заметки/группы для статистики
-      create policy "admins can read all notes"
-      on public.notes for select
-      using (
-        auth.uid() = user_id
-        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
-      );
-
-      create policy "admins can read all groups"
-      on public.groups for select
-      using (
-        auth.uid() = owner_id
-        or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
-      );
-
-   Без шага (2) UI откроется и будет искать пользователей, но
-   попытки сменить план/забанить/выдать права будут падать —
-   это ограничение самого Supabase (anon-ключ = обычный
-   пользовательский доступ), а не баг в этом файле.
-
-   ---------------------------------------------------------
-   3) ОПЛАТА ЧЕРЕЗ ЮMONEY (кошелёк, не ЮKassa)
-   ---------------------------------------------------------
-   Полная инструкция по подключению — см. PAYMENTS_SETUP_README
-   в конце этого файла (после </html>) или в отдельном файле
-   yoomoney-webhook/README.md, который идёт вместе с этим
-   index.html. Здесь — только SQL, который нужно выполнить.
-
-   3.1) Таблица заказов на оплату. Каждая попытка оплаты (обычный
-        план или докупка лимитов) создаёт тут одну строку со
-        статусом pending; Edge Function переводит её в paid только
-        после того, как ЮMoney подтвердит перевод по HTTP-уведомлению
-        с правильной подписью — клиент сам никогда не помечает
-        платёж оплаченным.
-
-      create table if not exists public.payments (
-        id uuid primary key default gen_random_uuid(),
-        user_id uuid not null references auth.users(id) on delete cascade,
-        label text not null unique,            -- уникальный идентификатор, передаётся в ЮMoney
-        kind text not null,                    -- 'plan' или 'custom'
-        plan_key text,                         -- для kind='plan': 's' | 'm' | 'l'
-        custom_payload jsonb,                  -- для kind='custom': лимиты/перки/сумма докупки
-        amount numeric not null,               -- ожидаемая сумма в рублях
-        status text not null default 'pending',-- pending | paid | failed
-        yoomoney_operation_id text,            -- operation_id из уведомления, для защиты от повторов
-        created_at timestamptz not null default now(),
-        paid_at timestamptz
-      );
-
-      alter table public.payments enable row level security;
-
-      -- пользователь может создавать свои заказы и видеть только их статус
-      create policy "users can insert own payments"
-      on public.payments for insert
-      with check (auth.uid() = user_id);
-
-      create policy "users can read own payments"
-      on public.payments for select
-      using (auth.uid() = user_id);
-
-      -- обновлять статус платежа (pending -> paid) может только сама
-      -- Edge Function — она использует service_role ключ, который
-      -- обходит RLS. Обычным пользователям (anon-ключ) update запрещён
-      -- полностью: ни одной policy "for update" здесь нет специально.
-
-   3.2) Секретное слово из настроек HTTP-уведомлений ЮMoney нужно
-        положить в Supabase как секрет для Edge Function (НЕ в этот
-        HTML-файл — он публичный и виден всем в браузере):
-
-      supabase secrets set YOOMONEY_NOTIFICATION_SECRET=ваше-секретное-слово
-
-   ========================================================= */
 
 const SUPABASE_URL = 'https://vudpaeodsuqdphxjlaje.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1ZHBhZW9kc3VxZHBoeGpsYWplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNjUxMTYsImV4cCI6MjEwNDY0MTExNn0.PHS4rWYkSEl2H_k2mivcwqyoFDGVT1gNfmKTkcwwiA0';
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Глобальный перехват необработанных ошибок интерфейса — пишем в
-// event_logs (категория 'error'), чтобы админ видел их в панели логов.
-// Best-effort и не мешает стандартной обработке/выводу в консоль.
+
+
+
 window.addEventListener('error', (e) => {
   logEvent('error', (e.message || 'Неизвестная ошибка JS'), {
     filename: e.filename, lineno: e.lineno, colno: e.colno,
@@ -3014,17 +2891,14 @@ window.addEventListener('unhandledrejection', (e) => {
   logEvent('error', 'Необработанный promise-reject: ' + msg, {});
 });
 
-// ЮMoney: номер кошелька, куда уходят все оплаты планов/докупок.
-// Секретное слово для проверки подписи HTTP-уведомлений НЕ хранится
-// здесь — оно известно только Edge Function на стороне Supabase.
+
+
+
 const YOOMONEY_WALLET = '4100119630704520';
 
-/* =========================================================
-   PLANS
-   ========================================================= */
 
-/* Единый тариф: одна покупка открывает лимиты и по заметкам, и по
-   группам, и по сообщениям в группах — отдельных подписок больше нет. */
+
+
 const PLANS = {
   free: {
     key: 'free', name: 'Free', price: 0, badgeClass: 'plan-free',
@@ -3052,10 +2926,10 @@ const PLANS = {
   },
   custom: {
     key: 'custom', name: 'Кастомный', price: 0, badgeClass: 'plan-custom',
-    // Defaults here only seed the builder's sliders on first open — the
-    // real values (and real price) for a given user live in their profile
-    // row (limit_notes / limit_chars / limit_groups / limit_messages /
-    // custom_perks / custom_price) once they've configured and paid.
+
+
+
+
     limit: 200, charLimit: 50000, groupLimit: 10, messageLimit: 20,
     features: ['Лимиты и функции — по вашему выбору'],
     perks: { search: false, pin: false, tags: false, exportTxt: false, history: false, lockNote: false }
@@ -3064,13 +2938,13 @@ const PLANS = {
 
 function getCharLimit() { return getCurrentPlan().charLimit; }
 
-// Per-user limit overrides (set from the admin panel, or from the custom
-// plan builder) let an individual account exceed or shrink its plan's
-// defaults without changing plans. Each override column is nullable —
-// null means "use the plan's value". `base` / `rate` are what the custom
-// plan builder uses: the first `base` units are free, each unit above
-// that costs `rate` — so limits are not capped and stay affordable even
-// at high values.
+
+
+
+
+
+
+
 const LIMIT_OVERRIDE_FIELDS = [
   { column: 'limit_notes',    planKey: 'limit',       label: 'Заметок',              min: 1,   max: 2000,   step: 1,   base: 10,   rate: 0.15 },
   { column: 'limit_chars',    planKey: 'charLimit',   label: 'Символов в заметке',   min: 500, max: 500000, step: 500, base: 5000, rate: 0.002 },
@@ -3078,8 +2952,8 @@ const LIMIT_OVERRIDE_FIELDS = [
   { column: 'limit_messages', planKey: 'messageLimit',label: 'Сообщ. в каждой группе', min: 0, max: 1000,   step: 1,   base: 3,    rate: 0.6 },
 ];
 
-// Perks purchasable individually in the custom plan builder, with their
-// monthly add-on price. Keys match PLANS[*].perks.
+
+
 const CUSTOM_PERK_PRICES = [
   { key: 'search',    label: 'Поиск по заметкам',                price: 7 },
   { key: 'pin',       label: 'Закрепление важных заметок',       price: 5 },
@@ -3089,12 +2963,12 @@ const CUSTOM_PERK_PRICES = [
   { key: 'lockNote',  label: 'Пароль на отдельную заметку',      price: 7 },
 ];
 
-// Linear add-on price for exceeding a plan's own limits + buying extra
-// perks not already included in that plan. `baseValues`/`basePerks` are
-// the limits/perks the plan already includes for free (pass the plan's
-// own values, not the global free-tier ones) — only what's ABOVE that is
-// billed. Used both to price-preview the builder live and to compute the
-// final checkout add-on total. There is no upper cap on the sliders.
+
+
+
+
+
+
 function calcCustomPrice(limitValues, perkKeys, baseValues, basePerks) {
   let total = 0;
   LIMIT_OVERRIDE_FIELDS.forEach(f => {
@@ -3110,12 +2984,12 @@ function calcCustomPrice(limitValues, perkKeys, baseValues, basePerks) {
   return Math.round(total);
 }
 
-// Builds an effective plan object for a given profile row: starts from the
-// profile's plan defaults, then applies any non-null per-user limit
-// overrides (bought as an add-on, on top of ANY plan including free).
-// `custom_perks` holds extra perks bought on top of the plan's own perks,
-// and `custom_price` holds just the add-on amount — the final price is
-// always the plan's own price plus that add-on, for every plan.
+
+
+
+
+
+
 function getEffectivePlan(profileRow) {
   const key = (profileRow && profileRow.plan) || 'free';
   const base = PLANS[key] || PLANS.free;
@@ -3147,9 +3021,7 @@ function getCurrentPlan() {
 function getNoteLimit() { return getCurrentPlan().limit; }
 function getMessageLimit() { return getCurrentPlan().messageLimit; }
 
-/* Simple non-cryptographic hash used only for the group password gate
-   (group membership isn't tied to Supabase Auth — it's a shared
-   name+password like before, just stored in the DB now). */
+
 function simpleHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -3165,8 +3037,8 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// Generic clipboard helper with a fallback for browsers/contexts where
-// navigator.clipboard isn't available (matches the approach copyUserId used).
+
+
 function copyTextToClipboard(text, onDone) {
   const fallbackCopy = () => {
     const tmp = document.createElement('textarea');
@@ -3175,7 +3047,7 @@ function copyTextToClipboard(text, onDone) {
     tmp.style.opacity = '0';
     document.body.appendChild(tmp);
     tmp.select();
-    try { document.execCommand('copy'); } catch (err) { /* noop */ }
+    try { document.execCommand('copy'); } catch (err) {  }
     document.body.removeChild(tmp);
   };
 
@@ -3190,20 +3062,14 @@ function copyTextToClipboard(text, onDone) {
   }
 }
 
-/* =========================================================
-   CUSTOM THEME — user-editable color variables.
-   Values are stored on the user's account (public.profiles.theme)
-   so the same theme follows them across devices/browsers. While
-   logged out (auth screen), we fall back to localStorage so the
-   auth screen itself can still be themed before login.
-   ========================================================= */
 
-const THEME_STORAGE_KEY = 'tetrad_custom_theme_v1'; // logged-out fallback only
+
+const THEME_STORAGE_KEY = 'tetrad_custom_theme_v1';
 const THEME_SAVE_DEBOUNCE_MS = 600;
 let themeSaveTimer = null;
 
-// Every CSS variable exposed to the user, with a friendly label/hint
-// and the built-in default (must match :root in the stylesheet).
+
+
 const THEME_VARS = [
   { key: '--bg',         label: 'Фон',              hint: 'основной фон страницы',     def: '#12141C' },
   { key: '--panel',      label: 'Панель',            hint: 'поля, карточки',            def: '#1A1D28' },
@@ -3240,18 +3106,11 @@ const THEME_PRESETS = [
   },
 ];
 
-// CUSTOM CURSOR — "spear" cursor toggle, PC only. Stored alongside the
-// rest of the theme (profiles.theme.customCursor: boolean), same
-// logged-out localStorage fallback pattern as colors above.
 
-/* =========================================================
-   EVENT LOGS — writes to public.event_logs (see event_logs.sql).
-   Anyone authenticated can insert a row about themselves; only
-   admins can read the table back (RLS). Best-effort: a failed log
-   write never blocks or breaks whatever the user was doing — logging
-   is diagnostics, not a feature the app depends on.
-   category: 'auth' | 'payment' | 'user_action' | 'error'
-   ========================================================= */
+
+
+
+
 async function logEvent(category, message, meta) {
   try {
     await db.from('event_logs').insert({
@@ -3261,7 +3120,7 @@ async function logEvent(category, message, meta) {
       meta: meta || null,
     });
   } catch (e) {
-    // Swallow — logging must never break the actual user-facing action.
+
     console.warn('logEvent failed:', e);
   }
 }
@@ -3278,8 +3137,8 @@ function toggleCustomCursor(on) {
   saveCurrentTheme();
 }
 
-// Called once before login (auth screen) — uses the logged-out
-// localStorage fallback only, since there is no account yet.
+
+
 function loadTheme() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY) || 'null'); } catch (e) { saved = null; }
@@ -3291,10 +3150,10 @@ function loadTheme() {
   applyCustomCursorSetting(saved.customCursor);
 }
 
-// Called right after login, once currentProfile is available. The
-// account's saved theme (profiles.theme) takes priority; if the
-// account has none yet, we leave whatever the auth screen already
-// applied (localStorage fallback) so there's no jarring flash.
+
+
+
+
 function loadThemeForAccount() {
   const saved = currentProfile && currentProfile.theme;
   if (!saved || typeof saved !== 'object') return;
@@ -3332,15 +3191,15 @@ function applyThemeValues(values) {
   });
 }
 
-// Persists the current theme. Logged-in users get it saved to their
-// account (profiles.theme) via a debounced Supabase update, so rapid
-// color-picker drags don't spam the network; logged-out (auth screen)
-// falls back to localStorage on this device only.
+
+
+
+
 function saveCurrentTheme() {
   const values = getCurrentThemeValues();
 
   if (!currentUser) {
-    try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(values)); } catch (e) { /* noop */ }
+    try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(values)); } catch (e) {  }
     return;
   }
 
@@ -3367,7 +3226,7 @@ async function resetTheme() {
     if (themeSaveTimer) { clearTimeout(themeSaveTimer); themeSaveTimer = null; }
     await db.from('profiles').update({ theme: null }).eq('id', currentUser.id);
   } else {
-    try { localStorage.removeItem(THEME_STORAGE_KEY); } catch (e) { /* noop */ }
+    try { localStorage.removeItem(THEME_STORAGE_KEY); } catch (e) {  }
   }
   renderThemePanel();
 }
@@ -3454,7 +3313,7 @@ function renderThemePanel() {
       const { values: fixed, warnings } = enforceThemeContrast(values);
       applyThemeValues(fixed);
       saveCurrentTheme();
-      // Reflect any auto-corrected value back into its own color picker.
+
       Object.keys(fixed).forEach(k => {
         if (inputsByKey[k] && inputsByKey[k].value.toLowerCase() !== fixed[k].toLowerCase()) {
           inputsByKey[k].value = fixed[k];
@@ -3477,8 +3336,8 @@ function showThemeWarning(warnings) {
   el.innerHTML = `<div class="theme-warning-box">${lines.map(l => `<div>${l}</div>`).join('')}</div>`;
 }
 
-// <input type="color"> requires a #rrggbb value; convert rgba()/named
-// values from computed styles to hex, falling back to the default.
+
+
 function toHexColor(value, fallback) {
   if (!value) return fallback;
   const v = value.trim();
@@ -3508,9 +3367,9 @@ function rgbToHex(r, g, b) {
   return '#' + c(r) + c(g) + c(b);
 }
 
-// RGB <-> HSL conversions so contrast fixes can move along lightness only,
-// preserving the hue/saturation the user actually picked (e.g. a light
-// yellow accent gets darkened toward a richer yellow, not toward grey/black).
+
+
+
 function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -3549,9 +3408,9 @@ function hslToRgb(h, s, l) {
   };
 }
 
-// Relative luminance (WCAG-style approximation) — used to detect when two
-// colors are too visually close (e.g. an accent that blends into its own
-// background), not for exact accessibility contrast-ratio compliance.
+
+
+
 function relativeLuminance(hex) {
   const { r, g, b } = hexToRgb(hex);
   const lin = c => {
@@ -3569,20 +3428,20 @@ function contrastRatio(hexA, hexB) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-// If a color is too close in luminance to a reference (its usual background),
-// nudge it toward black or white along its OWN hue/saturation until it's
-// distinguishable again — this keeps e.g. the accent color from
-// "disappearing" into a similarly-toned panel background, without turning
-// it into a washed-out grey. Only falls back to pure black/white if the
-// color's hue genuinely can't reach the required contrast (e.g. a fully
-// saturated mid-tone that would need to go past black/white to comply).
+
+
+
+
+
+
+
 function ensureContrast(hex, referenceHex, minRatio) {
   if (contrastRatio(hex, referenceHex) >= minRatio) return hex;
   const refIsLight = relativeLuminance(referenceHex) > 0.5;
   const { r, g, b } = hexToRgb(hex);
   const { h, s, l } = rgbToHsl(r, g, b);
-  // Walk lightness in small steps toward 0 (if reference is light, so the
-  // color needs to darken to stand out) or toward 1 (if reference is dark).
+
+
   const target = refIsLight ? 0 : 1;
   for (let i = 1; i <= 20; i++) {
     const t = i / 20;
@@ -3594,15 +3453,15 @@ function ensureContrast(hex, referenceHex, minRatio) {
   return refIsLight ? '#0A0A0A' : '#FFFFFF';
 }
 
-// Minimum contrast checks between color pairs that appear together in the
-// UI. Each entry auto-corrects `key`'s color if it gets too close to
-// `against`'s color, so a bad theme choice can't render a whole block
-// unreadable (e.g. accent buttons vanishing into the featured plan card).
-// Text is checked against every surface it actually renders on (page
-// background AND all three panel tones) — checking only against --bg was
-// the bug that let text turn unreadable on panels/cards/modals whenever a
-// theme (like a light theme, or any custom mix) set panel tones far from
-// the page background's own lightness.
+
+
+
+
+
+
+
+
+
 const THEME_CONTRAST_RULES = [
   { key: '--accent',   against: '--panel-3', minRatio: 2.2 },
   { key: '--accent',   against: '--bg',      minRatio: 1.8 },
@@ -3616,10 +3475,10 @@ const THEME_CONTRAST_RULES = [
   { key: '--text-dim', against: '--panel-3', minRatio: 2.5 },
 ];
 
-// Runs every contrast rule against the given values object (as produced by
-// getCurrentThemeValues) and returns { values, warnings } — values has any
-// necessary auto-corrections applied, warnings lists which keys were adjusted
-// and why, for a small inline notice in the theme panel.
+
+
+
+
 function enforceThemeContrast(values) {
   const result = { ...values };
   const warnings = [];
@@ -3636,11 +3495,7 @@ function enforceThemeContrast(values) {
   return { values: result, warnings };
 }
 
-/* =========================================================
-   CUSTOM DIALOG — styled replacements for alert/confirm/prompt.
-   Each returns a Promise so call sites can `await` them just like
-   the native browser functions they replace.
-   ========================================================= */
+
 
 function closeDialog() {
   const overlay = document.getElementById('dialog-overlay');
@@ -3723,9 +3578,7 @@ function showPrompt(message, defaultValue, opts) {
   });
 }
 
-/* Special-purpose dialog for restoring a note version from history:
-   renders a clickable list instead of a free-text prompt. Resolves
-   with the picked history row's index, or null if cancelled. */
+
 function showHistoryPicker(historyRows) {
   return new Promise(resolve => {
     const overlay = document.getElementById('dialog-overlay');
@@ -3758,27 +3611,23 @@ function showHistoryPicker(historyRows) {
   });
 }
 
-/* =========================================================
-   APP STATE
-   ========================================================= */
 
-let currentUser = null;      // Supabase auth user object
-let currentProfile = null;   // row from public.profiles
+
+let currentUser = null;
+let currentProfile = null;
 let notes = [];
 let activeNoteId = null;
 let saveTimer = null;
 let unlockedNoteId = null;
 let currentSection = 'notes';
-let activeGroupName = null;  // name_lower of currently open group
-let activeGroupId = null;    // uuid of currently open group
-let groupManageOpen = false; // whether the owner's "manage group" panel is expanded
-const unlockedGroupIds = new Set(); // ids of password-protected groups already unlocked this session (cleared on logout/reload)
+let activeGroupName = null;
+let activeGroupId = null;
+let groupManageOpen = false;
+const unlockedGroupIds = new Set();
 let noteSelectMode = false;
 let selectedNoteIds = new Set();
 
-/* =========================================================
-   AUTH SCREEN LOGIC
-   ========================================================= */
+
 
 function switchTab(which) {
   const loginTab = document.getElementById('tab-login');
@@ -3923,11 +3772,7 @@ function translateAuthError(msg) {
   return msg;
 }
 
-/* ---------------------------------------------------------
-   FORGOT PASSWORD — request a reset link by email.
-   Supabase sends an email with a link back to this same page;
-   see handlePasswordRecoveryRedirect() below for the return leg.
-   --------------------------------------------------------- */
+
 async function handleForgotPassword(e) {
   e.preventDefault();
   hideError();
@@ -3957,13 +3802,7 @@ async function handleForgotPassword(e) {
   }
 }
 
-/* Checks whether the current page load is the "return leg" of a
-   password-reset email link, and if so switches the auth screen to
-   the reset-password form instead of the normal login form. Supabase
-   delivers this as a PASSWORD_RECOVERY auth event (and/or a
-   recovery-type token in the URL hash, depending on client version),
-   so we listen for both to be safe. Returns true if we're in recovery
-   mode, so init() knows not to auto-enter the app for this session. */
+
 function setupPasswordRecoveryListener() {
   db.auth.onAuthStateChange((event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
@@ -4001,8 +3840,8 @@ async function handleResetPassword(e) {
       return;
     }
 
-    // Clean the recovery token out of the URL so refreshing the page
-    // doesn't re-trigger the reset form.
+
+
     history.replaceState(null, '', window.location.pathname);
 
     e.target.reset();
@@ -4020,11 +3859,7 @@ async function handleResetPassword(e) {
   }
 }
 
-/* ---------------------------------------------------------
-   CHANGE PASSWORD — from inside the app, while already logged in.
-   Reuses the dialog overlay with two password fields side by side
-   in one prompt (showPrompt only supports a single field).
-   --------------------------------------------------------- */
+
 function openChangePasswordDialog() {
   return new Promise(resolve => {
     const overlay = document.getElementById('dialog-overlay');
@@ -4076,9 +3911,9 @@ function openChangePasswordDialog() {
           confirmBtn.disabled = false;
           return;
         }
-        // Show the success state inside this same dialog instead of
-        // closing it and opening a second one — avoids the two
-        // dialogs racing on the same overlay/card elements.
+
+
+
         card.innerHTML = `
           <div class="dialog-eyebrow">готово</div>
           <div class="dialog-message">Пароль успешно изменён.</div>
@@ -4124,19 +3959,13 @@ async function handleLogout() {
   document.getElementById('app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
   switchTab('login');
-  // Reset to this device's local (logged-out) theme, so the next
-  // account's saved theme doesn't leak in from the previous session.
+
+
   THEME_VARS.forEach(v => document.documentElement.style.removeProperty(v.key));
   loadTheme();
 }
 
-/* =========================================================
-   PERMANENT USER ID (rendered next to display name)
-   currentUser.id is the Supabase Auth UUID: it is generated once,
-   at sign-up, and never changes for that account afterwards — not
-   on email change, password change, or display-name change. It is
-   exactly the "personal ID that stays with the user forever".
-   ========================================================= */
+
 
 function renderUserId() {
   const el = document.getElementById('current-user-id');
@@ -4161,7 +3990,7 @@ function copyUserId() {
     tmp.style.opacity = '0';
     document.body.appendChild(tmp);
     tmp.select();
-    try { document.execCommand('copy'); } catch (err) { /* noop */ }
+    try { document.execCommand('copy'); } catch (err) {  }
     document.body.removeChild(tmp);
   };
 
@@ -4182,9 +4011,7 @@ function copyUserId() {
   }
 }
 
-/* =========================================================
-   APP ENTRY
-   ========================================================= */
+
 
 async function enterApp(user) {
   currentUser = user;
@@ -4196,7 +4023,7 @@ async function enterApp(user) {
     .single();
 
   if (error || !profile) {
-    // Profile trigger may still be running right after signup — retry a few times.
+
     let retryProfile = null;
     for (let i = 0; i < 5 && !retryProfile; i++) {
       await new Promise(r => setTimeout(r, 500));
@@ -4250,15 +4077,13 @@ async function loadNotes() {
   activeNoteId = notes.length > 0 ? notes[0].id : null;
 }
 
-/* =========================================================
-   MOBILE NAVIGATION (sidebar list <-> editor/chat screen)
-   ========================================================= */
+
 
 function isMobile() { return window.innerWidth <= 760; }
 
-// On mobile, showing the editor/chat hides the sidebar list entirely
-// and shows a back button; on desktop both panels are always visible,
-// except when the back button collapses the editor (see below).
+
+
+
 function showMobileEditor() {
   if (!isMobile()) return;
   document.getElementById('sidebar').classList.add('mobile-hidden');
@@ -4274,9 +4099,9 @@ function collapseMobileSidebar() {
   document.getElementById('app').classList.remove('editor-collapsed');
 }
 
-// Desktop "← назад": hides the editor and lets the note list take the
-// full width, acting as leaving the note. On mobile this is handled
-// by showMobileList() instead, so this only touches the desktop state.
+
+
+
 function goBackFromNote() {
   if (isMobile()) {
     showMobileList();
@@ -4285,9 +4110,7 @@ function goBackFromNote() {
   document.getElementById('app').classList.add('editor-collapsed');
 }
 
-/* =========================================================
-   NOTE LIST RENDERING
-   ========================================================= */
+
 
 function renderSidebar() {
   const plan = getCurrentPlan();
@@ -4303,9 +4126,16 @@ function renderSidebar() {
 
   const query = plan.perks.search ? document.getElementById('search-input').value.trim().toLowerCase() : '';
 
+
+
+
+
+
+  notes.forEach((n, i) => { n.__noteIdx = i; });
+
   let ordered = notes.slice();
   if (!plan.perks.pin) {
-    // if pin perk isn't active, ignore stored pinned flag for ordering
+
     ordered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
   }
 
@@ -4334,7 +4164,7 @@ function renderSidebar() {
   }
 
   visible.forEach((note, visibleIdx) => {
-    const idx = notes.indexOf(note);
+    const idx = note.__noteIdx;
     const isChecked = selectedNoteIds.has(note.id);
     const item = document.createElement('div');
     item.className = 'note-item'
@@ -4448,9 +4278,7 @@ async function renameNotePrompt(id) {
   if (activeNoteId === id) renderEditor();
 }
 
-/* =========================================================
-   EDITOR RENDERING
-   ========================================================= */
+
 
 function renderEditor() {
   const area = document.getElementById('editor-area');
@@ -4505,7 +4333,7 @@ function renderEditor() {
     const tagInput = document.createElement('input');
     tagInput.value = note.tag || '';
     tagInput.placeholder = 'тег';
-    tagInput.style.cssText = 'width:90px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:12px;padding:8px 10px;outline:none;min-height:38px;';
+    tagInput.style.cssText = 'width:90px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius-sm);color:var(--text-dim);font-family:"Nunito",sans-serif;font-size:12px;padding:8px 10px;outline:none;min-height:38px;';
     tagInput.oninput = () => { note.tag = tagInput.value.trim(); scheduleSave(); };
     tagInput.onblur = () => renderSidebar();
     actions.appendChild(tagInput);
@@ -4588,7 +4416,7 @@ function renderEditor() {
 
   textarea.oninput = () => {
     if (textarea.value.length > charLimit) {
-      // Превышение — обрезаем до разрешённого числа символов, не давая печатать дальше.
+
       const trimmedValue = textarea.value.slice(0, charLimit);
       const cursorAtEnd = textarea.selectionStart === textarea.value.length;
       textarea.value = trimmedValue + (cursorAtEnd ? '' : textarea.value.slice(trimmedValue.length));
@@ -4706,9 +4534,7 @@ function formatUpdated(ts) {
   return 'сохранено ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
 
-/* =========================================================
-   NOTE CRUD
-   ========================================================= */
+
 
 async function createNote() {
   if (notes.length >= getNoteLimit()) return;
@@ -4753,9 +4579,9 @@ async function deleteNote(id) {
   }
 
   logEvent('user_action', 'Удалена заметка', { note_id: id });
-  // Убираем заметку локально сразу, чтобы интерфейс обновился
-  // не дожидаясь ответа сервера (и даже если реального удаления
-  // из-за какой-то гонки/кеша не произойдёт при следующей загрузке).
+
+
+
   notes = notes.filter(n => n.id !== id);
   if (activeNoteId === id) {
     activeNoteId = notes.length > 0 ? notes[0].id : null;
@@ -4879,9 +4705,7 @@ function scheduleSave() {
   }, 600);
 }
 
-/* =========================================================
-   PRICING MODAL — notes
-   ========================================================= */
+
 
 function openPricing() {
   renderPricingGrid();
@@ -4952,20 +4776,9 @@ function openCheckout(planKey) {
   renderGenericCheckout(p, () => confirmPayment(planKey));
 }
 
-/* =========================================================
-   ADD-ON LIMITS/PERKS BUILDER
-   ---------------------------------------------------------
-   Lets the user drag a slider per limit above their CURRENT
-   plan's own included values (no upper cap beyond the field's
-   own max/step), and toggle perks not already included in the
-   plan, with the add-on price recalculated live from
-   calcCustomPrice(). On checkout this writes the four limit
-   override columns (final values, not deltas) plus a
-   custom_perks / custom_price pair to the user's profile row —
-   the plan itself (profiles.plan) never changes here.
-   ========================================================= */
 
-// Holds the in-progress selection while the builder modal is open.
+
+
 let customBuilderState = null;
 
 function openCustomBuilder() {
@@ -5104,8 +4917,8 @@ function proceedToCustomCheckout() {
 
 async function confirmCustomPayment(limits, perks, addOnPrice) {
   if (addOnPrice <= 0) {
-    // Nothing billable was added (e.g. only toggled off perks / lowered
-    // limits back to plan defaults) — apply immediately, no payment needed.
+
+
     currentProfile.limit_notes = limits.limit_notes;
     currentProfile.limit_chars = limits.limit_chars;
     currentProfile.limit_groups = limits.limit_groups;
@@ -5143,28 +4956,12 @@ async function confirmCustomPayment(limits, perks, addOnPrice) {
   redirectToYoomoney(label, addOnPrice, 'Тетрадь — докупка лимитов');
 }
 
-/* =========================================================
-   REAL PAYMENTS — via YooMoney (yoomoney.ru wallet), not a
-   simulation. Flow:
-     1. buildYoomoneyCheckout() creates a `payments` row with a
-        unique label and status 'pending', then redirects the
-        browser to YooMoney's quickpay form for that amount.
-     2. The user pays on yoomoney.ru (wallet or card).
-     3. YooMoney sends an HTTP notification to our Edge Function,
-        which verifies the signature and flips the row to 'paid'
-        AND applies the plan/limits server-side (service_role key,
-        bypasses RLS) — the browser never marks its own payment
-        as paid.
-     4. YooMoney redirects the user back to successURL (this same
-        page, with ?paid_label=... in the query string). We poll
-        the payments row for a few seconds waiting for status to
-        flip to 'paid', then refresh the UI.
-   ========================================================= */
+
 
 function generatePaymentLabel() {
-  // Random enough for this purpose; doesn't need to be cryptographically
-  // unguessable since the row itself is only ever flipped to 'paid' by
-  // the Edge Function after verifying YooMoney's signature.
+
+
+
   return 'pay_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
 }
 
@@ -5205,15 +5002,7 @@ function redirectToYoomoney(label, amount, description) {
   window.location.href = 'https://yoomoney.ru/quickpay/confirm?' + params.toString();
 }
 
-/* =========================================================
-   TEST PAYMENTS — admin-only shortcut that skips YooMoney
-   entirely, so you can verify the whole pipeline (payments row
-   -> profile update) without spending real money. Calls the
-   `admin_mark_payment_paid` SQL function (see PAYMENTS_SETUP_README
-   in the source comments), which checks profiles.is_admin itself
-   server-side — the browser has no direct permission to flip a
-   payment to 'paid', on purpose, even for admins.
-   ========================================================= */
+
 async function simulatePayment(label) {
   if (!currentProfile || !currentProfile.is_admin) return;
   const { error } = await db.rpc('admin_mark_payment_paid', { p_label: label });
@@ -5226,19 +5015,19 @@ async function simulatePayment(label) {
   return true;
 }
 
-// Called on page load if the URL contains ?paid_label=... (i.e. we've
-// just been redirected back from YooMoney). Polls the payments row for
-// up to ~20 seconds, since the HTTP notification to our Edge Function
-// can arrive a few seconds after the redirect.
+
+
+
+
 async function checkReturnFromYoomoney() {
   const url = new URL(window.location.href);
   const label = url.searchParams.get('paid_label');
   if (!label) return;
 
-  // Clean the query string immediately so refreshing doesn't re-trigger this.
+
   history.replaceState(null, '', window.location.pathname);
 
-  if (!currentUser) return; // shouldn't happen, but guard just in case
+  if (!currentUser) return;
 
   openPricing();
   const card = document.getElementById('pricing-card');
@@ -5327,10 +5116,10 @@ async function confirmPayment(planKey) {
   redirectToYoomoney(label, p.price, `Тетрадь — план «${p.name}»`);
 }
 
-// Admin-only: creates the same pending payments row as a real purchase,
-// then immediately marks it paid via admin_mark_payment_paid() instead
-// of redirecting to YooMoney — lets you test the full pipeline (row ->
-// profile update -> UI refresh) without spending real money.
+
+
+
+
 async function confirmPaymentTest(planKey) {
   const p = PLANS[planKey];
   const label = await buildYoomoneyCheckout({ amount: p.price, kind: 'plan', planKey });
@@ -5356,10 +5145,10 @@ function showPaymentSuccess(p, subMessage) {
   `;
 }
 
-// Switching to a new plan (including downgrading to free) clears any
-// previously purchased add-on: the add-on's limits/perks were priced
-// relative to the OLD plan's own included limits, so carrying them over
-// would silently misprice (or double-count) them against the new plan.
+
+
+
+
 async function setUserPlan(planKey) {
   currentProfile.plan = planKey;
   const clearFields = { plan: planKey, custom_perks: null, custom_price: 0 };
@@ -5369,24 +5158,12 @@ async function setUserPlan(planKey) {
   await db.from('profiles').update(clearFields).eq('id', currentUser.id);
 }
 
-/* =========================================================
-   ADMIN PANEL
-   ---------------------------------------------------------
-   Everything here is gated by profiles.is_admin, checked
-   client-side for UI purposes only. The real access control
-   MUST live in Supabase Row Level Security policies — a
-   client-side check can be bypassed by anyone editing the
-   page's JS. Without a matching RLS policy that allows admins
-   to write to other users' rows, every write below will be
-   rejected by Supabase and simply fail (the panel will show
-   an error). See the SQL block referenced in comments further
-   down for the policies this panel assumes exist.
-   ========================================================= */
 
-let adminLookupResult = null; // profile row of the currently loaded target user
+
+let adminLookupResult = null;
 let adminLookupNotesExpanded = false;
-let adminPanelTab = 'users'; // 'users' | 'logs'
-let adminLogsCategory = 'all'; // 'all' | 'auth' | 'payment' | 'user_action' | 'error'
+let adminPanelTab = 'users';
+let adminLogsCategory = 'all';
 
 function openAdminPanel() {
   if (!currentProfile || !currentProfile.is_admin) return;
@@ -5471,7 +5248,7 @@ async function loadAdminLogs() {
   const { data, error } = await query;
 
   const listEl = document.getElementById('admin-logs-list');
-  if (!listEl) return; // panel closed/tab switched while loading
+  if (!listEl) return;
 
   if (error) {
     listEl.innerHTML = `<div class="admin-error">Не удалось загрузить логи: ${escapeHtml(error.message)}</div>`;
@@ -5512,7 +5289,7 @@ async function runAdminSearch() {
   const resultEl = document.getElementById('admin-result');
   resultEl.innerHTML = `<div class="admin-empty loading-pulse">Поиск…</div>`;
 
-  // UUIDs look like 8-4-4-4-12 hex; anything else is treated as a name search.
+
   const looksLikeUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query);
 
   let rows = [];
@@ -5534,7 +5311,7 @@ async function runAdminSearch() {
     return;
   }
 
-  // Multiple name matches — let the admin pick one.
+
   resultEl.innerHTML = rows.map(r => `
     <div class="recent-group-item" onclick="selectAdminUserById('${r.id}')">
       <span class="recent-group-name">${escapeHtml(r.display_name || '(без имени)')}</span>
@@ -5618,8 +5395,8 @@ async function renderAdminUserCard() {
         const overrideVal = u[f.column];
         const isOverridden = overrideVal !== null && overrideVal !== undefined && overrideVal !== '';
         const currentVal = isOverridden ? Number(overrideVal) : base[f.planKey];
-        // Slider range should comfortably fit both the field's global bounds
-        // and the plan's own default, so dragging never starts off-scale.
+
+
         const sliderMax = Math.max(f.max, base[f.planKey] * 2);
         return `
           <div class="admin-limit-row">
@@ -5686,8 +5463,8 @@ async function adminSetPlan(userId, planKey) {
   await renderAdminUserCard();
 }
 
-// Keeps a limit field's slider and number input mirrored — whichever one
-// the admin just touched drives the other, then both are clamped to range.
+
+
 function syncAdminLimitInputs(column, value, source) {
   const field = LIMIT_OVERRIDE_FIELDS.find(f => f.column === column);
   if (!field) return;
@@ -5767,9 +5544,7 @@ async function adminToggleAdmin(userId, nextValue) {
   await renderAdminUserCard();
 }
 
-/* =========================================================
-   GROUPS
-   ========================================================= */
+
 
 async function getOwnedGroupsCount() {
   const { count } = await db
@@ -5811,9 +5586,9 @@ async function renderGroupsPanel() {
 
   const plan = getCurrentPlan();
 
-  // Run both queries in parallel instead of one after another — this
-  // was the main cause of the visible "Загрузка…" delay, since the
-  // two requests don't depend on each other's results.
+
+
+
   const [owned, recentResult] = await Promise.all([
     getOwnedGroupsCount(),
     db
@@ -6033,8 +5808,12 @@ async function deleteGroup(groupId, groupName) {
   );
   if (!ok) return;
 
-  await db.from('group_posts').delete().eq('group_id', groupId);
-  await db.from('recent_groups').delete().eq('group_id', groupId);
+
+
+  await Promise.all([
+    db.from('group_posts').delete().eq('group_id', groupId),
+    db.from('recent_groups').delete().eq('group_id', groupId),
+  ]);
 
   const { error } = await db
     .from('groups')
@@ -6071,15 +5850,13 @@ async function exitGroupView() {
   showMobileList();
 }
 
-/* =========================================================
-   GROUP MANAGEMENT (owner only): rename, password, members
-   ========================================================= */
+
 
 async function buildGroupManagePanel(g, posts) {
   const panel = document.createElement('div');
   panel.className = 'group-manage-panel';
 
-  // ---- rename ----
+
   const renameRow = document.createElement('div');
   renameRow.className = 'group-manage-row';
   renameRow.innerHTML = `
@@ -6097,7 +5874,7 @@ async function buildGroupManagePanel(g, posts) {
   renameRow.appendChild(renameActions);
   panel.appendChild(renameRow);
 
-  // ---- password ----
+
   const isProtected = !!g.password_hash;
   const passRow = document.createElement('div');
   passRow.className = 'group-manage-row';
@@ -6133,11 +5910,11 @@ async function buildGroupManagePanel(g, posts) {
   passRow.appendChild(passActions);
   panel.appendChild(passRow);
 
-  // ---- members ----
-  // There's no separate membership table — the practical notion of a
-  // "member" here is anyone who has posted in the group. Removing a
-  // member clears their messages from this group and unlists it from
-  // their recent groups, so it disappears from their sidebar too.
+
+
+
+
+
   const membersWrap = document.createElement('div');
   membersWrap.className = 'group-manage-row';
   membersWrap.style.flexDirection = 'column';
@@ -6150,7 +5927,7 @@ async function buildGroupManagePanel(g, posts) {
 
   const membersById = new Map();
   posts.forEach(p => {
-    if (p.author_id === g.owner_id) return; // owner isn't listed as a removable "member"
+    if (p.author_id === g.owner_id) return;
     if (!membersById.has(p.author_id)) membersById.set(p.author_id, p.author_name);
   });
 
@@ -6222,8 +5999,11 @@ async function removeGroupMember(g, authorId, authorName) {
   );
   if (!ok) return;
 
-  await db.from('group_posts').delete().eq('group_id', g.id).eq('author_id', authorId);
-  await db.from('recent_groups').delete().eq('group_id', g.id).eq('user_id', authorId);
+
+  await Promise.all([
+    db.from('group_posts').delete().eq('group_id', g.id).eq('author_id', authorId),
+    db.from('recent_groups').delete().eq('group_id', g.id).eq('user_id', authorId),
+  ]);
 
   await renderGroupArea();
 }
@@ -6238,9 +6018,9 @@ async function renderGroupArea() {
 
   area.innerHTML = `<div class="editor-empty"><div class="editor-empty-title loading-pulse">Загрузка…</div></div>`;
 
-  // All three queries only need activeGroupId / currentUser.id, none
-  // depend on each other's results — run them in parallel instead of
-  // one after another to cut the visible loading time roughly by half.
+
+
+
   const [groupResult, postsResult, myCount] = await Promise.all([
     db.from('groups').select('*').eq('id', activeGroupId).single(),
     db.from('group_posts').select('*').eq('group_id', activeGroupId).order('created_at', { ascending: true }),
@@ -6404,20 +6184,18 @@ function formatGroupTime(ts) {
   return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + ' ' + time;
 }
 
-/* =========================================================
-   INIT — restore session if present
-   ========================================================= */
+
 
 (async function init() {
   loadTheme();
   switchTab('login');
   setupPasswordRecoveryListener();
 
-  // If the page was just opened via a password-recovery email link,
-  // Supabase's client will fire PASSWORD_RECOVERY shortly after this
-  // via onAuthStateChange (handled above) — but we also check the URL
-  // directly here so the reset form shows immediately without a flash
-  // of the normal login form first.
+
+
+
+
+
   if (passwordRecoveryLinkPresent()) {
     switchTab('reset');
   }
